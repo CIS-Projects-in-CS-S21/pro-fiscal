@@ -13,9 +13,9 @@ As a core principle Fiscal will be focused on providing tools and personal finan
 It will be necessary to find a hosting platform for Fiscal.  Research will need to be conducted to identify an option suitable to the needs of the project and the technology stack.  I have only introductory experience using Django and will need to become more comfortable with the framework.  Fiscal will require a securities API like Alpha Vantage to provide historical data for the Monte Carlo Simulation.  Both of the machine learning tasks will require the creation or acquisition of a suitable dataset for training the models.
 
 # Contributors
-Christopher Scott
-Jason Duong
-Tizita Hailu
-Harith Siddiqui
-Benjamin Levin
+* Christopher Scott
+* Jason Duong
+* Tizita Hailu
+* Harith Siddiqui
+* Benjamin Levin
 
