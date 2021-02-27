@@ -11,5 +11,8 @@ __pycache__
 .vscode/*
 .history
 
+# NPM #
+fiscal/node_modules
+
 # Environments
 env/
