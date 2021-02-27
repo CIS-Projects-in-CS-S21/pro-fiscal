@@ -1,9 +1,11 @@
 # Setting up the Environment and Dependencies
 
 1. Clone the repository to your local system
-2. navigate to the project directory ('pro-fiscal')
+2. Navigate to the project directory ('pro-fiscal')
 3. Create a new virtual environment while using Python 3.8.8
 4. Use pip to install the dependencies using the requirements.txt file
+5. Navigate to the fiscal directory
+6. Install the required node modules
 
 *We are calling the virtual environment directory "env"*
 
@@ -11,8 +13,11 @@ On Mac or Linux:
 
 - `mkdir env`
 - `python3 -m venv env`
+    - The command for python 3.8 may be different on your system
 - `source env/bin/activate`
 - `pip install -r requirements.txt`
+- `cd fiscal`
+- `npm install`
 
 On Windows:
 
@@ -20,6 +25,8 @@ On Windows:
 - `python -m venv env`
 - `.\env\Scripts\activate.bat`
 - `pip install -r requirements.txt`
+- `cd fiscal`
+- `npm install`
 
 The virtual environment can be deactivated using `deactivate env`.
 
