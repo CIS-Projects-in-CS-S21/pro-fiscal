@@ -17,6 +17,7 @@ On Mac or Linux:
 - `source env/bin/activate`
 - `pip install -r requirements.txt`
 - `cd fiscal`
+    - pro-fiscal/fiscal
 - `npm install`
 
 On Windows:
@@ -26,10 +27,18 @@ On Windows:
 - `.\env\Scripts\activate.bat`
 - `pip install -r requirements.txt`
 - `cd fiscal`
+    - pro-fiscal/fiscal
 - `npm install`
 
 The virtual environment can be deactivated using `deactivate env`.
 
+## Running:
+
+- Activate the python venv
+- `cd fiscal`
+    - pro-fiscal/fiscal
+- `python manage.py runserver`
+    - The command for python 3.8 may be different on your system
 
 # Project overview
 
