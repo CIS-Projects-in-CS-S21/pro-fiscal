@@ -32,7 +32,6 @@ On Windows:
 
 The virtual environment can be deactivated using `deactivate env`.
 
-<<<<<<< HEAD
 ## Running:
 
 - Activate the python venv
@@ -40,7 +39,7 @@ The virtual environment can be deactivated using `deactivate env`.
     - pro-fiscal/fiscal
 - `python manage.py runserver`
     - The command for python 3.8 may be different on your system
-=======
+
 # Generating the Documentation
 
 ## Frontend
@@ -51,7 +50,6 @@ On Windows, run the following command:
 Where each argument after jsdoc is a JS file referenced by its location relative to the current directory.
 
 ## Backend
->>>>>>> ac43f575ae7b57902a9924f03ce3986a214becfe
 
 # Project overview
 
