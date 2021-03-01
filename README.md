@@ -30,6 +30,16 @@ On Windows:
 
 The virtual environment can be deactivated using `deactivate env`.
 
+# Generating the Documentation
+
+## Frontend
+To generate the documentation for the frontend via `jsdoc`, follow the instructions here:
+
+On Windows, run the following command:
+![Documentation](images/Run.JPG)
+Where each argument after jsdoc is a JS file referenced by its location relative to the current directory.
+
+## Backend
 
 # Project overview
 
