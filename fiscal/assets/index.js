@@ -4,19 +4,18 @@ import _ from 'lodash';
  * A function that returns the contents of the base page. 
  * @constructor
  */
-function component() {
+function render_component() {
     const element = document.createElement('div');
     element.innerHTML = _.join(['Hello', 'lodash'], ' ');
     return element;
 }
 
 /**
- * Function that given a user's credentials, create a new account.
- * @param {string} username
- * @param {string} password
- * @param {string} password_verify
- * @returns {Promise} Promise object represents the status of the account
- * @throws Will throw an error if password and password_verify are not equal
+ * A function that adjusts what is displayed on the page based on the url.
+ * @throws Will throw an error if an invalid route is passed in.
  */
+function routing_function(route) {
 
-document.body.appendChild(component());
+}
+
+document.body.appendChild(render_component());
