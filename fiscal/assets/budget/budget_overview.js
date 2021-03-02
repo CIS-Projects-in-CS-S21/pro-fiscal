@@ -1,6 +1,6 @@
 /**
  * Function that fetches expense items from the database based on the provided user id.
- * @param {id} user_id ID of the user.
+ * @param {int} user_id ID of the user.
  * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
  * @returns {Array} Collection of budget items associated with the user.
  */
@@ -52,7 +52,7 @@ function update_item (expense_id, expense) {
 
 /**
  * Function that deletes the item with the given expense_id from the database.
- * @param {int} expense_id ID of the expense
+ * @param {int} expense_id ID of the expense.
  * @throws {InvalidArgumentException} If expense_id is NaN, null, etc.
  * @throws Will throw an error if the expense item with the given expense_id cannot be found.
  */
