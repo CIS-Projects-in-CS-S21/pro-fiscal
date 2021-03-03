@@ -16,3 +16,19 @@ function find_user_by_email (email) {
 function match_passwords (email, password) {
     
 }
+
+/**
+ * Function that displays the input form for the user to login.
+ * @returns {Form} A form that the user can input their credentials to login.
+ */
+function loginInterface() {
+
+}
+
+/**
+ * Function that signs the user out.
+ * @returns {string} A confirmation message is returned stating that the user has logged out.
+ */
+function logoutInterface() {
+
+}
