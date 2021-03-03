@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 
 class Classifier_API(APIView):
     """
-    Facilates data transfer from the monte_carlo class
+    Facilitates data transfer from the Classifier class
 
     Attributes:
         classifier (Classifier): The classifier algorithm object
@@ -15,8 +15,7 @@ class Classifier_API(APIView):
         """
         Initializes the Classifier_API object
         """
-        self.__classifier = None
-        self.__request_data = None
+        pass
     
     def get(self, request, key):
         """
