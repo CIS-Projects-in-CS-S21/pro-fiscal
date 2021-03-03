@@ -28,3 +28,47 @@ class PortfolioList(APIView):
             Response: JSON formatted data and HTTP status
         """
         pass
+
+class PortfolioDetail(APIView):
+    """
+    Get, update, or delete an individual portfolio account
+    """
+
+    def get(self, request, key):
+        """
+        Get the specified portfolio account
+
+        Args:
+            request (HttpRequest): The request object from an HTTP request
+            key (int): The primary key of the portfolio account
+
+        Returns:
+            Response: JSON formatted data
+        """
+        pass
+
+    def put(self, request, key):
+        """
+        Update the specified portfolio account
+
+        Args:
+            request (HttpRequest): The request object from an HTTP request
+            key (int): The primary key of the portfolio account
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
+        pass
+
+    def delete(self, request, key):
+        """
+        Delete the specified portfolio account
+
+        Args:
+            request (HttpRequest): The request object from an HTTP request
+            key (int): The primary key of the portfolio account
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
+        pass

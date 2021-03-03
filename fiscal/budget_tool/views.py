@@ -28,3 +28,47 @@ class ExpenseList(APIView):
             Response: JSON formatted data and HTTP status
         """
         pass
+
+class ExpenseDetail(APIView):
+    """
+    Get, update, or delete an individual expense
+    """
+
+    def get(self, request, key):
+        """
+        Get the specified expense
+
+        Args:
+            request (HttpRequest): The request object from an HTTP request
+            key (int): The primary key of the expense
+
+        Returns:
+            Response: JSON formatted data
+        """
+        pass
+
+    def put(self, request, key):
+        """
+        Update the specified expense
+
+        Args:
+            request (HttpRequest): The request object from an HTTP request
+            key (int): The primary key of the expense
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
+        pass
+
+    def delete(self, request, key):
+        """
+        Delete the specified expense
+
+        Args:
+            request (HttpRequest): The request object from an HTTP request
+            key (int): The primary key of the expense
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
+        pass
