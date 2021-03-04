@@ -31,9 +31,16 @@ class Monte_carlo_API(APIView):
         """
         pass
 
-    #Need to ask about this one
     def __aggregate_data(self, request_data, key):
         """
+        Combines the request data and stores it in the corresponding key
 
+        Arguments:
+            request_data (list): A list holding the request data to be combined
+            key (string): The name of the user to store the combined request data
+                under
+        
+        Returns:
+            dict: A dictionary container the key value pair of the aggregated data
         """
         pass
