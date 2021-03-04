@@ -4,6 +4,6 @@
  * @returns {Array} - Rendered component an Array containing the list of FAQs and their answers.
  * @throws {InvalidArgumentException} - If expense is not an array, contains no items, null, etc.
  */
-function how_to_use (faqs) {
+function render_guide (faqs) {
 
 }
