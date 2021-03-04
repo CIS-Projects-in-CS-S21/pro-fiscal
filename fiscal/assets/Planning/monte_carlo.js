@@ -5,7 +5,6 @@
  */
 function Render_future_value(forecast_data)
 }
-
 /**
  * Function that give a collection of future value of data.
  * @returns {array} return a collection of forecast amount of data.
@@ -13,3 +12,10 @@ function Render_future_value(forecast_data)
  */
 function future_value_chart (forecast_data) {
 }
+
+
+
+
+
+
+
