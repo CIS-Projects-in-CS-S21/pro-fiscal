@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from planning_tool.models import Portfolio, Holding
+# from planning_tool.models import Portfolio, Holding
 
 class PortfolioSerializer(serializers.ModelSerializer):
     """

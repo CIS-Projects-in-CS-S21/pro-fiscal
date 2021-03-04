@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from debt_tool.models import Debt
+# from debt_tool.models import Debt
 
 class DebtSerializer(serializers.ModelSerializer):
     """
