@@ -18,7 +18,7 @@ function submit_form () {
 
 /**
  * Function that adds a debt item to the database.
- * @param {Object} Debt Item consisting of a user's ID, current balance, loan interest rate, description, and monthly contributions.
+ * @param {Object} debt Item consisting of a user's ID, current balance, loan interest rate, description, and monthly contributions.
  * @returns {Object} Returns an expense item, but with additional information about its spending category as dictated by the Budget Classifier.
  * @throws Will throw an error if null or an empty debt object is inputted.
  * @throws Will throw an error if a user_id is not provided, NaN, null, etc.
@@ -29,7 +29,7 @@ function add_new_loan (debt) {
 
 /**
  * Function that creates and renders the form for updating a debt item, preloading in existing data.
- * @param {Object} Debt Item consisting of a user's current balance, loan interest rate, description, and monthly contributions.
+ * @param {Object} debt Item consisting of a user's current balance, loan interest rate, description, and monthly contributions.
  * @returns {Form} Returns a debt item form for the user to update.
  */
 function update_form (debt) {
@@ -52,7 +52,7 @@ function update_loan (debt_id, debt) {
 
 /**
  * Function that deletes the item with the given debt_id from the database.
- * @param {int} debt_id ID of the debt item
+ * @param {int} debt_id ID of the debt item.
  * @throws {InvalidArgumentException} If debt_id is NaN, null, etc.
  * @throws Will throw an error if the debt item with the given debt_id cannot be found.
  */

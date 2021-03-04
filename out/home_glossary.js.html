@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: account/login.js</title>
+    <title>JSDoc: Source: home/glossary.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: account/login.js</h1>
+    <h1 class="page-title">Source: home/glossary.js</h1>
 
     
 
@@ -27,37 +27,22 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Function that attempts to find if a user with the associated email exists.
- * @param {string} email The email associated with the account the user wants to obtain account information.
- * @returns {boolean} Verifies whether the inputted email is in the database.
+ * Function that displays a list of finance terms for the user to look up.
+ * @param {Array} - takes in an array of JSON Objects that are essentially glossary terms.
+ * @returns {Element} - Rendered component an Array containing the list of glossary terms and their definitions.
+ * @throws {InvalidArgumentException} If expense is not an array, contains no items, null, etc.
  */
-function find_user_by_email (email) {
-    
-}
-
-/**
- * Function that given a user's credentials, attempts to login.
- * @param {string} email The email associated with the account the user wants to log into.
- * @param {string} password The password associated with the account the user wants to log into.
- * @returns {boolean} Determines whether or not the user is able to access the account in question.
- */
-function match_passwords (email, password) {
-    
-}
-
-/**
- * Function that displays the input form for the user to login.
- * @returns {Form} A form that the user can input their credentials to login.
- */
-function loginInterface() {
+function read_glossary_from_json_file (glossary) {
 
 }
 
-/**
- * Function that signs the user out.
- * @returns {string} A confirmation message is returned stating that the user has logged out.
+ /**
+ * Function that given an Array of glossary terms and their definitions as a rendered component, filters items by their category.
+ * @param {Array} - takes in an array of JSON Objects that are glossary terms.
+ * @returns {Array} - JSON object of grouped glossary values based on category.
+ * @throws {InvalidArgumentException} - If expense is not an array, contains no items, null, etc.
  */
-function logoutInterface() {
+function filter_glossary_items (glossary) {
 
 }</code></pre>
         </article>
