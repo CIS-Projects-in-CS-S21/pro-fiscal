@@ -1,6 +1,6 @@
 /**
  * Function that fetches debt items from the database based on the provided user id.
- * @param {id} user_id ID of the user.
+ * @param {int} user_id ID of the user.
  * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
  * @returns {Array} Collection of debt items associated with the user.
  */
