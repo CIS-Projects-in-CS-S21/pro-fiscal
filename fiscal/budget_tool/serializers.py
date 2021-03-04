@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from budget_tool.models import Expense
+# from budget_tool.models import Expense
 
 class ExpenseSerializer(serializers.ModelSerializer):
     """
