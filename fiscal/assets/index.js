@@ -12,6 +12,7 @@ function render_component() {
 
 /**
  * A function that adjusts what is displayed on the page based on the url.
+ * @param {string} route The route that will be used to adjust the page the website is on.
  * @throws Will throw an error if an invalid route is passed in.
  */
 function routing_function(route) {
