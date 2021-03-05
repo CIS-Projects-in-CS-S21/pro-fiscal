@@ -1,10 +1,45 @@
+{% load static %}
 <!doctype html>
 <html>
-    <head>
-        <title>Integrating Webpack with Django</title>
-        {% load static %}
-    </head>
-    <body>
-        <script src="{% static 'index-bundle.js' %}"></script>
-    </body>
+
+<head>
+    <title>Fiscal</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+    <!--
+        <link rel="stylesheet" href="{% static 'css/dropdown.css' %}" />
+    -->
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+</head>
+
+<body>
+    <div id ="titleNav">
+        <div id = "title">
+            Fiscal
+        </div>
+
+        <div id ="nav">
+            <div class="link_item">
+                <a>Glossary</a>
+            </div>
+            <div class="link_item">
+                <a>How to Use</a>
+            </div>
+            <div class="link_item">
+                <a>Profile</a>
+            </div>
+            <div class="link_item">
+                <a>Login / Logout</a>
+                <!-- (Flips depending on Login status) -->
+            </div>
+        </div>
+    </div>
+    <div id="content">
+
+    </div>
+    <script src="{% static 'index-bundle.js' %}"></script>
+</body>
+
 </html>
