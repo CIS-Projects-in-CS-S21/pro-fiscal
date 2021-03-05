@@ -1,0 +1,18 @@
+# Django # 
+*.log
+*.pot
+*.pyc
+__pycache__
+
+# PyCharm #
+.idea/
+
+# Visual Studio Code # 
+.vscode/*
+.history
+
+# NPM #
+fiscal/node_modules
+
+# Environments
+env/

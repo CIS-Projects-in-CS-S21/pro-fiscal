@@ -1,3 +1,56 @@
+# Setting up the Environment and Dependencies
+
+1. Clone the repository to your local system
+2. Navigate to the project directory ('pro-fiscal')
+3. Create a new virtual environment while using Python 3.8.8
+4. Use pip to install the dependencies using the requirements.txt file
+5. Navigate to the fiscal directory
+6. Install the required node modules
+
+*We are calling the virtual environment directory "env"*
+
+On Mac or Linux:
+
+- `mkdir env`
+- `python3 -m venv env`
+    - The command for python 3.8 may be different on your system
+- `source env/bin/activate`
+- `pip install -r requirements.txt`
+- `cd fiscal`
+    - pro-fiscal/fiscal
+- `npm install`
+
+On Windows:
+
+- `mkdir env`
+- `python -m venv env`
+- `.\env\Scripts\activate.bat`
+- `pip install -r requirements.txt`
+- `cd fiscal`
+    - pro-fiscal/fiscal
+- `npm install`
+
+The virtual environment can be deactivated using `deactivate env`.
+
+## Running:
+
+- Activate the python venv
+- `cd fiscal`
+    - pro-fiscal/fiscal
+- `python manage.py runserver`
+    - The command for python 3.8 may be different on your system
+
+# Generating the Documentation
+
+## Frontend
+To generate the documentation for the frontend via `jsdoc`, follow the instructions here:
+
+On Windows, run the following command:
+![Documentation](images/Run.JPG)
+Where each argument after jsdoc is a JS file referenced by its location relative to the current directory.
+
+## Backend
+
 # Project overview
 
 ### Abstract
@@ -18,4 +71,3 @@ It will be necessary to find a hosting platform for Fiscal.  Research will need 
 * Tizita Hailu
 * Harith Siddiqui
 * Benjamin Levin
-
