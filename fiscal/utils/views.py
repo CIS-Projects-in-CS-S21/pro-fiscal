@@ -1,64 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 
-
-class User_Profile(APIView):
-    """
-    Get, update, create, or delete a user
-    """
-
-    def get(self, request, key):
-        """
-        Get the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data
-        """
-        pass
-
-    def put(self, request, key):
-        """
-        Update the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        """
-        pass
-
-    def post(self, request):
-        """
-        Add a new user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        """
-        pass
-
-    def delete(self, request, key):
-        """
-        Delete the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        """
-        pass
-
-
 class Classifier_API(APIView):
     """
     Facilitates data transfer from the Classifier class
