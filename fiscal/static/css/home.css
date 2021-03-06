@@ -2,7 +2,7 @@
 
 body {
     font-family: serif;
-    background: #9DCC5F;
+    background: #F5F9F1;
     color: #3F3636;
 }
 
@@ -60,8 +60,8 @@ a:focus {
     left: 0;
     height: 100vh;
     z-index: 999;
-    background: #335120;
-    color: #fff;
+    background: #4F5B7B;
+    color: #F5F9F1;
     transition: all 0.3s;
 }
 
@@ -79,7 +79,7 @@ a:focus {
 }
 
 #sidebar ul p {
-    color: #fff;
+    color: #72889F;
     padding: 10px;
 }
 
@@ -90,8 +90,8 @@ a:focus {
 }
 
 #sidebar ul li a:hover {
-    color: #558636;
-    background: #fff;
+    color: #72889F;
+    background: #F5F9F1;
 }
 
 a[data-toggle="collapse"] {
@@ -109,7 +109,7 @@ a[data-toggle="collapse"] {
 ul ul a {
     font-size: 0.9em !important;
     padding-left: 30px !important;
-    background: #335120;
+    background: #72889F;
 }
 
 /* ---------------------------------------------------
