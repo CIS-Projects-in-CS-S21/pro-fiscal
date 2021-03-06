@@ -31,6 +31,10 @@ a:focus {
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.navbar h2 {
+    color: #FFFFFF;
+}
+
 .navbar-btn {
     box-shadow: none;
     outline: none !important;
@@ -75,7 +79,6 @@ a:focus {
 
 #sidebar ul.components {
     padding: 20px 0;
-    border-bottom: 1px solid #47748b;
 }
 
 #sidebar ul p {
@@ -135,7 +138,7 @@ ul ul a {
 }
 
 #content a:visited {
-    color: #2C95F8;
+    color: #72889F;
 }
 
 #content a:hover {
