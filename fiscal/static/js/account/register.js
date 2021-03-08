@@ -32,3 +32,16 @@ function verify_matching_passwords (password, password_verify) {
 function create_security_questions (questions, answers) {
     
 }
+
+/**
+ * Renders the registration component of the website.
+ */
+function register () {
+    let content = `
+        <h2>Register for an Account on Fiscal!</h2>
+    `;
+
+    let elem = document.createElement("div");
+    elem.innerHTML = content;
+    return elem;
+}
