@@ -38,7 +38,7 @@ class HoldingSerializer(serializers.ModelSerializer):
     Attributes:
         type (Serializer): The serializer for the related security type
     """
-    type = Security_Type(many=False)
+    type = Security_Type()
 
     class Meta:
         """
@@ -47,7 +47,7 @@ class HoldingSerializer(serializers.ModelSerializer):
             fields (list): A list of the fields in the Holding model
         """
         model = Holding
-        fields = ['id', 'portfolio', 'type', 'ticker', 'price', 'shares', 'purchase_date', 'cost_basis']
+        fields = ['id', 'portfolio', 'security_type', 'ticker', 'price', 'shares', 'purchase_date', 'cost_basis']
 
 class PortfolioSerializer(serializers.ModelSerializer):
     """
@@ -58,7 +58,7 @@ class PortfolioSerializer(serializers.ModelSerializer):
         type (Serializer): The serializer for the related security type
     """
     holdings = HoldingSerializer(many=True)
-    type = Account_Type(many=False)
+    type = Account_Type()
 
     class Meta:
         """
@@ -67,5 +67,5 @@ class PortfolioSerializer(serializers.ModelSerializer):
             fields (list): A list of the fields in the Portfolio model
         """
         model = Portfolio
-        fields = ['id', 'user', 'type', 'name', 'description', 'balance', 'holdings']
+        fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'holdings']
 
