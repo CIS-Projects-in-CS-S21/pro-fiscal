@@ -1,0 +1,52 @@
+{
+    "id": 1,
+    "username": "Test",
+    "portfolio_accounts": [
+        {
+            "id": 1,
+            "user": 1,
+            "account_type": "IRA",
+            "name": "MyTestAccount",
+            "description": "Just a Test",
+            "balance": "100.00",
+            "holdings": [
+                {
+                    "id": 1,
+                    "portfolio": 1,
+                    "security_type": {
+                        "id": 1,
+                        "type": "Stock"
+                    },
+                    "ticker": "GOOG",
+                    "price": "1000.00",
+                    "shares": "20.00",
+                    "purchase_date": null,
+                    "cost_basis": null
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "user": 1,
+            "account_type": "Brokerage",
+            "name": "MyTestAccount2",
+            "description": "Just another Test",
+            "balance": "200.00",
+            "holdings": [
+                {
+                    "id": 2,
+                    "portfolio": 1,
+                    "security_type": {
+                        "id": 1,
+                        "type": "Stock"
+                    },
+                    "ticker": "TEST",
+                    "price": "1250.00",
+                    "shares": "50.00",
+                    "purchase_date": "2021-03-02",
+                    "cost_basis": null
+                }
+            ]
+        }
+    ]
+}

@@ -44,7 +44,7 @@
                         class="dropdown-toggle">Long-Term Planning</a>
                     <ul class="collapse list-unstyled" id="planningSubmenu">
                         <li>
-                            <a href="#">Portfolio Overview</a>
+                            <a href="#/portfolio-overview">Portfolio Overview</a>
                         </li>
                         <li>
                             <a href="#">Manage Portfolios</a>
@@ -112,8 +112,8 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item dropdown">
-                                <a class="nav-link" href="#" id="navbarDropdown" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
                                     Account
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -137,8 +137,8 @@
 
             <!-- {% block content %}{% endblock %} -->
 
-            <div id = "insert-data-here">
-                
+            <div id="insert-data-here">
+
             </div>
         </div>
     </div>
@@ -161,8 +161,9 @@
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
+    <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
-    
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#sidebar").mCustomScrollbar({
@@ -184,12 +185,13 @@
 
         myRoutes['#/home'] = home;
         myRoutes['#/register'] = register;
+        myRoutes['#/portfolio-overview'] = render_portfolio_overview;
 
         routeFW({
             routeArray: myRoutes,
             contentID: "insert-data-here",
             startLink: "#/home"
-        })
+        });
     </script>
 </body>
 
