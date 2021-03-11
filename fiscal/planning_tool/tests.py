@@ -56,18 +56,6 @@ class SerializerTest(TestCase):
         serializer = PortfolioSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-    def test_holding_validity(self):
-        data = {
-            'portfolio': 1,
-            'security_type': None,
-            'ticker': 'GNMA',
-            'price': 1000.00,
-            'shares': 1.5
-        }
-
-        serializer = HoldingSerializer(data=data)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-
     def test_portfolio_create(self):
         data = {
             'user': 1,
@@ -98,6 +86,43 @@ class SerializerTest(TestCase):
         self.assertEqual((set(data.keys())),
                          set(self.acct_attr.keys()).union(['holdings']), "Portfolio contained unexpected fields")
 
+    def test_holding_validity(self):
+        data = {
+            'portfolio': 1,
+            'security_type': None,
+            'ticker': 'GNMA',
+            'price': 1000.00,
+            'shares': 1.5
+        }
+
+        serializer = HoldingSerializer(data=data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_holding_create(self):
+        data = {
+            'portfolio': 1,
+            'security_type': None,
+            'ticker': 'GNMA',
+            'price': 1000.00,
+            'shares': 1.5
+        }
+        serializer = HoldingSerializer(data=data)
+        serializer.is_valid()
+        self.assertTrue(serializer.save(), serializer.errors)
+
+    def test_holding_update(self):
+        data = {
+            'portfolio': 1,
+            'security_type': None,
+            'ticker': 'GNMA',
+            'price': 1000.00,
+            'shares': 1.5
+        }
+        existing_holding = Holding.objects.first()
+        serializer = HoldingSerializer(existing_holding, data=data)
+        serializer.is_valid()
+        self.assertTrue(serializer.save(), serializer.errors)
+
     def test_holding_contains_expected_fields(self):
         data = self.holding_serializer.data
         self.assertEqual((set(data.keys())),
@@ -105,6 +130,5 @@ class SerializerTest(TestCase):
 
     def test_user_contains_expected_fields(self):
         data = self.user_serializer.data
-        # print(data)
         self.assertEqual((set(data.keys())),
                          set(['id', 'username', 'portfolio_accounts']), "User contained unexpected fields")
