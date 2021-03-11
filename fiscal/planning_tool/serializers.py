@@ -1,5 +1,7 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type
+
 
 class Security_TypeSerializer(serializers.ModelSerializer):
     """
@@ -36,9 +38,9 @@ class HoldingSerializer(serializers.ModelSerializer):
     A class to serialize and deserialize Holding instances to and from JSON data
 
     Attributes:
-        type (Serializer): The serializer for the related security type
+        security_type (Serializer): field for the reversely related security type
     """
-    type = Security_Type()
+    security_type = Security_TypeSerializer(many=False)
 
     class Meta:
         """
@@ -49,16 +51,17 @@ class HoldingSerializer(serializers.ModelSerializer):
         model = Holding
         fields = ['id', 'portfolio', 'security_type', 'ticker', 'price', 'shares', 'purchase_date', 'cost_basis']
 
+
 class PortfolioSerializer(serializers.ModelSerializer):
     """
     A class to serialize and deserialize Portfolio instances to and from JSON data
 
     Attributes:
-        holdings (Serializer): The serializer for related holdings
-        type (Serializer): The serializer for the related security type
+        holdings (Serializer): Field for the reversely related holdings
+        account_type (Serializer): Field for the reversely related account type
     """
     holdings = HoldingSerializer(many=True)
-    type = Account_Type()
+    account_type = Account_TypeSerializer(many=False)
 
     class Meta:
         """
@@ -69,3 +72,21 @@ class PortfolioSerializer(serializers.ModelSerializer):
         model = Portfolio
         fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'holdings']
 
+
+class UserSerializer(serializers.ModelSerializer):
+    """
+    A class to serialize and deserialize User instances to and from JSON data
+
+    Attributes:
+        portfolio_accounts (Serializer): Field for the reversely related portfolio accounts
+    """
+    portfolio_accounts = PortfolioSerializer(many=True)
+
+    class Meta:
+        """
+        Attributes:
+            model (__class__): The User model class
+            fields (list): A list of the fields in the User model
+        """
+        model = User
+        fields = ['id', 'username', 'portfolio_accounts']
