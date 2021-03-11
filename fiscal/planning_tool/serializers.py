@@ -72,6 +72,33 @@ class PortfolioSerializer(serializers.ModelSerializer):
         model = Portfolio
         fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'holdings']
 
+    def create(self, validated_data):
+        holdings_data = validated_data.pop('holdings')
+        portfolio = Portfolio.objects.create(**validated_data)
+        for holding in holdings_data:
+            Holding.objects.create(portfolio=portfolio, **holding)
+        return portfolio
+
+    def update(self, instance, validated_data):
+        holdings_data = validated_data.pop('holdings')
+        holdings = (instance.holdings).all()
+        holdings = list(holdings)
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.balance = validated_data.get('balance', instance.description)
+        instance.save()
+
+        for holding_data in holdings_data:
+            holding = holdings.pop(0)
+            holding.ticker = holding_data.get('ticker', holding.ticker)
+            holding.price = holding_data.get('price', holding.price)
+            holding.shares = holding_data.get('shares', holding.shares)
+            holding.purchase_date = holding_data.get('purchase_date', holding.purchase_date)
+            holding.cost_basis = holding_data.get('cost_basis', holding.cost_basis)
+            holding.save()
+
+        return instance
+
 
 class UserSerializer(serializers.ModelSerializer):
     """
