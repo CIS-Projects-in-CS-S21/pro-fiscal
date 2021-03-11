@@ -48,16 +48,10 @@ class SerializerTest(TestCase):
     def test_portfolio_validity(self):
         data = {
             'user': 1,
-            'account_type': {'type': "401K"},
+            'account_type': None,
             "name": "My 401k",
             "balance": 200.00,
-            "holdings": [{
-                'portfolio': 1,
-                'security_type': {'type': "Bond"},
-                'ticker': 'GNMA',
-                'price': 1000.00,
-                'shares': 1.5
-            }]
+            "holdings": [1]
         }
         serializer = PortfolioSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -65,7 +59,7 @@ class SerializerTest(TestCase):
     def test_holding_validity(self):
         data = {
             'portfolio': 1,
-            'security_type': {'type': "Bond"},
+            'security_type': None,
             'ticker': 'GNMA',
             'price': 1000.00,
             'shares': 1.5
@@ -73,6 +67,31 @@ class SerializerTest(TestCase):
 
         serializer = HoldingSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_portfolio_create(self):
+        data = {
+            'user': 1,
+            'account_type': None,
+            "name": "My 401k",
+            "balance": 200.00,
+            "holdings": []
+        }
+        serializer = PortfolioSerializer(data=data)
+        serializer.is_valid()
+        self.assertTrue(serializer.save(), serializer.errors)
+
+    def test_portfolio_update(self):
+        data = {
+            'user': 1,
+            'account_type': None,
+            "name": "My 401k",
+            "balance": 200.00,
+            "holdings": []
+        }
+        existing_portfolio = Portfolio.objects.first()
+        serializer = PortfolioSerializer(existing_portfolio, data=data)
+        serializer.is_valid()
+        self.assertTrue(serializer.save(), serializer.errors)
 
     def test_portfolio_contains_expected_fields(self):
         data = self.port_serializer.data

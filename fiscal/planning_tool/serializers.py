@@ -40,7 +40,8 @@ class HoldingSerializer(serializers.ModelSerializer):
     Attributes:
         security_type (Serializer): field for the reversely related security type
     """
-    security_type = Security_TypeSerializer(many=False)
+
+    security_type = serializers.PrimaryKeyRelatedField(queryset=Security_Type.objects.all(), allow_null=True)
 
     class Meta:
         """
@@ -60,8 +61,9 @@ class PortfolioSerializer(serializers.ModelSerializer):
         holdings (Serializer): Field for the reversely related holdings
         account_type (Serializer): Field for the reversely related account type
     """
-    holdings = HoldingSerializer(many=True)
-    account_type = Account_TypeSerializer(many=False)
+
+    holdings = serializers.PrimaryKeyRelatedField(many=True, queryset=Holding.objects.all(), allow_null=True)
+    account_type = serializers.PrimaryKeyRelatedField(queryset=Account_Type.objects.all(), allow_null=True)
 
     class Meta:
         """
@@ -72,33 +74,6 @@ class PortfolioSerializer(serializers.ModelSerializer):
         model = Portfolio
         fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'holdings']
 
-    def create(self, validated_data):
-        holdings_data = validated_data.pop('holdings')
-        portfolio = Portfolio.objects.create(**validated_data)
-        for holding in holdings_data:
-            Holding.objects.create(portfolio=portfolio, **holding)
-        return portfolio
-
-    def update(self, instance, validated_data):
-        holdings_data = validated_data.pop('holdings')
-        holdings = (instance.holdings).all()
-        holdings = list(holdings)
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.balance = validated_data.get('balance', instance.description)
-        instance.save()
-
-        for holding_data in holdings_data:
-            holding = holdings.pop(0)
-            holding.ticker = holding_data.get('ticker', holding.ticker)
-            holding.price = holding_data.get('price', holding.price)
-            holding.shares = holding_data.get('shares', holding.shares)
-            holding.purchase_date = holding_data.get('purchase_date', holding.purchase_date)
-            holding.cost_basis = holding_data.get('cost_basis', holding.cost_basis)
-            holding.save()
-
-        return instance
-
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -107,7 +82,7 @@ class UserSerializer(serializers.ModelSerializer):
     Attributes:
         portfolio_accounts (Serializer): Field for the reversely related portfolio accounts
     """
-    portfolio_accounts = PortfolioSerializer(many=True)
+    portfolio_accounts = serializers.PrimaryKeyRelatedField(many=True, queryset=Portfolio.objects.all(), allow_null=True)
 
     class Meta:
         """
