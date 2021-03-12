@@ -18,7 +18,7 @@
                         "type": "Stock"
                     },
                     "ticker": "GOOG",
-                    "price": "1000.00",
+                    "price": "$1000.00",
                     "shares": "20.00",
                     "purchase_date": null,
                     "cost_basis": null
@@ -41,7 +41,7 @@
                         "type": "Stock"
                     },
                     "ticker": "TEST",
-                    "price": "1250.00",
+                    "price": "$1250.00",
                     "shares": "50.00",
                     "purchase_date": "2021-03-02",
                     "cost_basis": null

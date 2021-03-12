@@ -122,7 +122,7 @@ function render_portfolio_overview() {
                 return response.json();
             })
             .then((data) => {
-                portfolios = data;
+                portfolios = data["portfolio_accounts"];
             })
             .then(() => {
                 // Do all the interface stuff here
@@ -131,17 +131,131 @@ function render_portfolio_overview() {
     };
 
     const handleUserPortfolios = (portfolios) => {
-        console.log(portfolios);
+        // console.log(portfolios);
+
+        const handleHoldings = (holding) => {
+            let holding_elem = document.createElement("div");
+
+            for (let i = 0; i < holding.length; i++) {
+
+                let holding_item = holding[i];
+                let holder_item = document.createElement("div");
+
+                let security_type = document.createElement("p");
+                security_type.innerText = "Security Type: " + holding_item["security_type"]["type"];
+
+                let ticker = document.createElement("p");
+                ticker.innerText = holding_item["ticker"];
+
+                let price = document.createElement("p");
+                price.innerText = "$" + holding_item["price"];
+
+                let shares = document.createElement("p");
+                shares.innerText = holding_item["shares"] + " Shares";
+
+                let purchase_date = document.createElement("p");
+                purchase_date.innerText = holding_item["purchase_date"] !== null ? holding_item["purchase_date"] : "No Purchase Date provided";
+
+                let cost_basis = document.createElement("p");
+                cost_basis.innerText = holding_item["cost_basis"] !== null ? holder_item["cost_basis"] : "No Cost Basis provided";
+
+                holder_item.appendChild(security_type);
+                holder_item.appendChild(ticker);
+                holder_item.appendChild(price);
+                holder_item.appendChild(shares);
+                holder_item.appendChild(purchase_date);
+                holder_item.appendChild(cost_basis);
+
+                holding_elem.appendChild(holder_item);
+            }
+
+            return holding_elem;
+        }
+
+        const createContents = (portfolio_item) => {
+            let elem = document.createElement("div");
+            elem.classList.add("portfolio-content");
+
+            let account_type = document.createElement("p");
+            account_type.innerText = portfolio_item["account_type"];
+
+            let description = document.createElement("p");
+            description.innerText = portfolio_item["description"];
+
+            let balance = document.createElement("p");
+            balance.innerText = "$" + portfolio_item["balance"];
+
+            let holdings = handleHoldings(portfolio_item["holdings"]);
+
+            elem.appendChild(account_type);
+            elem.appendChild(description);
+            elem.appendChild(balance);
+            elem.appendChild(holdings);
+
+            return elem;
+        }
+
+        for (let i = 0; i < portfolios.length; i++) {
+            let portfolio_button = document.createElement("button");
+            portfolio_button.type = "button";
+            portfolio_button.classList.add("collapsible-overview");
+
+            let portfolio_item = portfolios[i];
+
+            portfolio_button.innerHTML = portfolio_item["name"];
+
+            let portfolio_contents = createContents(portfolio_item);
+
+            portfolio_listing.appendChild(portfolio_button);
+            portfolio_listing.appendChild(portfolio_contents);
+
+            portfolio_button.addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+
+
+
     }
+
+    let portfolio_listing = document.createElement("div");
+
 
     getPortfolioData();
 
+    /*
     let content = `
         <h2>Portfolio!</h2>
     `;
-
+  
     let elem = document.createElement("div");
     elem.innerHTML = content;
+    */
 
-    return elem;
+    return portfolio_listing;
 }
+
+/*
+            var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+
+
+            */
