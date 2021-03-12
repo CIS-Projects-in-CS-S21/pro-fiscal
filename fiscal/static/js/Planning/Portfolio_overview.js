@@ -133,11 +133,11 @@ function render_portfolio_overview() {
     const handleUserPortfolios = (portfolios) => {
         // console.log(portfolios);
 
+        /* Create table for Holdings */
         const handleHoldings = (holding) => {
             let holding_elem = document.createElement("div");
 
-            for (let i = 0; i < holding.length; i++) {
-
+            /*
                 let holding_item = holding[i];
                 let holder_item = document.createElement("div");
 
@@ -166,8 +166,15 @@ function render_portfolio_overview() {
                 holder_item.appendChild(purchase_date);
                 holder_item.appendChild(cost_basis);
 
-                holding_elem.appendChild(holder_item);
-            }
+                */
+
+
+            let holdingTable = createTable({
+                objList: holding,
+                sortOrderPropName: "security_type"
+            });
+
+            holding_elem.appendChild(holdingTable);
 
             return holding_elem;
         }
@@ -229,33 +236,5 @@ function render_portfolio_overview() {
 
     getPortfolioData();
 
-    /*
-    let content = `
-        <h2>Portfolio!</h2>
-    `;
-  
-    let elem = document.createElement("div");
-    elem.innerHTML = content;
-    */
-
     return portfolio_listing;
 }
-
-/*
-            var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
-}
-
-
-            */
