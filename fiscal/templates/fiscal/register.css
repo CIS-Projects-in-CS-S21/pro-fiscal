@@ -28,19 +28,19 @@ font-size: 13px;
 border-bottom: 1px solid #999;
 }
 .No-password{
-color: GhostWhite;
+color: black;
 text-align: right;
 cursor: pointer;
 }
 .message{
-color: GhostWhite;
+color: black;
 font-size: 18px;
 width: 100%;
 padding: 40px;
 text-align: left;
 }
 .message a{
-color: GhostWhite;
+color: black;
 font-weight: bold;
 }
 
