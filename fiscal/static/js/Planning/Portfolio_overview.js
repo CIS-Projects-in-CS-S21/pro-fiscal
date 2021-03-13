@@ -109,10 +109,35 @@ function clear_answers(user_id) {
 
 }
 
+function dud_function () {
+    console.log("For testing purposes");
+}
+
 /**
  * 
  */
 function render_portfolio_overview() {
+
+    const makeButton = (buttonType, buttonText, handlerFunction) => {
+        let button = createButton({
+            type: buttonType,
+            text: buttonText
+        });
+
+        button.addEventListener("click", handlerFunction);
+
+        return button;
+    };
+
+    const handlePortfolioButtons = () => {
+        let createPortfolio = makeButton("btn-success", "Create Portfolio", dud_function);
+        let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", dud_function);
+        let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", dud_function);
+        
+        portfolio_listing.appendChild(createPortfolio);
+        portfolio_listing.appendChild(updatePortfolio);
+        portfolio_listing.appendChild(deletePortfolio);
+    }
 
     const getPortfolioData = () => {
         let portfolios = "";
@@ -161,11 +186,15 @@ function render_portfolio_overview() {
             balance.classList.add("padded_paragraph");
             balance.innerText = "Balance: $" + portfolio_item["balance"];
 
+            let createHolding = makeButton("btn-success", "Create Holding", dud_function);
+
             let holdings = handleHoldings(portfolio_item["holdings"]);
 
             elem.appendChild(account_type);
             elem.appendChild(description);
             elem.appendChild(balance);
+            elem.appendChild(createHolding);
+            elem.appendChild(document.createElement("p"));
             elem.appendChild(holdings);
 
             return elem;
@@ -198,6 +227,9 @@ function render_portfolio_overview() {
     }
 
     let portfolio_listing = document.createElement("div");
+
+    handlePortfolioButtons();
+    portfolio_listing.appendChild(document.createElement("p"));
 
     getPortfolioData();
 
