@@ -131,43 +131,9 @@ function render_portfolio_overview() {
     };
 
     const handleUserPortfolios = (portfolios) => {
-        // console.log(portfolios);
-
         /* Create table for Holdings */
         const handleHoldings = (holding) => {
             let holding_elem = document.createElement("div");
-
-            /*
-                let holding_item = holding[i];
-                let holder_item = document.createElement("div");
-
-                let security_type = document.createElement("p");
-                security_type.innerText = "Security Type: " + holding_item["security_type"]["type"];
-
-                let ticker = document.createElement("p");
-                ticker.innerText = holding_item["ticker"];
-
-                let price = document.createElement("p");
-                price.innerText = "$" + holding_item["price"];
-
-                let shares = document.createElement("p");
-                shares.innerText = holding_item["shares"] + " Shares";
-
-                let purchase_date = document.createElement("p");
-                purchase_date.innerText = holding_item["purchase_date"] !== null ? holding_item["purchase_date"] : "No Purchase Date provided";
-
-                let cost_basis = document.createElement("p");
-                cost_basis.innerText = holding_item["cost_basis"] !== null ? holder_item["cost_basis"] : "No Cost Basis provided";
-
-                holder_item.appendChild(security_type);
-                holder_item.appendChild(ticker);
-                holder_item.appendChild(price);
-                holder_item.appendChild(shares);
-                holder_item.appendChild(purchase_date);
-                holder_item.appendChild(cost_basis);
-
-                */
-
 
             let holdingTable = createTable({
                 objList: holding,
@@ -184,13 +150,16 @@ function render_portfolio_overview() {
             elem.classList.add("portfolio-content");
 
             let account_type = document.createElement("p");
-            account_type.innerText = portfolio_item["account_type"];
+            account_type.classList.add("padded_paragraph");
+            account_type.innerText = "Account Type: " + portfolio_item["account_type"];
 
             let description = document.createElement("p");
+            description.classList.add("padded_paragraph");
             description.innerText = portfolio_item["description"];
 
             let balance = document.createElement("p");
-            balance.innerText = "$" + portfolio_item["balance"];
+            balance.classList.add("padded_paragraph");
+            balance.innerText = "Balance: $" + portfolio_item["balance"];
 
             let holdings = handleHoldings(portfolio_item["holdings"]);
 
@@ -209,7 +178,7 @@ function render_portfolio_overview() {
 
             let portfolio_item = portfolios[i];
 
-            portfolio_button.innerHTML = portfolio_item["name"];
+            portfolio_button.innerText = portfolio_item["name"];
 
             let portfolio_contents = createContents(portfolio_item);
 
@@ -226,13 +195,9 @@ function render_portfolio_overview() {
                 }
             });
         }
-
-
-
     }
 
     let portfolio_listing = document.createElement("div");
-
 
     getPortfolioData();
 

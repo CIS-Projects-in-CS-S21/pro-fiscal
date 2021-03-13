@@ -153,6 +153,7 @@ function createTable(params) {
     var returnDiv = document.createElement("div");
 
     var itemTable = document.createElement("table");
+    itemTable.classList.add("table");
     returnDiv.appendChild(itemTable);
 
     // Ensure that you have some property to sort the table with at the start
