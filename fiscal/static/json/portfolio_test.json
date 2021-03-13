@@ -16,20 +16,20 @@
                     "portfolio_id": 2,
                     "security_type": "Stock",
                     "ticker": "GOOG",
-                    "price": 1000.00,
+                    "price": 1000.50,
                     "shares": 20,
                     "purchase_date": "02-20-2021",
-                    "cost_basis": 800.00
+                    "cost_basis": 800.50
                 }, 
                 {
                     "id": 2,
                     "portfolio_id": 2,
-                    "security_type": "Stock",
+                    "security_type": "Bond",
                     "ticker": "AMZN",
-                    "price": 100.00,
+                    "price": 100.99,
                     "shares": 4,
                     "purchase_date": "02-20-2021",
-                    "cost_basis": 60.00
+                    "cost_basis": 60.65
                 }
             ]
         },
@@ -47,10 +47,10 @@
                     "portfolio_id": 3,
                     "security_type": "Bond",
                     "ticker": "GNMA",
-                    "price": 50.00,
+                    "price": 530.50,
                     "shares": 2,
                     "purchase_date": "02-20-2021",
-                    "cost_basis": 40.00
+                    "cost_basis": 40.20
                 }
             ]
         }

@@ -130,13 +130,14 @@ function render_portfolio_overview() {
     };
 
     const handlePortfolioButtons = () => {
-        let createPortfolio = makeButton("btn-success", "Create Portfolio", dud_function);
+        let buttonGroup = document.createElement("div");
         let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", dud_function);
         let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", dud_function);
         
-        portfolio_listing.appendChild(createPortfolio);
-        portfolio_listing.appendChild(updatePortfolio);
-        portfolio_listing.appendChild(deletePortfolio);
+        buttonGroup.appendChild(updatePortfolio);
+        buttonGroup.appendChild(deletePortfolio);
+
+        return buttonGroup;
     }
 
     const getPortfolioData = () => {
@@ -160,9 +161,28 @@ function render_portfolio_overview() {
         const handleHoldings = (holding) => {
             let holding_elem = document.createElement("div");
 
+            let cleaner_holdings = [];
+
+            for (let i = 0; i < holding.length; i++) {
+                let holdingItem = holding[i];
+
+                cleaner_holdings[i] = {};
+
+                cleaner_holdings[i]["Security Type"] = holdingItem["security_type"];
+                cleaner_holdings[i]["Ticker"] = holdingItem["ticker"];
+                cleaner_holdings[i]["Price"] = holdingItem["price"];
+                cleaner_holdings[i]["Shares"] = holdingItem["shares"];
+                cleaner_holdings[i]["Purchase Date"] = holdingItem["purchase_date"];
+                cleaner_holdings[i]["Cost Basis"] = holdingItem["cost_basis"];
+                cleaner_holdings[i]["Update"] = `<button type='button' class='btn btn-secondary' onclick= 'dud_function()'>Update</button>`;
+
+                // "` + CRUD_icons.update + `" onclick= "window.location.hash = '#/bookUpdate/` + cleanerResults[i].id + `'">
+                cleaner_holdings[i]["Delete"] = `<button type='button' class='btn btn-danger' onclick= 'dud_function()'>Delete</button>`;
+            }
+
             let holdingTable = createTable({
-                objList: holding,
-                sortOrderPropName: "security_type"
+                objList: cleaner_holdings,
+                sortOrderPropName: "Security Type"
             });
 
             holding_elem.appendChild(holdingTable);
@@ -186,15 +206,22 @@ function render_portfolio_overview() {
             balance.classList.add("padded_paragraph");
             balance.innerText = "Balance: $" + portfolio_item["balance"];
 
-            let createHolding = makeButton("btn-success", "Create Holding", dud_function);
+            let portfolioButtons = handlePortfolioButtons();
 
+            let createHolding = makeButton("btn-success", "Create Holding", dud_function);
+            
             let holdings = handleHoldings(portfolio_item["holdings"]);
 
             elem.appendChild(account_type);
             elem.appendChild(description);
             elem.appendChild(balance);
+
+            elem.appendChild(portfolioButtons);
+            elem.appendChild(document.createElement("p"));
+            
             elem.appendChild(createHolding);
             elem.appendChild(document.createElement("p"));
+
             elem.appendChild(holdings);
 
             return elem;
@@ -228,7 +255,11 @@ function render_portfolio_overview() {
 
     let portfolio_listing = document.createElement("div");
 
-    handlePortfolioButtons();
+    //handlePortfolioButtons();
+
+    let createPortfolio = makeButton("btn-success", "Create Portfolio", dud_function);
+    portfolio_listing.appendChild(createPortfolio);
+
     portfolio_listing.appendChild(document.createElement("p"));
 
     getPortfolioData();
