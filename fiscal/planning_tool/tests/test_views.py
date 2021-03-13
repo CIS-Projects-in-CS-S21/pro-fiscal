@@ -5,7 +5,7 @@ from planning_tool.serializers import *
 
 import datetime
 
-class ViewTest(TestCase):
+class ListViewTest(TestCase):
 
     def setUp(self):
         self.acct_type = Account_Type(type='IRA')
@@ -21,32 +21,11 @@ class ViewTest(TestCase):
 
         self.success_data = {
             'user': 1,
-            'account_type': 1,
+            'account_type': "IRA",
             "name": "My IRA",
             "balance": 200.00,
-            "description": "Employer Contributions",
+            "description": "A useful description",
             "holdings": []
-        }
-
-        self.expected_data = {
-            "id": 2,
-            "user_id": 1,
-            "username": "Test",
-            "name": "Test data",
-            "balance": 100.00,
-            "account_type": "IRA",
-            "description": "This is how the data should look",
-            "holdings": [
-                {"id": 1,
-                 "portfolio_id": 2,
-                 "security_type": "Bond",
-                 "ticker": "GNMA",
-                 "price": 50.0,
-                 "shares": 2,
-                 "cost_basis": 40.0,
-                 "purchase_date": "12-20-2021"
-                 }
-            ]
         }
 
     def test_get_portfolioList_no_entries(self):
@@ -75,7 +54,81 @@ class ViewTest(TestCase):
         self.assertEquals(resp.status_code, 200)
         self.assertTrue(resp.data, "Response data should not be empty")
 
-    def test_get_portfolioList_expected_format(self):
+    def test_post_portfolioList_success(self):
+        request = self.factory.post("portfolio/", data=self.success_data, format="json")
+        request.user = self.user
+        request.data = self.success_data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201)
+
+    def test_post_portfolioList_fail(self):
+        data = {
+            "user": None,
+            "name": "This Will Not Work",
+            "balance": 0.00
+        }
+        request = self.factory.post("portfolio/", data=data, format="json")
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.asserEquals(resp.status_code, 400)
+
+class DetailViewTest(TestCase):
+
+    def setUp(self):
+        self.acct_type = Account_Type(type='IRA')
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type='Bond')
+        self.sec_type.save()
+
+        self.user = User(username="Test", password="fiscaltest")
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            'user': 1,
+            'account_type': "IRA",
+            "name": "My IRA",
+            "balance": 200.00,
+            "description": "A useful description",
+            "holdings": []
+        }
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name="My IRA", balance=100.00)
+        self.port_1.save()
+
+        self.expected_data = {
+            "portfolio_id": 2,
+            "user_id": 1,
+            "username": "Test",
+            "name": "Test data",
+            "balance": 100.00,
+            "account_type": "IRA",
+            "description": "This is how the data should look",
+            "holdings": [
+                {"holding_id": 1,
+                 "portfolio_id": 2,
+                 "security_type": "Bond",
+                 "ticker": "GNMA",
+                 "price": 50.0,
+                 "shares": 2,
+                 "cost_basis": 40.0,
+                 "purchase_date": "12-20-2021"
+                 }
+            ]
+        }
+
+    def test_get_portfolioDetail_expected_format(self):
         """
         Verify that a get call to the view returns data with the correct keys and expected formats
         """
@@ -102,14 +155,14 @@ class ViewTest(TestCase):
         hold = Portfolio.objects.create(**new_hold)
 
         # Get response and test against expected values
-        request = self.factory.get("portfolio/")
+        request = self.factory.get("portfolio/2")
         request.user = self.user
 
         view = PortfolioList()
         view.setup(request)
-        resp = view.get(request)
+        resp = view.get(request, 2)
 
-        ret_holdings = resp.data.pop("holdings")
+        ret_holdings = resp.data.pop("holdings")[0]
         expected_holdings = self.expected_data.pop("holdings")
 
         self.assertEquals(resp.status_code, 200)
@@ -118,14 +171,32 @@ class ViewTest(TestCase):
         for field in expected_holdings.keys():
             self.assertEquals(ret_holdings[field], expected_holdings[field], f"Unexpected value in holding for {field}")
 
+    def test_put_portFolioDetail(self):
+        data = {
+            'user': 1,
+            'account_type': "IRA",
+            "name": "My IRA",
+            "balance": 200.00,
+            "description": "A useful description",
+            "holdings": []
 
-    def test_post_portfolioList(self):
-        request = self.factory.post("portfolio/", data=self.success_data, format="json")
+        }
+        request = self.factory.put("portfolio/1")
         request.user = self.user
-        request.data = self.success_data
+        request.data = data
 
-        view = PortfolioList()
+        view = PortfolioDetail()
         view.setup(request)
-        resp = view.post(request)
+        resp = view.get(request, 1)
 
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, 200)
+
+    def test_delete_portFolioDetail(self):
+        request = self.factory.delete("portfolio/1")
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.delete(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
