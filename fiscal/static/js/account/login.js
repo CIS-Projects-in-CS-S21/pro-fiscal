@@ -30,5 +30,36 @@ function loginInterface() {
  * @returns {string} A confirmation message is returned stating that the user has logged out.
  */
 function logoutInterface() {
+    var message = document.createElement("div");
+    var button = document.createElement("button");
+    button.innerHTML = "Log Out";
+    button.onclick = logout
+    message.appendChild(button);
+    message.classList.add("logout");
+
+    return message;
+
+    function logout(){
+        console.log("Logging out user")
+        postLogout().then(resp =>{
+            console.log(resp)
+            document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+            if(resp.ok) {
+                message.innerHTML = "Successfully Logged Out"
+            }
+            else{
+                message.innerHTML = "Unable to Log Out"
+            }
+        });
+    }
+
+    async function postLogout(){
+        let url = "/rest-auth/logout/"
+        const response = fetch(url, {
+            method: "post"
+        });
+        return response
+    }
+
 
 }
