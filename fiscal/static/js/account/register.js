@@ -7,8 +7,8 @@
  * @throws Will throw an error if at least one of the arguments are null.
  * @throws Will throw an error if account could not be created.
  */
-function create_new_account (email, password, password_verify) {
-    
+function create_new_account(email, password, password_verify) {
+
 }
 
 /**
@@ -17,8 +17,8 @@ function create_new_account (email, password, password_verify) {
  * @param {string} password_verify A password string that helps the user confirms their password choice.
  * @returns {boolean} Compares whether password and password_verify are equal.
  */
-function verify_matching_passwords (password, password_verify) {
-    
+function verify_matching_passwords(password, password_verify) {
+
 }
 
 /**
@@ -29,19 +29,51 @@ function verify_matching_passwords (password, password_verify) {
  * @throws Will throw an error if either the questions or the answers arrays contain null, NaN, etc.
  * @throws If the length of the questions and the answers arrays are not matching.
  */
-function create_security_questions (questions, answers) {
-    
+function create_security_questions(questions, answers) {
+
 }
 
 /**
  * Renders the registration component of the website.
  */
-function register () {
-    let content = `
-        <h2>Register for an Account on Fiscal!</h2>
-    `;
+function register() {
 
-    let elem = document.createElement("div");
-    elem.innerHTML = content;
-    return elem;
+    async function loginAttempt(data) {
+        let url = "/rest-auth/login/";
+
+        const response = fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        return (await response).json();
+    }
+
+    function logIn() {
+
+        let data = {
+            "username": "chris",
+            "email": "tuc48712@temple.edu",
+            "password": "fiscal-project"
+        };
+
+        loginAttempt(data).then(resp => {
+            console.log(resp);
+            if (resp["key"] !== null) {
+                message.innerText = "Welcome " + data.username;
+                // Change hash location to Home
+            }
+        });
+    }
+
+    let message = document.createElement("div");
+    let button = document.createElement("button");
+    button.innerText = "Login";
+    button.onclick = logIn;
+    message.appendChild(button);
+    message.classList.add("login");
+
+    return message;
 }
