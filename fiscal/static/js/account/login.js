@@ -22,6 +22,25 @@ function match_passwords (email, password) {
  * @returns {Form} A form that the user can input their credentials to login.
  */
 function loginInterface() {
+let content = `
+         <p class="form-style">FISCAL</p>
+
+        <form id="basic-form">
+
+<user-form class="user-login-form">
+     <input type="text" placeholder="email"/>
+    <input type="password" placeholder="password"/>
+    <button>Login</button>
+     <p class="No-password">Forgot Password ?</p>
+    <p class="message to-register">Don't have an account? <span class="link">Create Account<span> </p>
+</user-form>
+        </form>
+    `;
+
+
+         let elem = document.createElement("div");
+    elem.innerHTML = content;
+    return elem;
 
 }
 

@@ -37,9 +37,15 @@ function create_security_questions (questions, answers) {
  * Renders the registration component of the website.
  */
 function register () {
-    let content = `
-        <h2>Register for an Account on Fiscal!</h2>
-    `;
+    const content = ` <p class="form-style">FISCAL</p> <form id="basic-form">
+        <user-form class="user-registration-form">
+            <input type="text" placeholder="email"/>
+            <input type="password" placeholder="password"/>
+            <input type="password" placeholder="Confirm password"/>
+            <button>Create</button>
+            <p class="message to-login">Already have an account? <span class="link">Login</span> </p>
+        </user-form>
+        </form>`;
 
     let elem = document.createElement("div");
     elem.innerHTML = content;
