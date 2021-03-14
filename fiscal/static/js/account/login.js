@@ -3,8 +3,8 @@
  * @param {string} email The email associated with the account the user wants to obtain account information.
  * @returns {boolean} Verifies whether the inputted email is in the database.
  */
-function find_user_by_email (email) {
-    
+function find_user_by_email(email) {
+
 }
 
 /**
@@ -13,8 +13,8 @@ function find_user_by_email (email) {
  * @param {string} password The password associated with the account the user wants to log into.
  * @returns {boolean} Determines whether or not the user is able to access the account in question.
  */
-function match_passwords (email, password) {
-    
+function match_passwords(email, password) {
+
 }
 
 /**
@@ -45,9 +45,40 @@ let content = `
 }
 
 /**
- * Function that signs the user out.
- * @returns {string} A confirmation message is returned stating that the user has logged out.
+ * Function that logs the user out and renders an interface that confirms that the user logged out.
+ * @returns {Element} A confirmation message is returned stating that the user has logged out.
  */
 function logoutInterface() {
+    let message = document.createElement("div");
+    let button = document.createElement("button");
+    button.innerHTML = "Log Out";
+    button.onclick = logout;
+    message.appendChild(button);
+    message.classList.add("logout");
+
+    return message;
+
+    function logout() {
+        console.log("Logging out user");
+        postLogout().then(resp => {
+            console.log(resp)
+            document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            if (resp.ok) {
+                message.innerHTML = "Successfully Logged Out";
+            }
+            else {
+                message.innerHTML = "Unable to Log Out";
+            }
+        });
+    }
+
+    async function postLogout() {
+        let url = "/rest-auth/logout/";
+        const response = fetch(url, {
+            method: "post"
+        });
+        return response;
+    }
+
 
 }

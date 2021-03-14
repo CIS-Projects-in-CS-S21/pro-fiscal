@@ -15,6 +15,8 @@
         integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <!-- Our Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
@@ -120,7 +122,8 @@
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="#/register">Create Account</a>
-                                    <a class="dropdown-item" href="#">Login / Logout</a>
+                                    <a class="dropdown-item" href="#">Login</a>
+                                    <a class="dropdown-item" href="#/logout">Logout</a>
                                 </div>
                             </li>
                             <li class="nav-item">
@@ -163,6 +166,7 @@
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
+    <script src="{% static 'js/account/login.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
     
     <script type="text/javascript">
@@ -186,6 +190,7 @@
 
         myRoutes['#/home'] = home;
         myRoutes['#/register'] = register;
+        myRoutes['#/logout'] = logoutInterface;
 
         //Check if key exists
         const key = localStorage.getItem("key");
