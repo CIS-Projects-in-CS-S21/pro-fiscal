@@ -39,6 +39,7 @@ function create_security_questions (questions, answers) {
 function register () {
     const content = ` <p class="form-style">FISCAL</p> <form id="basic-form">
         <user-form class="user-registration-form">
+            <input type="text" placeholder="username"/>
             <input type="text" placeholder="email"/>
             <input type="password" placeholder="password"/>
             <input type="password" placeholder="Confirm password"/>

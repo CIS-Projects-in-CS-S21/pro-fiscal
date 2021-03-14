@@ -28,7 +28,8 @@ let content = `
         <form id="basic-form">
 
 <user-form class="user-login-form">
-     <input type="text" placeholder="email"/>
+    <input type="text" placeholder="username"/>
+    <input type="text" placeholder="email"/>
     <input type="password" placeholder="password"/>
     <button>Login</button>
      <p class="No-password">Forgot Password ?</p>
@@ -62,13 +63,8 @@ function logoutInterface() {
         console.log("Logging out user");
         postLogout().then(resp => {
             console.log(resp)
-            document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-            if (resp.ok) {
-                message.innerHTML = "Successfully Logged Out";
-            }
-            else {
-                message.innerHTML = "Unable to Log Out";
-            }
+            localStorage.removeItem("key")
+            window.location.replace("/")
         });
     }
 
