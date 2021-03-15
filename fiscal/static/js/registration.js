@@ -49,6 +49,9 @@ function handleLoginSwitch() {
     }
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        resetErrors();
+
         const form = document.querySelector("#basic-form");
         const username = form.querySelectorAll("input")[0].value;
         const email = form.querySelectorAll("input")[1].value;
@@ -63,18 +66,49 @@ function handleLoginSwitch() {
             },
             body: JSON.stringify(data)
         })
-
+        const resp_data = await response.json();
         if (response.ok) { // A successful request will likely return 201, but we should check for other statuses
-            const data = await response.json();
-            const key = data.key;
+
+            const key = resp_data.key;
             //save the key
             localStorage.setItem("key", key);
             window.location.replace("/")
-        }
-        else{
-            console.log(response);
+        } else {
+            console.log(resp_data);
+            errors = cleanedErrors(resp_data);
+            for (prop in errors) {
+                errorField = document.getElementById(prop);
+                errorField.innerText = errors[prop];
+            }
+
+
         }
 
+        function resetErrors(){
+            ids = ["username", "email", "password1", "password2", "general_error"];
+            for(var i = 0; i < ids.length; i++){
+                document.getElementById(ids[i]).innerText = "";
+            }
+        }
+
+        function cleanedErrors(data) {
+            cleaned = {};
+            for (prop in data) {
+                if (prop === "username") {
+                    cleaned.username = data[prop];
+                } else if (prop === "email") {
+                    cleaned.email = data[prop];
+                } else if (prop === "password1") {
+                    cleaned.password1 = data[prop];
+                }else if (prop === "password2") {
+                    cleaned.password2 = data[prop];
+                }
+                else{
+                    cleaned.general_error = data[prop];
+                }
+            }
+            return cleaned;
+        }
     }
 
     function getCookie(name) {
@@ -94,8 +128,12 @@ function handleLoginSwitch() {
     }
 
 
+
     const handleLogin = async (e) => {
         e.preventDefault();
+
+        resetErrors();
+
         const form = document.querySelector("#basic-form");
         const username = form.querySelectorAll("input")[0].value;
         const email = form.querySelectorAll("input")[1].value;
@@ -110,17 +148,46 @@ function handleLoginSwitch() {
             },
             body: JSON.stringify(data)
         })
+        const resp_data = await response.json();
         if (response.ok) {
-            const data = await response.json();
-            const key = data.key;
+            const key = resp_data.key;
             //save the key
             localStorage.setItem("key", key);
             window.location.replace("/")
         }
         else{
-            console.log(response);
+            errors = cleanedErrors(resp_data);
+            for(prop in errors){
+                errorField = document.getElementById(prop);
+                errorField.innerText = errors[prop];
+            }
+        }
+
+        function resetErrors(){
+            ids = ["username", "email", "password", "general_error"];
+            for(var i = 0; i < ids.length; i++){
+                document.getElementById(ids[i]).innerText = "";
+            }
+        }
+
+        function cleanedErrors(data) {
+            cleaned = {};
+            for (prop in data) {
+                console.log(prop);
+                if (prop === "username") {
+                    cleaned.username = data[prop];
+                } else if (prop === "email") {
+                    cleaned.email = data[prop];
+                } else if (prop === "password") {
+                    cleaned.password = data[prop];
+                }else{
+                    cleaned.general_error = data[prop];
+                }
+            }
+            return cleaned;
         }
     }
+
     const toLogin = () => {
 
 

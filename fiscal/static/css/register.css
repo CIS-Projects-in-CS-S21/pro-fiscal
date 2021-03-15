@@ -61,11 +61,12 @@ user-form {
     font-size: 15px;
 }
 
+.user-form .error {
+    padding: 2px;
+    color: red;
+    font-size: 16px;
+}
 
-/*.user-form .user-registration-form{*/
-/*display: none;*/
-/*text-align: center;*/
-/*}*/
 
 
 
