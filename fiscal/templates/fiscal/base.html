@@ -13,10 +13,14 @@
     <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
         integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
     <!-- Our Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/planning/overview.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
+
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
@@ -48,7 +52,7 @@
                         class="dropdown-toggle">Long-Term Planning</a>
                     <ul class="collapse list-unstyled" id="planningSubmenu">
                         <li>
-                            <a href="#">Portfolio Overview</a>
+                            <a href="#/portfolio-overview">Portfolio Overview</a>
                         </li>
                         <li>
                             <a href="#">Manage Portfolios</a>
@@ -158,6 +162,9 @@
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
+    <script src="{% static 'js/createButton.js' %}"></script>
+    <script src="{% static 'js/createTable.js' %}"></script>
+    <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
 
     <script type="text/javascript">
@@ -179,9 +186,9 @@
 
         var myRoutes = [];
 
-        myRoutes['#/home'] = home;
-        // myRoutes['#/register'] = register;
+        myRoutes['#/home'] = home;        
         myRoutes['#/logout'] = logoutInterface;
+        myRoutes['#/portfolio-overview'] = render_portfolio_overview;
 
         //Check if key exists
         const key = localStorage.getItem("key");
@@ -189,11 +196,12 @@
             window.location.replace("/register")
         }
 
+
         routeFW({
             routeArray: myRoutes,
             contentID: "insert-data-here",
             startLink: "#/home"
-        })
+        });
     </script>
 </body>
 
