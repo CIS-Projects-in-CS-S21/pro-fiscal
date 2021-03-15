@@ -2,35 +2,37 @@
 {% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>user registration and login form</title>
+    <title>Fiscal - User registration and Login</title>
     <link rel="stylesheet" href="{% static 'css/register.css' %}">
-    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" sizes="16x16">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
 </head>
+
 <body>
 
-<div class="user-login">
-    <div class="user-form">
+    <div class="user-login">
+        <div class="user-form">
 
+        </div>
     </div>
-</div>
 
 
-<script src='https://code.jquery.com/jquery-3.6.0.min.js'>
-
-</script>
-<script src="{% static 'js/account/login.js' %}"></script>
-<script src="{% static 'js/account/register.js' %}"></script>
-<script src="{% static 'js/registration.js' %}"></script>
-<script>
-    window.onload = () => {
-        const key = localStorage.getItem("key");
-        if (key) {
-            window.location.replace("/")
+    <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+    <script src="{% static 'js/account/login.js' %}"></script>
+    <script src="{% static 'js/account/register.js' %}"></script>
+    <script src="{% static 'js/registration.js' %}"></script>
+    
+    <script>
+        window.onload = () => {
+            const key = localStorage.getItem("key");
+            if (key) {
+                window.location.replace("/")
+            }
+            handleLoginSwitch();
         }
-        handleLoginSwitch();
-    }
-</script>
+    </script>
 </body>
+
 </html>
