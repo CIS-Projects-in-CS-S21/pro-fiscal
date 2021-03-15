@@ -4,8 +4,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<title>user registration and login form</title>
-<link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <title>user registration and login form</title>
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" sizes="16x16">
 </head>
 <body>
 
@@ -16,22 +17,20 @@
 </div>
 
 
-
-
- <script src='https://code.jquery.com/jquery-3.6.0.min.js'>
+<script src='https://code.jquery.com/jquery-3.6.0.min.js'>
 
 </script>
-  <script src = "{% static 'js/account/login.js' %}"></script>
- <script src = "{% static 'js/account/register.js' %}"></script>
+<script src="{% static 'js/account/login.js' %}"></script>
+<script src="{% static 'js/account/register.js' %}"></script>
 <script src="{% static 'js/registration.js' %}"></script>
 <script>
-window.onload = ()=>{
-    const key = localStorage.getItem("key");
-    if(key){
-        window.location.replace("/")
+    window.onload = () => {
+        const key = localStorage.getItem("key");
+        if (key) {
+            window.location.replace("/")
+        }
+        handleLoginSwitch();
     }
-    handleLoginSwitch();
-}
 </script>
 </body>
 </html>

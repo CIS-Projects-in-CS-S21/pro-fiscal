@@ -44,9 +44,14 @@ user-form {
     text-align: left;
 }
 
-.message a {
-    color: black;
+.message span {
+    color: white;
     font-weight: bold;
+}
+
+.message span:hover {
+    color: #ffdd44;
+    cursor: pointer;
 }
 
 
