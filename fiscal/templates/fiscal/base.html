@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="icon" type="image/png" href="{% static 'favicon-16x16.png' %}" sizes="16x16">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" sizes="16x16">
 
     <title>Fiscal - A Financial Management Website</title>
 
@@ -15,17 +15,21 @@
         integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <!-- Our Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
 
     <!-- Font Awesome JS -->
+
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"
         integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
         crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"
         integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
         crossorigin="anonymous"></script>
+
 
 </head>
 
@@ -111,16 +115,6 @@
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link" href="#" id="navbarDropdown" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Account
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="#/register">Create Account</a>
-                                    <a class="dropdown-item" href="#">Login / Logout</a>
-                                </div>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Profile</a>
                             </li>
@@ -130,15 +124,17 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="#">How to Use</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#/logout">Logout</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </nav>
 
-            <!-- {% block content %}{% endblock %} -->
 
-            <div id = "insert-data-here">
-                
+            <div id="insert-data-here">
+
             </div>
         </div>
     </div>
@@ -161,8 +157,9 @@
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
+    <script src="{% static 'js/account/login.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
-    
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#sidebar").mCustomScrollbar({
@@ -183,7 +180,14 @@
         var myRoutes = [];
 
         myRoutes['#/home'] = home;
-        myRoutes['#/register'] = register;
+        // myRoutes['#/register'] = register;
+        myRoutes['#/logout'] = logoutInterface;
+
+        //Check if key exists
+        const key = localStorage.getItem("key");
+        if (!key) {
+            window.location.replace("/register")
+        }
 
         routeFW({
             routeArray: myRoutes,

@@ -59,7 +59,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         # test value for getting up and running
         'rest_framework.permissions.AllowAny'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
     ]
+
 }
 
 MIDDLEWARE = [
@@ -145,3 +149,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+#This should be removed later
+ACCOUNT_EMAIL_VERIFICATION = None
