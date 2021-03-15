@@ -10,8 +10,9 @@
     font-size: 15px;
 }
 
-.active, .collapsible-overview:hover {
-    background-color: #4F5B7B;
+.collapsible-overview:hover {
+    background-color: #FFDF8A;
+    color: black;
 }
 
 .portfolio-content {
