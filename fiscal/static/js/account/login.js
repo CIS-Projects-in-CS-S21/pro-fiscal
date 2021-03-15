@@ -50,14 +50,6 @@ let content = `
  * @returns {Element} A confirmation message is returned stating that the user has logged out.
  */
 function logoutInterface() {
-    let message = document.createElement("div");
-    let button = document.createElement("button");
-    button.innerHTML = "Log Out";
-    button.onclick = logout;
-    message.appendChild(button);
-    message.classList.add("logout");
-
-    return message;
 
     function logout() {
         console.log("Logging out user");
@@ -76,5 +68,11 @@ function logoutInterface() {
         return response;
     }
 
+    let message = document.createElement("h2");
+
+    message.innerText = "Logging out...";
+    logout();
+
+    return message;
 
 }

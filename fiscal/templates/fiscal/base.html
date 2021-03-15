@@ -115,17 +115,6 @@
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link" href="#" id="navbarDropdown" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Account
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="#/register">Create Account</a>
-                                    <a class="dropdown-item" href="#">Login</a>
-                                    <a class="dropdown-item" href="#/logout">Logout</a>
-                                </div>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Profile</a>
                             </li>
@@ -135,14 +124,17 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="#">How to Use</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#/logout">Logout</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </nav>
 
 
-            <div id = "insert-data-here">
-                
+            <div id="insert-data-here">
+
             </div>
         </div>
     </div>
@@ -167,7 +159,7 @@
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
-    
+
     <script type="text/javascript">
         $(document).ready(function () {
             $("#sidebar").mCustomScrollbar({
@@ -188,13 +180,13 @@
         var myRoutes = [];
 
         myRoutes['#/home'] = home;
-        myRoutes['#/register'] = register;
+        // myRoutes['#/register'] = register;
         myRoutes['#/logout'] = logoutInterface;
 
         //Check if key exists
         const key = localStorage.getItem("key");
-        if(!key){
-          window.location.replace("/register")
+        if (!key) {
+            window.location.replace("/register")
         }
 
         routeFW({

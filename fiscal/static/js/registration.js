@@ -1,9 +1,8 @@
 function registration() {
     const content = `
-  <html id="wrapper">
+        <html id="wrapper">
 
-</html>
-
+        </html>
     `;
     var element = document.createElement("div");
     element.innerHTML = content;
