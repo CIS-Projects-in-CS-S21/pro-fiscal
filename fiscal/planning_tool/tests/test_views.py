@@ -5,7 +5,7 @@ from planning_tool.serializers import *
 
 import datetime
 
-from fiscal.planning_tool.views import PortfolioList
+from planning_tool.views import PortfolioList
 
 
 class ListViewTest(TestCase):
@@ -85,8 +85,29 @@ class ListViewTest(TestCase):
         self.asserEquals(resp.status_code, 400)
 
     def test_dummy(self):
+        # Add the data to the test DB
+        new_port = {
+            "user": self.user,
+            "name": "Test data",
+            "balance": 100.00,
+            "account_type": self.acct_type,
+            "description": "This is how the returned data should look"
+        }
+        port = Portfolio.objects.create(**new_port)
+
+        new_hold = {
+            "portfolio": port,
+            "security_type": self.sec_type,
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": "2021-12-20"
+        }
+        hold = Holding.objects.create(**new_hold)
+
         data = {
-            "user" : self.user,
+            "user": self.user,
             "name": "This Will Not Work",
             "balance": 0.00
         }
@@ -171,9 +192,9 @@ class DetailViewTest(TestCase):
             "price": 50.0,
             "shares": 2,
             "cost_basis": 40.0,
-            "purchase_date": datetime(2020, 12, 20)
+            "purchase_date": datetime.datetime(2020, 12, 20)
         }
-        hold = Portfolio.objects.create(**new_hold)
+        hold = Holding.objects.create(**new_hold)
 
         # Get response and test against expected values
         request = self.factory.get("portfolio/2")

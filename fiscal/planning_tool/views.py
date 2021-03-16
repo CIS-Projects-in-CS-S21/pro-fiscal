@@ -1,16 +1,16 @@
-from fiscal.planning_tool.models import Account_Type
-from fiscal.planning_tool.serializers import Account_TypeSerializer
+from planning_tool.models import Account_Type
+from planning_tool.serializers import Account_TypeSerializer
 
-from fiscal.planning_tool.models import Security_Type
-from fiscal.planning_tool.serializers import Security_TypeSerializer
+from planning_tool.models import Security_Type
+from planning_tool.serializers import Security_TypeSerializer
 
-from fiscal.planning_tool.models import Holding
-from fiscal.planning_tool.serializers import HoldingSerializer
+from planning_tool.models import Holding
+from planning_tool.serializers import HoldingSerializer
 
-from fiscal.planning_tool.models import Portfolio
-from fiscal.planning_tool.serializers import PortfolioSerializer
+from planning_tool.models import Portfolio
+from planning_tool.serializers import PortfolioSerializer
 
-from fiscal.planning_tool.serializers import UserSerializer
+from planning_tool.serializers import UserSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -33,15 +33,20 @@ class PortfolioList(APIView):
             Response: list of account in JSON format
         """
 
-        portfolio = Portfolio.objects.filter(request=request.user)
+        portfolio = Portfolio.objects.filter(user=request.user)
         portfolio_serializer = PortfolioSerializer(portfolio, many=True)
 
         ps_data = portfolio_serializer.data
-        holdings = Holding.objects.filter(pk__in=ps_data.holding)
-        ps_data["holdings"] = list(holdings)
+        for portfolio in ps_data:
 
+            account_type = Account_Type.objects.get(pk=portfolio["account_type"])
+            portfolio["account_type"] = account_type.type
+
+            holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
+            portfolio["holdings"] = list(holdings)
+
+        print(ps_data)
         return Response(ps_data.data)
-        pass
 
     def post(self, request, format = None):
         """
