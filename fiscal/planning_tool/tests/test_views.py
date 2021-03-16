@@ -5,6 +5,9 @@ from planning_tool.serializers import *
 
 import datetime
 
+from fiscal.planning_tool.views import PortfolioList
+
+
 class ListViewTest(TestCase):
 
     def setUp(self):
@@ -78,6 +81,24 @@ class ListViewTest(TestCase):
         view = PortfolioList()
         view.setup(request)
         resp = view.post(request)
+
+        self.asserEquals(resp.status_code, 400)
+
+    def test_dummy(self):
+        data = {
+            "user" : self.user,
+            "name": "This Will Not Work",
+            "balance": 0.00
+        }
+        request = self.factory.get("portfolio/", data=data, format="json")
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        print(resp.data)
 
         self.asserEquals(resp.status_code, 400)
 
