@@ -4,7 +4,7 @@ from planning_tool.views import *
 from planning_tool.serializers import *
 
 import datetime
-
+from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type
 from planning_tool.views import PortfolioList
 
 
@@ -84,7 +84,7 @@ class ListViewTest(TestCase):
 
         self.asserEquals(resp.status_code, 400)
 
-    def test_dummy(self):
+    def test_dummy_get(self):
         # Add the data to the test DB
         new_port = {
             "user": self.user,
@@ -118,6 +118,24 @@ class ListViewTest(TestCase):
         view = PortfolioList()
         view.setup(request)
         resp = view.get(request)
+
+        print(resp.data)
+
+        self.asserEquals(resp.status_code, 400)
+
+    def test_dummy_post(self):
+        data = {
+            "user" : self.user,
+            "name": "This Will Not Work",
+            "balance": 0.00
+        }
+        request = self.factory.post("portfolio/", data=data, format="json")
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
 
         print(resp.data)
 

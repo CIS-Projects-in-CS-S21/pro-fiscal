@@ -1,16 +1,10 @@
 from planning_tool.models import Account_Type
-from planning_tool.serializers import Account_TypeSerializer
-
-from planning_tool.models import Security_Type
-from planning_tool.serializers import Security_TypeSerializer
-
 from planning_tool.models import Holding
 from planning_tool.serializers import HoldingSerializer
 
 from planning_tool.models import Portfolio
 from planning_tool.serializers import PortfolioSerializer
 
-from planning_tool.serializers import UserSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -58,6 +52,7 @@ class PortfolioList(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
+        # account type and security type
         holdings_serializer = HoldingSerializer(data=request.data)
         if holdings_serializer.is_valid():
             holdings_serializer.save()
