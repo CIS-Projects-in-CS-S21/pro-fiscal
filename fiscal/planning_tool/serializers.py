@@ -63,8 +63,8 @@ class PortfolioSerializer(serializers.ModelSerializer):
     """
 
     holdings = serializers.PrimaryKeyRelatedField(many=True, queryset=Holding.objects.all(), allow_null=True)
-    account_type = serializers.PrimaryKeyRelatedField(queryset=Account_Type.objects.all(), allow_null=True)
-
+    #account_type = serializers.PrimaryKeyRelatedField(queryset=Account_Type.objects.all(), allow_null=True)
+    account_type = serializers.SlugRelatedField(slug_field='type', queryset=Account_Type.objects.all(), allow_null=True)
     class Meta:
         """
         Attributes:

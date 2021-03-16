@@ -10,6 +10,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import json
 
 class PortfolioList(APIView):
     """
@@ -32,10 +33,6 @@ class PortfolioList(APIView):
 
         ps_data = portfolio_serializer.data
         for portfolio in ps_data:
-
-            account_type = Account_Type.objects.get(pk=portfolio["account_type"])
-            portfolio["account_type"] = account_type.type
-
             holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
             portfolio["holdings"] = list(holdings)
 
@@ -52,14 +49,12 @@ class PortfolioList(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        # account type and security type
-        holdings_serializer = HoldingSerializer(data=request.data)
-        if holdings_serializer.is_valid():
-            holdings_serializer.save()
-            return Response(holdings_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(holdings_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        pass
+        request.data["user"] = request.user.pk
+        portfolio_serializer = PortfolioSerializer(data=request.data)
+        if portfolio_serializer.is_valid():
+            portfolio_serializer.save()
+            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PortfolioDetail(APIView):
     """
@@ -83,12 +78,16 @@ class PortfolioDetail(APIView):
         Returns:
             Response: JSON formatted data
         """
-        holding = self.get_object(key)
-        holdings_serializer = HoldingSerializer(holding)
-        return Response(holdings_serializer.data)
+        portfolio = Portfolio.objects.filter(user=request.user)
+        portfolio_serializer = PortfolioSerializer(portfolio, many=True)
 
+        ps_data = portfolio_serializer.data
+        for portfolio in ps_data:
+            holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
+            portfolio["holdings"] = list(holdings)
 
-        pass
+        print(ps_data)
+        return Response(ps_data.data)
 
     def put(self, request, key, format=None):
         """
@@ -101,15 +100,12 @@ class PortfolioDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        holding = self.get_object(key)
-        holdings_serializer = HoldingSerializer(holding)
-
-        if holdings_serializer.is_valid():
-            holdings_serializer.save()
-            return Response(holdings_serializer.data)
-        return Response(holdings_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        pass
+        request.data["user"] = request.user.pk
+        portfolio_serializer = PortfolioSerializer(data=request.data)
+        if portfolio_serializer.is_valid():
+            portfolio_serializer.save()
+            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, key, format=None):
         """
