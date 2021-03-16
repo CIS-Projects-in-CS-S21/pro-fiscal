@@ -1,0 +1,23 @@
+.collapsible-overview {
+    background-color: #4F5B7B;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}
+
+.collapsible-overview:hover {
+    background-color: #FFDF8A;
+    color: black;
+}
+
+.portfolio-content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #F1F1F1;
+}
