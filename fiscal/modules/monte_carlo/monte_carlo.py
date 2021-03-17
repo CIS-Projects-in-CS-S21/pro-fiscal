@@ -5,6 +5,14 @@ import datetime as dt
 import matplotlib.pyplot as plt
 from matplotlib import style
 
+"""
+TODO:
+- Update comments
+- finish methods
+- fix output
+- add multiple tickers
+- flexible date/time
+"""
 
 class Monte_carlo:
     """
@@ -22,19 +30,48 @@ class Monte_carlo:
             (volatility) of the user's assets
     """
     
-    def __init__(self):
+    def __init__(self, start_year, end_year, asset_names):
         """
         Initializes the Monte_carlo object
         """
-        self.__iterations = 100
+        self.__iterations = 200
+        self.__sim_results = None
+        self.__historical_returns = None
+        self.__prices = None
+        self.__start_date = dt.datetime(start_year,1,1)
+        self.__end_date = dt.datetime((end_year-1),12,31)
+        self.__total_years = end_year - start_year
+        self.__asset_names = asset_names
 
-        
 
     def run_sim(self):
         """
         Run the Monte_carlo simulation for the user
         """
-        pass
+        
+        self.__get_historical_data()
+
+        trading_days = 252 * self.__total_years
+        self.__sim_results = pd.DataFrame()
+        last_price = self.__prices[-1]
+
+        #sim loop
+        for x in range(self.__iterations):
+            count = 0
+            daily_vol = self.__historical_returns.std()
+
+            price_series = []
+            price = last_price*(1+np.random.normal(0, daily_vol))
+            price_series.append(price)
+
+            for i in range(trading_days):
+                if count == trading_days - 1:
+                    break
+                price = price_series[count]*(1+np.random.normal(0, daily_vol))
+                price_series.append(price)
+                count +=1
+            
+            self.__sim_results[x] = price_series
 
     def get_results(self):
         """
@@ -43,57 +80,27 @@ class Monte_carlo:
         Returns:
             list: A list of the results of the Monte_carlo simulation
         """
-        pass
+        return self.__sim_results
 
-    def __get_historical_data(self, list):
+    def __get_historical_data(self):
         """
         Fetches the historical data of the user's assets
 
         Arguments:
-            list (list): A list of the user's assest names
+            assets_names (list): A list of the user's assest names
 
         Returns:
             list: A list of the historical data for the passed asset names
         """
-        pass
 
-    def main():
-        style.use('ggplot')
+        # get prices of first stock element from yahoo
+        self.__prices = web.DataReader(self.__asset_names[0], 'yahoo', self.__start_date, self.__end_date)['Adj Close']
 
-        start = dt.datetime(2019,1,1)
-        end = dt.datetime(2019,12,31)
-        # getting Apple stock prices from yahoo
-        prices = web.DataReader('AAPL','yahoo', start,end)['Adj Close']
-        # getting returns
-        returns = prices.pct_change()
-        last_price  = prices[-1]
-        # simulation
-        num_simulations = 1000
-        trading_days = 252
-
-        sim_data = pd.DataFrame() #dataframe for simulation results
-        for x in range(num_simulations):
-            count=0
-            daily_vol = returns.std()
-            
-            price_series = []
-            price = last_price*(1+np.random.normal(0,daily_vol))
-            price_series.append(price)
-            
-            for i in range(trading_days):
-                if count == 251:
-                    break
-                price = price_series[count]*(1+np.random.normal(0,daily_vol))
-                price_series.append(price)
-                count+=1
-                
-            sim_data[x] = price_series
-            
-        fig = plt.figure()
-        fig.suptitle('Monte Carlo Simulation')
-        plt.plot(sim_data)
-        plt.show()
+        self.__historical_returns = self.__prices.pct_change()
 
 
-    if __name__ == "__main__":
-        main()
+
+if __name__ == "__main__":
+    monte = Monte_carlo(2019, 2020, ["AAPL"])
+    monte.run_sim()
+    print(monte.get_results())
