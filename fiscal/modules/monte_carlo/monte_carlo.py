@@ -38,9 +38,9 @@ class Monte_carlo:
         """
         self.__iterations = 10000
         self.__sim_results = {}
-        self.__historical_returns = None
-        self.__prices = None
-        self.__last_price = None
+        self.__historical_returns = []
+        self.__prices = []
+        self.__last_prices = []
         self.__start_year = start_year
         self.__end_year = end_year
         self.__total_years = self.__end_year - self.__start_year + 1
@@ -54,28 +54,31 @@ class Monte_carlo:
         
         self.__get_historical_data()
 
-        results = pd.DataFrame()
 
 
-        #sim loop
-        for x in range(self.__iterations):
-            count = 0
-            yearly_vol = self.__historical_returns.std()
-
-            price_series = []
-            price = self.__last_price*(1+np.random.normal(0, yearly_vol))
-            price_series.append(price)
-
-            for i in range(self.__total_years):
-                if count == self.__total_years - 1:
-                    break
-                price = price_series[count]*(1+np.random.normal(0, yearly_vol))
-                price_series.append(price)
-                count +=1
+        for pos in range(len(self.__asset_names)):
             
-            results[x] = price_series
+            results = pd.DataFrame()
 
-        self.__sim_results[self.__asset_names[0]] = results
+            #sim loop
+            for x in range(self.__iterations):
+                count = 0
+                yearly_vol = self.__historical_returns[pos].std()
+
+                price_series = []
+                price = self.__last_prices[pos]*(1+np.random.normal(0, yearly_vol))
+                price_series.append(price)
+
+                for i in range(self.__total_years):
+                    if count == self.__total_years - 1:
+                        break
+                    price = price_series[count]*(1+np.random.normal(0, yearly_vol))
+                    price_series.append(price)
+                    count +=1
+                
+                results[x] = price_series
+
+            self.__sim_results[self.__asset_names[pos]] = results
 
     def get_results(self):
         """
@@ -96,24 +99,24 @@ class Monte_carlo:
         Returns:
             list: A list of the historical data for the passed asset names
         """
+        for entry in self.__asset_names:
+            start = self.__start_year
 
-        start = self.__start_year
+            avgs = []
 
-        years = []
-        avgs = []
+            for i in range(self.__total_years):
+                prices = web.DataReader(self.__asset_names[0], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
+                avgs.append(np.average(prices))
+                start += 1
+                if (i == self.__total_years-1):
+                    self.__last_prices.append(np.average(prices))
 
-        for i in range(self.__total_years):
-            prices = web.DataReader(self.__asset_names[0], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
-            years.append(start)
-            avgs.append(np.average(prices))
-            start += 1
-            if (i == self.__total_years-1):
-                self.__last_price = np.average(prices)
+            # get prices of first stock element from yahoo
+            pricesDf = pd.DataFrame(avgs, index=range(self.__total_years), columns=['Yearly avg'])
 
-        # get prices of first stock element from yahoo
-        self.__prices = pd.DataFrame(avgs, index=range(self.__total_years), columns=['Yearly avg'])
+            self.__prices.append(pricesDf)
 
-        self.__historical_returns = self.__prices.pct_change()
+            self.__historical_returns.append(pricesDf.pct_change())
 
     def set_iterations(self, iterations):
         self.__iterations = iterations
@@ -127,6 +130,6 @@ class Monte_carlo:
         self.__total_years = self.__end_year - self.__start_year
 
 if __name__ == "__main__":
-    monte = Monte_carlo(2015, 2020, ["AAPL"])
+    monte = Monte_carlo(2015, 2020, ["AAPL", "AMZN"])
     monte.run_sim()
     print(monte.get_results())
