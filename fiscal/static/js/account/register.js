@@ -18,7 +18,7 @@ function create_new_account (email, password, password_verify) {
  * @returns {boolean} Compares whether password and password_verify are equal.
  */
 function verify_matching_passwords (password, password_verify) {
-    
+    return password === password_verify;
 }
 
 /**
@@ -53,3 +53,5 @@ function register () {
     elem.innerHTML = content;
     return elem;
 }
+
+module.exports = verify_matching_passwords;
