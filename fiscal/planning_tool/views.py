@@ -1,9 +1,8 @@
 import decimal
 
-from planning_tool.models import Holding
-from planning_tool.serializers import HoldingSerializer
+from planning_tool.models import Holding, Balance_History
 from planning_tool.models import Portfolio
-from planning_tool.serializers import PortfolioSerializer
+from planning_tool.serializers import PortfolioSerializer, HoldingSerializer, BalanceHistorySerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -48,6 +47,17 @@ class PortfolioList(APIView):
                 holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
 
             portfolio["holdings"] = holding_serializer.data
+
+            history = Balance_History.objects.filter(pk__in=portfolio['balance_history'])
+            history_serializer = BalanceHistorySerializer(history, many=True)
+
+            balance_history = {"balance": [], "date": []}
+            for balance in history_serializer.data:
+                balance["balance"] = decimal.Decimal(balance["balance"])
+                balance_history["balance"].append(balance["balance"])
+                balance_history["date"].append(balance["date"])
+
+            portfolio["balance_history"] = balance_history
 
         return Response(portfolio_serializer.data)
 

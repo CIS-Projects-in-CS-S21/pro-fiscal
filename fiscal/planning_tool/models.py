@@ -6,7 +6,7 @@ class Account_Type(models.Model):
     A class used to represent the database fields for the Account_Type table
 
     Attributes:
-        id (int): Primary Key, , automatically generated
+        id (int): Primary Key, automatically generated
         type (String): The type of account (Brokerage, IRA, 401K, etc)
     """
     type = models.CharField(max_length=50)
@@ -17,7 +17,7 @@ class Security_Type(models.Model):
     A class used to represent the database fields for the Security_Type table
 
     Attributes:
-        id (int): Primary Key, , automatically generated
+        id (int): Primary Key, automatically generated
         type (String): The type of security (Stock, Bond, etc)
     """
     type = models.CharField(max_length=50)
@@ -32,7 +32,7 @@ class Portfolio(models.Model):
         account_type (int): Foreign Key to the 'Account_Type' table
         name (String): The name of the portfolio account
         description (String): A description of the portfolio account
-        balance (decimal): The balance of the portfolio account
+        balance (decimal): The current balance of the portfolio account
     """
     user = models.ForeignKey(User, related_name='portfolio_accounts', on_delete=models.CASCADE)
     account_type = models.ForeignKey(Account_Type, related_name='account_type', on_delete=models.SET_NULL, null=True, blank=True)
@@ -71,5 +71,21 @@ class Holding(models.Model):
     def __str__(self):
         return f"id: {self.id}, portfolio_id: {self.portfolio_id}, type: {self.security_type}, ticker: {self.ticker}, " \
                f"price: {self.price}, shares: {self.shares}, purchase_date: {self.purchase_date}, cost_basis: {self.cost_basis}"
+
+
+class Balance_History(models.Model):
+    """
+    A class used to represent the database fields for balance history of portfolios
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        portfolio (int): Foreign Key to the 'Portfolio' table
+        balance (decimal): A previous balance of the portfolio
+        date (Date): The data of the previous balance
+    """
+
+    portfolio = models.ForeignKey(Portfolio, related_name="balance_history", on_delete=models.CASCADE)
+    balance = models.DecimalField(decimal_places=2, max_digits=15)
+    date = models.DateField()
 
 

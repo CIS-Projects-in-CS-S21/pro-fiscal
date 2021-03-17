@@ -141,6 +141,29 @@ class ListViewTest(TestCase):
 
         self.assertEquals(resp.status_code, 201)
 
+    def test_balance_history(self):
+        data = {
+            "user_id": 1,
+            'account_type_id': 1,
+            "name": "My IRA",
+            "balance": 200.00,
+            "description": "A useful description",
+        }
+        Portfolio.objects.create(**data)
+
+        for i in range(20, 30):
+            Balance_History.objects.create(**{"portfolio_id": 1, "balance": i, "date": datetime.date.today()})
+
+        request = self.factory.get("portfolio")
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertTrue(resp.data[0]["balance_history"], "Balance History should not be empty")
+
+
 
 class DetailViewTest(TestCase):
 
