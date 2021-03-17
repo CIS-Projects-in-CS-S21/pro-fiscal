@@ -11,7 +11,9 @@ TODO:
 - finish methods
 - fix output
 - add multiple tickers
-- flexible date/time
+- switch to yearly average
+- 10k iterations
+- normalize weight by percentage of portfolio
 """
 
 class Monte_carlo:
@@ -34,13 +36,14 @@ class Monte_carlo:
         """
         Initializes the Monte_carlo object
         """
-        self.__iterations = 200
+        self.__iterations = 100
         self.__sim_results = None
         self.__historical_returns = None
         self.__prices = None
-        self.__start_date = dt.datetime(start_year,1,1)
-        self.__end_date = dt.datetime((end_year-1),12,31)
-        self.__total_years = end_year - start_year
+        self.__last_price = None
+        self.__start_year = start_year
+        self.__end_year = end_year
+        self.__total_years = self.__end_year - self.__start_year + 1
         self.__asset_names = asset_names
 
 
@@ -51,23 +54,22 @@ class Monte_carlo:
         
         self.__get_historical_data()
 
-        trading_days = 252 * self.__total_years
         self.__sim_results = pd.DataFrame()
-        last_price = self.__prices[-1]
+
 
         #sim loop
         for x in range(self.__iterations):
             count = 0
-            daily_vol = self.__historical_returns.std()
+            yearly_vol = self.__historical_returns.std()
 
             price_series = []
-            price = last_price*(1+np.random.normal(0, daily_vol))
+            price = self.__last_price*(1+np.random.normal(0, yearly_vol))
             price_series.append(price)
 
-            for i in range(trading_days):
-                if count == trading_days - 1:
+            for i in range(self.__total_years):
+                if count == self.__total_years - 1:
                     break
-                price = price_series[count]*(1+np.random.normal(0, daily_vol))
+                price = price_series[count]*(1+np.random.normal(0, yearly_vol))
                 price_series.append(price)
                 count +=1
             
@@ -93,14 +95,36 @@ class Monte_carlo:
             list: A list of the historical data for the passed asset names
         """
 
+        start = self.__start_year
+
+        years = []
+        avgs = []
+
+        for i in range(self.__total_years):
+            prices = web.DataReader(self.__asset_names[0], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
+            years.append(start)
+            avgs.append(np.average(prices))
+            start += 1
+            if (i == self.__total_years-1):
+                self.__last_price = np.average(prices)
+
         # get prices of first stock element from yahoo
-        self.__prices = web.DataReader(self.__asset_names[0], 'yahoo', self.__start_date, self.__end_date)['Adj Close']
+        self.__prices = pd.DataFrame(avgs, index=range(self.__total_years), columns=['Yearly avg'])
 
         self.__historical_returns = self.__prices.pct_change()
 
+    def set_iterations(self, iterations):
+        self.__iterations = iterations
 
+    def set_start_year(self, start_year):
+        self.__start_year = start_year
+        self.__total_years = self.__end_year - self.__start_year
+
+    def set_end_year(self, end_year):
+        self.__end_year = end_year
+        self.__total_years = self.__end_year - self.__start_year
 
 if __name__ == "__main__":
-    monte = Monte_carlo(2019, 2020, ["AAPL"])
+    monte = Monte_carlo(2000, 2020, ["AAPL"])
     monte.run_sim()
     print(monte.get_results())
