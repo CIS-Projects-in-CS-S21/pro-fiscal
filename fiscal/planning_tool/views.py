@@ -8,6 +8,50 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from django.db.models.functions import Now
+
+
+def fetch_balance_history(portfolio_data):
+    """
+    A function to query data from the balance history table and build a dictionary of the values
+    
+    Arguments:
+        portfolio_data (dict): Portfolio data
+        
+    Returns:
+        A dict with all the balance history values associated with this portfolio
+    """
+    history = Balance_History.objects.filter(pk__in=portfolio_data['balance_history'])
+    history_serializer = BalanceHistorySerializer(history, many=True)
+
+    balance_history = {"balance": [], "date": []}
+    for balance in history_serializer.data:
+        balance["balance"] = decimal.Decimal(balance["balance"])
+        balance_history["balance"].append(balance["balance"])
+        balance_history["date"].append(balance["date"])
+
+    return balance_history
+
+def fetch_holdings(portfolio_data):
+    """
+    A function to query data from the holdings table
+    
+    Arguments:
+        portfolio_data (dict): Portfolio data
+
+    Returns:
+        A list of all the holdings associated with this portfolio
+    """
+    holdings = Holding.objects.filter(pk__in=portfolio_data['holdings'])
+    holding_serializer = HoldingSerializer(holdings, many=True)
+
+    for holding in holding_serializer.data:
+        # return from model is a string, must be converted
+        holding["price"] = decimal.Decimal(holding["price"])
+        holding["shares"] = decimal.Decimal(holding["shares"])
+        holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
+        
+    return holding_serializer.data
 
 
 class PortfolioList(APIView):
@@ -37,27 +81,8 @@ class PortfolioList(APIView):
         for portfolio in portfolio_serializer.data:
             portfolio["balance"] = decimal.Decimal(portfolio["balance"])
 
-            holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
-            holding_serializer = HoldingSerializer(holdings, many=True)
-
-            for holding in holding_serializer.data:
-                # return from model is a string, must be converted
-                holding["price"] = decimal.Decimal(holding["price"])
-                holding["shares"] = decimal.Decimal(holding["shares"])
-                holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
-
-            portfolio["holdings"] = holding_serializer.data
-
-            history = Balance_History.objects.filter(pk__in=portfolio['balance_history'])
-            history_serializer = BalanceHistorySerializer(history, many=True)
-
-            balance_history = {"balance": [], "date": []}
-            for balance in history_serializer.data:
-                balance["balance"] = decimal.Decimal(balance["balance"])
-                balance_history["balance"].append(balance["balance"])
-                balance_history["date"].append(balance["date"])
-
-            portfolio["balance_history"] = balance_history
+            portfolio["holdings"] = fetch_holdings(portfolio)            
+            portfolio["balance_history"] = fetch_balance_history(portfolio)
 
         return Response(portfolio_serializer.data)
 
@@ -111,18 +136,10 @@ class PortfolioDetail(APIView):
         ps_data = portfolio_serializer.data
 
         # return from model is a string, must be converted
-        ps_data["balance"] = decimal.Decimal(ps_data["balance"])
+        ps_data["balance"] = decimal.Decimal(ps_data["balance"])        
 
-        holdings = Holding.objects.filter(pk__in=ps_data['holdings'])
-        holding_serializer = HoldingSerializer(holdings, many=True)
-
-        for holding in holding_serializer.data:
-            # return from model is a string, must be converted
-            holding["price"] = decimal.Decimal(holding["price"])
-            holding["shares"] = decimal.Decimal(holding["shares"])
-            holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
-
-        ps_data["holdings"] = holding_serializer.data
+        ps_data["holdings"] = fetch_holdings(ps_data)
+        ps_data["balance_history"] = fetch_balance_history(ps_data)
 
         return Response(ps_data)
 
@@ -137,11 +154,19 @@ class PortfolioDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
+        old_data = self.get_object(key)
+        new_history = Balance_History(portfolio=old_data, balance=old_data.balance)
+        new_history.save()
+
         request.data["user"] = request.user.pk
-        portfolio_serializer = PortfolioSerializer(data=request.data)
+        portfolio_serializer = PortfolioSerializer(old_data, data=request.data)
         if portfolio_serializer.is_valid():
             portfolio_serializer.save()
-            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+
+            ps_data = portfolio_serializer.data            
+            ps_data["balance_history"] = fetch_balance_history(ps_data)
+
+            return Response(ps_data, status=status.HTTP_201_CREATED)
         return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, key, format=None):

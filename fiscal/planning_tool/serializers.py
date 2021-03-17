@@ -64,7 +64,7 @@ class PortfolioSerializer(serializers.ModelSerializer):
     """
 
     holdings = serializers.PrimaryKeyRelatedField(many=True, queryset=Holding.objects.all(), allow_null=True)
-    balance_history = serializers.PrimaryKeyRelatedField(many=True, queryset=Balance_History.objects.all())
+    balance_history = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     account_type = serializers.SlugRelatedField(slug_field='type', queryset=Account_Type.objects.all(), allow_null=True)
     class Meta:
         """

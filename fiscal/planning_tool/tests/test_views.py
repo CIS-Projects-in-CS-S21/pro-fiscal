@@ -28,7 +28,8 @@ class ListViewTest(TestCase):
             "name": "My IRA",
             "balance": 200.00,
             "description": "A useful description",
-            "holdings": []
+            "holdings": [],
+            "balance_history": {}
         }
 
     def test_get_portfolioList_no_entries(self):
@@ -129,7 +130,8 @@ class ListViewTest(TestCase):
             "name": "My IRA",
             "balance": 200.00,
             "description": "A useful description",
-            "holdings": []
+            "holdings": [],
+            "balance_history": {}
         }
         request = self.factory.post("portfolio/", data=data, format="json")
         request.user = self.user
@@ -139,7 +141,7 @@ class ListViewTest(TestCase):
         view.setup(request)
         resp = view.post(request)
 
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, 201, resp.data)
 
     def test_balance_history(self):
         data = {
@@ -152,7 +154,7 @@ class ListViewTest(TestCase):
         Portfolio.objects.create(**data)
 
         for i in range(20, 30):
-            Balance_History.objects.create(**{"portfolio_id": 1, "balance": i, "date": datetime.date.today()})
+            Balance_History.objects.create(**{"portfolio_id": 1, "balance": i})
 
         request = self.factory.get("portfolio")
         request.user = self.user
@@ -273,6 +275,7 @@ class DetailViewTest(TestCase):
             "holdings": []
 
         }
+
         request = self.factory.put("portfolio/1")
         request.user = self.user
         request.data = data
@@ -281,7 +284,7 @@ class DetailViewTest(TestCase):
         view.setup(request)
         resp = view.put(request, 1)
 
-        self.assertEquals(resp.status_code, 201)
+        self.assertEquals(resp.status_code, 201, resp.data)
 
     def test_delete_portFolioDetail(self):
         request = self.factory.delete("portfolio/1")
@@ -293,3 +296,16 @@ class DetailViewTest(TestCase):
 
         self.assertEquals(resp.status_code, 204)
         self.assertRaises(Portfolio.DoesNotExist)
+
+    def test_balance_history(self):
+        for i in range(20, 30):
+            Balance_History.objects.create(**{"portfolio_id": 1, "balance": i})
+
+        request = self.factory.get("portfolio/1")
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertTrue(resp.data["balance_history"], "Balance History should not be empty")

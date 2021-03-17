@@ -86,6 +86,6 @@ class Balance_History(models.Model):
 
     portfolio = models.ForeignKey(Portfolio, related_name="balance_history", on_delete=models.CASCADE)
     balance = models.DecimalField(decimal_places=2, max_digits=15)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
 
 
