@@ -1,3 +1,11 @@
+import pandas_datareader.data as web
+import pandas as pd
+import numpy as np
+import datetime as dt
+import matplotlib.pyplot as plt
+from matplotlib import style
+
+
 class Monte_carlo:
     """
     Creates and runs the Monte_carlo simulation for the user
@@ -18,7 +26,9 @@ class Monte_carlo:
         """
         Initializes the Monte_carlo object
         """
-        pass
+        self.__iterations = 100
+
+        
 
     def run_sim(self):
         """
@@ -46,3 +56,44 @@ class Monte_carlo:
             list: A list of the historical data for the passed asset names
         """
         pass
+
+    def main():
+        style.use('ggplot')
+
+        start = dt.datetime(2019,1,1)
+        end = dt.datetime(2019,12,31)
+        # getting Apple stock prices from yahoo
+        prices = web.DataReader('AAPL','yahoo', start,end)['Adj Close']
+        # getting returns
+        returns = prices.pct_change()
+        last_price  = prices[-1]
+        # simulation
+        num_simulations = 1000
+        trading_days = 252
+
+        sim_data = pd.DataFrame() #dataframe for simulation results
+        for x in range(num_simulations):
+            count=0
+            daily_vol = returns.std()
+            
+            price_series = []
+            price = last_price*(1+np.random.normal(0,daily_vol))
+            price_series.append(price)
+            
+            for i in range(trading_days):
+                if count == 251:
+                    break
+                price = price_series[count]*(1+np.random.normal(0,daily_vol))
+                price_series.append(price)
+                count+=1
+                
+            sim_data[x] = price_series
+            
+        fig = plt.figure()
+        fig.suptitle('Monte Carlo Simulation')
+        plt.plot(sim_data)
+        plt.show()
+
+
+    if __name__ == "__main__":
+        main()
