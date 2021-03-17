@@ -1,11 +1,9 @@
 import decimal
 
-from planning_tool.models import Account_Type
 from planning_tool.models import Holding
 from planning_tool.serializers import HoldingSerializer
 from planning_tool.models import Portfolio
 from planning_tool.serializers import PortfolioSerializer
-
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -16,15 +14,18 @@ from rest_framework import status, permissions
 class PortfolioList(APIView):
     """
     List all accounts, or add a new one
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
     """
 
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
         """
         Get the list of accounts
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
 
         Returns:
@@ -50,11 +51,11 @@ class PortfolioList(APIView):
 
         return Response(portfolio_serializer.data)
 
-    def post(self, request, format = None):
+    def post(self, request, format=None):
         """
         Add a new account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
 
         Returns:
@@ -71,7 +72,11 @@ class PortfolioList(APIView):
 class PortfolioDetail(APIView):
     """
     Get, update, or delete an individual portfolio account
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
     """
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, key):
         try:
@@ -83,7 +88,7 @@ class PortfolioDetail(APIView):
         """
         Get the specified portfolio account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
             key (int): The primary key of the portfolio account
 
@@ -115,7 +120,7 @@ class PortfolioDetail(APIView):
         """
         Update the specified portfolio account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
             key (int): The primary key of the portfolio account
 
@@ -133,7 +138,7 @@ class PortfolioDetail(APIView):
         """
         Delete the specified portfolio account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
             key (int): The primary key of the portfolio account
 
