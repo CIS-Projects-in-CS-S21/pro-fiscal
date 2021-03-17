@@ -36,8 +36,8 @@ class Monte_carlo:
         """
         Initializes the Monte_carlo object
         """
-        self.__iterations = 100
-        self.__sim_results = None
+        self.__iterations = 10000
+        self.__sim_results = {}
         self.__historical_returns = None
         self.__prices = None
         self.__last_price = None
@@ -54,7 +54,7 @@ class Monte_carlo:
         
         self.__get_historical_data()
 
-        self.__sim_results = pd.DataFrame()
+        results = pd.DataFrame()
 
 
         #sim loop
@@ -73,7 +73,9 @@ class Monte_carlo:
                 price_series.append(price)
                 count +=1
             
-            self.__sim_results[x] = price_series
+            results[x] = price_series
+
+        self.__sim_results[self.__asset_names[0]] = results
 
     def get_results(self):
         """
@@ -125,6 +127,6 @@ class Monte_carlo:
         self.__total_years = self.__end_year - self.__start_year
 
 if __name__ == "__main__":
-    monte = Monte_carlo(2000, 2020, ["AAPL"])
+    monte = Monte_carlo(2015, 2020, ["AAPL"])
     monte.run_sim()
     print(monte.get_results())
