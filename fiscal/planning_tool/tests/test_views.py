@@ -84,7 +84,7 @@ class ListViewTest(TestCase):
 
         self.assertEquals(resp.status_code, 400)
 
-    def test_dummy_get(self):
+    def test_get_success(self):
         # Add the data to the test DB
         new_port = {
             "user": self.user,
@@ -121,9 +121,9 @@ class ListViewTest(TestCase):
 
         print(resp.data)
 
-        self.assertEquals(resp.status_code, 400)
+        self.assertEquals(resp.status_code, 200)
 
-    def test_dummy_post(self):
+    def test_post_success(self):
         data = {
             'account_type': "IRA",
             "name": "My IRA",
@@ -139,9 +139,8 @@ class ListViewTest(TestCase):
         view.setup(request)
         resp = view.post(request)
 
-        print(resp.data)
+        self.assertEquals(resp.status_code, 201)
 
-        self.assertEquals(resp.status_code, 400)
 
 class DetailViewTest(TestCase):
 
@@ -170,25 +169,33 @@ class DetailViewTest(TestCase):
         self.port_1.save()
 
         self.expected_data = {
-            "portfolio_id": 2,
-            "user_id": 1,
-            "username": "Test",
+            "id": 2,
+            "user": 1,
             "name": "Test data",
             "balance": 100.00,
             "account_type": "IRA",
             "description": "This is how the data should look",
             "holdings": [
-                {"holding_id": 1,
-                 "portfolio_id": 2,
+                {"id": 1,
+                 "portfolio": 2,
                  "security_type": "Bond",
                  "ticker": "GNMA",
                  "price": 50.0,
                  "shares": 2,
                  "cost_basis": 40.0,
-                 "purchase_date": "12-20-2021"
+                 "purchase_date": "2020-12-20"
                  }
             ]
         }
+    def test_get_success(self):
+        request = self.factory.get("portfolio/1")
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
 
     def test_get_portfolioDetail_expected_format(self):
         """
@@ -201,7 +208,7 @@ class DetailViewTest(TestCase):
             "name": "Test data",
             "balance": 100.00,
             "account_type": self.acct_type,
-            "description": "This is how the returned data should look"
+            "description": "This is how the data should look"
         }
         port = Portfolio.objects.create(**new_port)
 
@@ -220,12 +227,12 @@ class DetailViewTest(TestCase):
         request = self.factory.get("portfolio/2")
         request.user = self.user
 
-        view = PortfolioList()
+        view = PortfolioDetail()
         view.setup(request)
         resp = view.get(request, 2)
 
         ret_holdings = resp.data.pop("holdings")[0]
-        expected_holdings = self.expected_data.pop("holdings")
+        expected_holdings = self.expected_data.pop("holdings")[0]
 
         self.assertEquals(resp.status_code, 200)
         for field in self.expected_data.keys():
@@ -237,8 +244,8 @@ class DetailViewTest(TestCase):
         data = {
             'user': 1,
             'account_type': "IRA",
-            "name": "My IRA",
-            "balance": 200.00,
+            "name": "Now its a 401k",
+            "balance": 300.00,
             "description": "A useful description",
             "holdings": []
 
@@ -249,9 +256,9 @@ class DetailViewTest(TestCase):
 
         view = PortfolioDetail()
         view.setup(request)
-        resp = view.get(request, 1)
+        resp = view.put(request, 1)
 
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, 201)
 
     def test_delete_portFolioDetail(self):
         request = self.factory.delete("portfolio/1")
@@ -261,4 +268,5 @@ class DetailViewTest(TestCase):
         view.setup(request)
         resp = view.delete(request, 1)
 
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, 204)
+        self.assertRaises(Portfolio.DoesNotExist)

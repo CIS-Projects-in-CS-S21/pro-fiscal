@@ -1,7 +1,8 @@
+import decimal
+
 from planning_tool.models import Account_Type
 from planning_tool.models import Holding
 from planning_tool.serializers import HoldingSerializer
-
 from planning_tool.models import Portfolio
 from planning_tool.serializers import PortfolioSerializer
 
@@ -9,15 +10,17 @@ from planning_tool.serializers import PortfolioSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-import json
+from rest_framework import status, permissions
+
 
 class PortfolioList(APIView):
     """
     List all accounts, or add a new one
     """
 
-    def get(self, request, format = None):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
         """
         Get the list of accounts
 
@@ -31,13 +34,21 @@ class PortfolioList(APIView):
         portfolio = Portfolio.objects.filter(user=request.user)
         portfolio_serializer = PortfolioSerializer(portfolio, many=True)
 
-        ps_data = portfolio_serializer.data
-        for portfolio in ps_data:
-            holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
-            portfolio["holdings"] = list(holdings)
+        for portfolio in portfolio_serializer.data:
+            portfolio["balance"] = decimal.Decimal(portfolio["balance"])
 
-        print(ps_data)
-        return Response(ps_data.data)
+            holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
+            holding_serializer = HoldingSerializer(holdings, many=True)
+
+            for holding in holding_serializer.data:
+                # return from model is a string, must be converted
+                holding["price"] = decimal.Decimal(holding["price"])
+                holding["shares"] = decimal.Decimal(holding["shares"])
+                holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
+
+            portfolio["holdings"] = holding_serializer.data
+
+        return Response(portfolio_serializer.data)
 
     def post(self, request, format = None):
         """
@@ -56,6 +67,7 @@ class PortfolioList(APIView):
             return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
         return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PortfolioDetail(APIView):
     """
     Get, update, or delete an individual portfolio account
@@ -63,8 +75,8 @@ class PortfolioDetail(APIView):
 
     def get_object(self, key):
         try:
-            return Holding.objects.get(key=key)
-        except Holding.DoesNotExist:
+            return Portfolio.objects.get(pk=key)
+        except Portfolio.DoesNotExist:
             raise Http404
 
     def get(self, request, key, format=None):
@@ -78,16 +90,26 @@ class PortfolioDetail(APIView):
         Returns:
             Response: JSON formatted data
         """
-        portfolio = Portfolio.objects.filter(user=request.user)
-        portfolio_serializer = PortfolioSerializer(portfolio, many=True)
+        portfolio = self.get_object(key)
+        portfolio_serializer = PortfolioSerializer(portfolio)
 
         ps_data = portfolio_serializer.data
-        for portfolio in ps_data:
-            holdings = Holding.objects.filter(pk__in=portfolio['holdings'])
-            portfolio["holdings"] = list(holdings)
 
-        print(ps_data)
-        return Response(ps_data.data)
+        # return from model is a string, must be converted
+        ps_data["balance"] = decimal.Decimal(ps_data["balance"])
+
+        holdings = Holding.objects.filter(pk__in=ps_data['holdings'])
+        holding_serializer = HoldingSerializer(holdings, many=True)
+
+        for holding in holding_serializer.data:
+            # return from model is a string, must be converted
+            holding["price"] = decimal.Decimal(holding["price"])
+            holding["shares"] = decimal.Decimal(holding["shares"])
+            holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
+
+        ps_data["holdings"] = holding_serializer.data
+
+        return Response(ps_data)
 
     def put(self, request, key, format=None):
         """
@@ -118,8 +140,6 @@ class PortfolioDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        holding = self.get_object(key)
-        holding.delete()
+        portfolio = self.get_object(key)
+        portfolio.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-        pass
