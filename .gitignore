@@ -13,7 +13,6 @@ __pycache__
 
 # NPM #
 fiscal/node_modules
-node_modules
 
 # Environments
 env/
