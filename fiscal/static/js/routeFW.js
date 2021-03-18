@@ -1,4 +1,4 @@
-function routeFW (params) {
+function routeFW(params) {
     let contentID = params.contentID || "content";
     let startLink = params.startLink || "#/home";
 
@@ -9,13 +9,13 @@ function routeFW (params) {
 
     const routingTable = params.routeArray;
 
-    function inject (item) {
+    function inject(item) {
         let target = document.getElementById(contentID);
         target.innerHTML = "";
         target.appendChild(item);
     }
 
-    function parsePath (path) {
+    function parsePath(path) {
         let obj = {
             param: "",
             funcName: path
@@ -31,7 +31,7 @@ function routeFW (params) {
         return obj;
     }
 
-    function route () {
+    function route() {
         let path = location.hash;
 
         let unknown;
