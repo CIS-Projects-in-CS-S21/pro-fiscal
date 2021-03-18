@@ -70,7 +70,7 @@ function render_portfolio_growth() {
             let index = 1;
             for (let j = 1; j <= maximum[i]; j++) {                
                 if (j < daysAfterData[i][index]) {
-                    chartBalanceData[i][j] = NaN;
+                    chartBalanceData[i][j] = balanceData[i][index-1];
                 } else {
                     chartBalanceData[i][j] = balanceData[i][index];
                     index++;
@@ -129,84 +129,3 @@ function render_portfolio_growth() {
 
     return contents;
 }
-
-
-/*
-
-extract dates and balance data
-
-[[date, date, date], [date, date]]
-[[balance, balance, balance], [balance, balance]]
-
-
-
-calculate max_num_days_after for each row
-var min = dates.reduce(function (a, b) { return a < b ? a : b; });
-var max = dates.reduce(function (a, b) { return a > b ? a : b; });
-
-Use that number to make an Array.fill call initializing everything to 0
-
-
-
-for each row in date:
-from 0 to max_days_after:
-track index of extracted date array for row [0, 2, 5]
-if iterator < row[index]:
-    balance[iterator] = row[index-1]
-
-
-
-
-[[days_after, days_after, ..., max_days_after], [days_after, ..., max_days_after]]
-
-
-
-
-
-
-
-
-*/
-
-/*
-
-
-    const extractPortfolioBalanceDates = (portfolios, index) => {
-        let item = portfolios[index];
-
-        dateData = item["dates"];
-        balanceData = item["balances"];
-
-        dateData.push(item["latest_balance"]["date"]);
-        balanceData.push(item["latest_balance"]["balance"]);
-
-        calculate_days_after(dateData);
-    }
-
-
-    function createAreaChart() {
-        var ctx = document.getElementById('myChart').getContext('2d');
-
-        console.log(balanceData);
-        console.log(dateData);
-
-        var chart = new Chart(ctx, {
-            // The type of chart we want to create
-            type: 'line',
-
-            // The data for our dataset
-            data: {
-                labels: dateData,
-                datasets: [{
-                    label: "User's Portfolio Growth",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: balanceData
-                }]
-            },
-
-            // Configuration options go here
-            options: {}
-        });
-    }
-*/

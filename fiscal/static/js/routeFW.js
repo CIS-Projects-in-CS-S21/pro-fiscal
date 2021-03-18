@@ -39,7 +39,7 @@ function routeFW(params) {
 
         if (!routingTable[pathObj.funcName]) {
             unknown = document.createElement("div");
-            unknown.innerHTML = "<p>Error: unknown link " + path + " is absent from the routing table.</p>";
+            unknown.innerHTML = "<p>Error: This page has not been developed yet. Please look forward to it once we finish development on it.</p>";
         } else if (pathObj.param.length > 0) {
             unknown = routingTable[pathObj.funcName](pathObj.param);
         } else {
