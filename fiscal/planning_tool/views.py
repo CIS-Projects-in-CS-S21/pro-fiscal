@@ -64,7 +64,7 @@ class PortfolioList(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Get the list of accounts
 

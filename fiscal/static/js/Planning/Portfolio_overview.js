@@ -140,20 +140,41 @@ function render_portfolio_overview() {
         return buttonGroup;
     }
 
+    // portfolios = get_portfolios(1)
     const getPortfolioData = () => {
         let portfolios = "";
 
-        fetch("/static/json/portfolio_test.json")
+        let data = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "Token " + localStorage.getItem("key")
+            }
+        }
+
+        fetch("/planning/portfolio/", data)
             .then(response => {
                 return response.json();
             })
-            .then((data) => {
-                portfolios = data["portfolio_accounts"];
-            })
-            .then(() => {
+            .then((portfolios) => {
                 // Do all the interface stuff here
                 handleUserPortfolios(portfolios);
-            })
+            }).catch((error) => {
+                portfolio_listing.innerHTML = error;
+        })
+
+        // fetch("/static/json/portfolio_test.json")
+        //     .then(response => {
+        //         return response.json();
+        //     })
+        //     .then((data) => {
+        //         portfolios = data["portfolio_accounts"];
+        //     })
+        //     .then(() => {
+        //         // Do all the interface stuff here
+        //         handleUserPortfolios(portfolios);
+        //     })
     };
 
     const handleUserPortfolios = (portfolios) => {
