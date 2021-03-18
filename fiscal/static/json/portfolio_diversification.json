@@ -23,37 +23,16 @@
         "account_type": "IRA",
         "portfolio_name": "MyTestAccount2 - Electric Boogaloo",
         "portfolio_description": "Repeat",
+        "latest_balance": {
+            "id": 2,
+            "balance": 109.82,
+            "date": "03-06-2021"
+        },
         "balances": [
-            {
-                "id": 6,
-                "balance": 100.00,
-                "date": "02-20-2021"
-            },
-            {
-                "id": 7,
-                "balance": 105.15,
-                "date": "02-23-2021"
-            },
-            {
-                "id": 8,
-                "balance": 104.48,
-                "date": "02-26-2021"
-            },
-            {
-                "id": 9,
-                "balance": 106.28,
-                "date": "03-01-2021"
-            },
-            {
-                "id": 10,
-                "balance": 105.67,
-                "date": "03-04-2021"
-            },
-            {
-                "id": 11,
-                "balance": 107.18,
-                "date": "03-07-2021"
-            }
+            100.00, 102.43, 104.62, 103.68, 106.71, 107.98, 110.85
+        ],
+        "dates": [
+            "02-20-2021", "02-23-2021", "02-25-2021", "02-27-2021", "03-02-2021", "03-04-2021"
         ]
     }
 ]

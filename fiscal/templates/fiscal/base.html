@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 
@@ -58,7 +59,7 @@
                             <a href="#">Portfolio Diversification</a>
                         </li>
                         <li>
-                            <a href="#">Portfolio Growth</a>
+                            <a href="#/portfolio-growth">Portfolio Growth</a>
                         </li>
                         <li>
                             <a href="#">Monte Carlo</a>
@@ -168,6 +169,7 @@
     <script src="{% static 'js/createButton.js' %}"></script>
     <script src="{% static 'js/createTable.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
+    <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
 
     <script type="text/javascript">
@@ -192,6 +194,7 @@
         myRoutes['#/home'] = home;        
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
+        myRoutes['#/portfolio-growth'] = render_portfolio_growth;
 
         //Check if key exists
         const key = localStorage.getItem("key");
