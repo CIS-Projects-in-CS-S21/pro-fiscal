@@ -62,13 +62,13 @@ class Monte_carlo:
                 yearly_vol = self.__historical_returns[pos].std()
                 price_series = []
                 price = self.__last_prices[pos]*(1+np.random.normal(0, yearly_vol))
-                price_series.append(price[0])
+                price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
 
                 for i in range(self.__total_years):
                     if count == self.__total_years - 1:
                         break
                     price = price_series[count]*(1+np.random.normal(0, yearly_vol))
-                    price_series.append(price[0])
+                    price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
                     count +=1
                 
                 results[x] = price_series
@@ -132,6 +132,6 @@ class Monte_carlo:
         return out
 
 if __name__ == "__main__":
-    monte = Monte_carlo(2015, 2020, ["AAPL"], [200])
+    monte = Monte_carlo(2015, 2020, ["AAPL", "AMZN"], [200, 75])
     monte.run_sim()
     print(monte.get_results())
