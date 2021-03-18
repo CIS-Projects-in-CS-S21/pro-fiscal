@@ -1,5 +1,3 @@
-const d3 = require("../../../node_modules/d3");
-
 function render_portfolio_growth() {
 
     const getPortfolioChangeData = () => {
@@ -23,9 +21,8 @@ function render_portfolio_growth() {
 
     getPortfolioChangeData();
 
-    let contents = document.createElement("div");
+    let contents = document.createElement("h3");
     contents.innerText = "Testing Portfolio Growth";
 
-    
     return contents;
 }

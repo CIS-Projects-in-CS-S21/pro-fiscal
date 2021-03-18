@@ -140,7 +140,6 @@
                 </div>
             </nav>
 
-
             <div id="insert-data-here">
 
             </div>
@@ -162,6 +161,8 @@
     <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+    <!-- CDN for D3, a Chart Library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
@@ -191,7 +192,7 @@
 
         var myRoutes = [];
 
-        myRoutes['#/home'] = home;        
+        myRoutes['#/home'] = home;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
