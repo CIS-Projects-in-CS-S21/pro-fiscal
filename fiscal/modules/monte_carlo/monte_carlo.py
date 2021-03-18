@@ -9,9 +9,7 @@ from matplotlib import style
 TODO:
 - Update comments
 - finish methods
-- fix output
-- add multiple tickers
-- switch to yearly average
+- maybe move to weekyl
 - 10k iterations
 - normalize weight by percentage of portfolio
 """
@@ -32,7 +30,7 @@ class Monte_carlo:
             (volatility) of the user's assets
     """
     
-    def __init__(self, start_year, end_year, asset_names):
+    def __init__(self, start_year, end_year, asset_names, shares_held):
         """
         Initializes the Monte_carlo object
         """
@@ -45,16 +43,14 @@ class Monte_carlo:
         self.__end_year = end_year
         self.__total_years = self.__end_year - self.__start_year + 1
         self.__asset_names = asset_names
-
+        self.__shares_held = shares_held
+        self.__weights = self.__get_weights()
+        self.__get_historical_data()
 
     def run_sim(self):
         """
         Run the Monte_carlo simulation for the user
         """
-        
-        self.__get_historical_data()
-
-
 
         for pos in range(len(self.__asset_names)):
             
@@ -64,16 +60,15 @@ class Monte_carlo:
             for x in range(self.__iterations):
                 count = 0
                 yearly_vol = self.__historical_returns[pos].std()
-
                 price_series = []
                 price = self.__last_prices[pos]*(1+np.random.normal(0, yearly_vol))
-                price_series.append(price)
+                price_series.append(price[0])
 
                 for i in range(self.__total_years):
                     if count == self.__total_years - 1:
                         break
                     price = price_series[count]*(1+np.random.normal(0, yearly_vol))
-                    price_series.append(price)
+                    price_series.append(price[0])
                     count +=1
                 
                 results[x] = price_series
@@ -129,7 +124,14 @@ class Monte_carlo:
         self.__end_year = end_year
         self.__total_years = self.__end_year - self.__start_year
 
+    def __get_weights(self):
+        total = sum(self.__shares_held)
+        out = []
+        for num in self.__shares_held:
+            out.append(num/total)
+        return out
+
 if __name__ == "__main__":
-    monte = Monte_carlo(2015, 2020, ["AAPL", "AMZN"])
+    monte = Monte_carlo(2015, 2020, ["AAPL"], [200])
     monte.run_sim()
     print(monte.get_results())
