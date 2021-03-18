@@ -52,22 +52,30 @@ class Monte_carlo:
         Run the Monte_carlo simulation for the user
         """
 
+        # iterate through each different ticker
         for pos in range(len(self.__asset_names)):
             
+            # create pandas DataFrame for results
             results = pd.DataFrame()
 
             #sim loop
             for x in range(self.__iterations):
                 count = 0
+                #find yearly volatility
                 yearly_vol = self.__historical_returns[pos].std()
                 price_series = []
+                # create and add first simulated price
                 price = self.__last_prices[pos]*(1+np.random.normal(0, yearly_vol))
+                # apply weight and shares held to price
                 price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
 
+                #loop through each year
                 for i in range(self.__total_years):
                     if count == self.__total_years - 1:
                         break
+                    # create and add next simulated price
                     price = price_series[count]*(1+np.random.normal(0, yearly_vol))
+                    #apply weight and shares held to price
                     price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
                     count +=1
                 
@@ -80,29 +88,29 @@ class Monte_carlo:
         Fetches the results of the Monte_carlo simulation for the user
 
         Returns:
-            list: A list of the results of the Monte_carlo simulation
+            dictionary: A dictionary of the results of the Monte_carlo simulation
+                key:value = "ticker name":numpyArr of sim results
         """
         return self.__sim_results
 
     def __get_historical_data(self):
         """
         Fetches the historical data of the user's assets
-
-        Arguments:
-            assets_names (list): A list of the user's assest names
-
-        Returns:
-            list: A list of the historical data for the passed asset names
         """
+        #iterate through 
         for entry in self.__asset_names:
             start = self.__start_year
 
             avgs = []
 
+            # iterate through each year
             for i in range(self.__total_years):
+                # fetch price data for the year
                 prices = web.DataReader(self.__asset_names[0], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
+                # find yearly average and append to avgs
                 avgs.append(np.average(prices))
                 start += 1
+                # add last price to __last_prices lsit
                 if (i == self.__total_years-1):
                     self.__last_prices.append(np.average(prices))
 
@@ -114,17 +122,21 @@ class Monte_carlo:
             self.__historical_returns.append(pricesDf.pct_change())
 
     def set_iterations(self, iterations):
+        # setter for iterations
         self.__iterations = iterations
 
     def set_start_year(self, start_year):
+        # setter for start year, updates total years
         self.__start_year = start_year
         self.__total_years = self.__end_year - self.__start_year
 
     def set_end_year(self, end_year):
+        # setter for end year, updates total years
         self.__end_year = end_year
         self.__total_years = self.__end_year - self.__start_year
 
     def __get_weights(self):
+        # find the weight of each asset and stores it in a list which is returned
         total = sum(self.__shares_held)
         out = []
         for num in self.__shares_held:
