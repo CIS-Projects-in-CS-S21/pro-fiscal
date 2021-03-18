@@ -8,13 +8,17 @@ const days_after_update = (curr_date, start_date) => {
     return parseInt((curr_date - start_date) / (1000 * 60 * 60 * 24), 10);
 };
 
+/**
+ * Helper function for Charting that calculates the difference between the start date and the days that the portfolio's value was updated.
+ * @param {Array} dateData Array of Dates for a Portfolio
+ * @returns {Array} Number of Days since the start of the Portfolio
+ */
 function calculate_days_after(dateData) {
     const start_date = new Date(dateData[0]);
     let daysAfter = [];
 
     for (let i = 0; i < dateData.length; i++) {
-        let date = new Date(dateData[i]);
-        let difference = days_after_update(date, start_date);
+        let difference = days_after_update(new Date(dateData[i]), start_date);
         daysAfter.push(difference);
     }
 
@@ -61,24 +65,22 @@ function render_portfolio_growth() {
     }
 
     const fillInHoles = () => {
-
         for (let i = 0; i < maximum.length; i++) {
             chartDateData.push(Array.apply(null, Array(maximum[i] + 1)).map((val, idx) => idx));
             chartBalanceData.push(new Array(maximum[i] + 1).fill(balanceData[i][0]));
             daysAfterData.push(calculate_days_after(dateData[i]));
 
             let index = 1;
-            for (let j = 1; j <= maximum[i]; j++) {                
+            for (let j = 1; j <= maximum[i]; j++) {
                 if (j < daysAfterData[i][index]) {
-                    chartBalanceData[i][j] = balanceData[i][index-1];
+                    chartBalanceData[i][j] = balanceData[i][index - 1];
                 } else {
                     chartBalanceData[i][j] = balanceData[i][index];
                     index++;
                 }
-                
             }
         }
-        
+
         // console.log(chartDateData);
         // console.log(chartBalanceData);
     }
@@ -109,10 +111,47 @@ function render_portfolio_growth() {
             },
 
             // Configuration options go here
-            options: {}
+            options: {
+                responsive: true,
+				title: {
+					display: true,
+					text: 'Your Portfolios - Growth'
+				},
+                tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+                scales: {
+                    xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Days since Starting the Portfolio'
+						}
+					}],
+                    yAxes: [{
+                        display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value (in Dollars)'
+						},
+                        ticks: {
+                            // Include a dollar sign in the ticks
+                            callback: function (value, index, values) {
+                                return '$' + value;
+                            }
+                        }
+                    }]
+                }
+            }
         });
 
-        function removeChart () {
+        // Used to remove the Chart when we exit out of the Portfolio Growth Page
+        function removeChart() {
             console.log("Removing Chart");
             chart.destroy();
         }
@@ -125,7 +164,6 @@ function render_portfolio_growth() {
     getPortfolioChangeData();
 
     let contents = document.createElement("h3");
-    contents.innerText = "Testing Portfolio Growth";
-
+    contents.innerText = "Your Portfolios - Growth"; // Username here
     return contents;
 }
