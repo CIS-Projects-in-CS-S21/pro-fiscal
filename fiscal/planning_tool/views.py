@@ -119,18 +119,18 @@ class PortfolioDetail(APIView):
         except Portfolio.DoesNotExist:
             raise Http404
 
-    def get(self, request, key, format=None):
+    def get(self, request, pk, format=None):
         """
         Get the specified portfolio account
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the portfolio account
 
         Returns:
             Response: JSON formatted data
         """
-        portfolio = self.get_object(key)
+        portfolio = self.get_object(pk)
         portfolio_serializer = PortfolioSerializer(portfolio)
 
         ps_data = portfolio_serializer.data
@@ -143,18 +143,18 @@ class PortfolioDetail(APIView):
 
         return Response(ps_data)
 
-    def put(self, request, key, format=None):
+    def put(self, request, pk, format=None):
         """
         Update the specified portfolio account
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the portfolio account
 
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        old_data = self.get_object(key)
+        old_data = self.get_object(pk)
         new_history = Balance_History(portfolio=old_data, balance=old_data.balance)
         new_history.save()
 
@@ -169,17 +169,17 @@ class PortfolioDetail(APIView):
             return Response(ps_data, status=status.HTTP_201_CREATED)
         return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, key, format=None):
+    def delete(self, request, pk):
         """
         Delete the specified portfolio account
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the portfolio account
 
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        portfolio = self.get_object(key)
+        portfolio = self.get_object(pk)
         portfolio.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

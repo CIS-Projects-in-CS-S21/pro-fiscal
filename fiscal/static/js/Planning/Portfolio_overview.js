@@ -15,7 +15,37 @@ function get_portfolios(user_id) {
  * @returns {boolean} confirmation status
  * @throws {InvalidArgumentException} if the user enters invalid id or account name.
  */
-function create_portfolio(user_id, account_name) {
+// function create_portfolio(user_id, account_name) {
+function create_portfolio() {
+    let data = {
+        "name": "A new account",
+        "description": "I like this account",
+        "account_type": "Savings",
+        "balance": 45.00,
+        "holdings": []
+    }
+
+    let init = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "Token " + localStorage.getItem("key")
+            },
+            body: JSON.stringify(data)
+        }
+
+        fetch("/planning/portfolio/", init)
+            .then(response => {
+                console.log(response);
+                return response.json();
+            })
+            .then((portfolios) => {
+                // Do all the interface stuff here
+                console.log(portfolios);
+            }).catch((error) => {
+                console.error(error);
+        });
 
 }
 
@@ -36,7 +66,31 @@ function update_portfolio(portfolio_id, account_name) {
  * @returns {boolean} Returns confirmation status.
  * @throws {InvalidArgumentException} if the user enters no value id.
  */
-function delete_portfolio(portfolio_id) {
+// function delete_portfolio(portfolio_id) {
+function delete_portfolio() {
+    let portfolio_id = 2;
+
+    let init = {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "token " + localStorage.getItem("key")
+            },
+
+        }
+
+        fetch("/planning/portfolio/" + portfolio_id, init)
+            .then(response => {
+                console.log(response);
+                return response.json();
+            })
+            .then((portfolios) => {
+                // Do all the interface stuff here
+                console.log(portfolios);
+            }).catch((error) => {
+                console.error(error);
+        });
 
 }
 
@@ -132,7 +186,7 @@ function render_portfolio_overview() {
     const handlePortfolioButtons = () => {
         let buttonGroup = document.createElement("div");
         let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", dud_function);
-        let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", dud_function);
+        let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", delete_portfolio);
         
         buttonGroup.appendChild(updatePortfolio);
         buttonGroup.appendChild(deletePortfolio);
@@ -144,16 +198,16 @@ function render_portfolio_overview() {
     const getPortfolioData = () => {
         let portfolios = "";
 
-        let data = {
+        let init = {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 "Accept": "application/json",
-                'Authorization': "Token " + localStorage.getItem("key")
+                'Authorization': "token " + localStorage.getItem("key")
             }
         }
 
-        fetch("/planning/portfolio/", data)
+        fetch("/planning/portfolio/", init)
             .then(response => {
                 return response.json();
             })
@@ -278,7 +332,7 @@ function render_portfolio_overview() {
 
     //handlePortfolioButtons();
 
-    let createPortfolio = makeButton("btn-success", "Create Portfolio", dud_function);
+    let createPortfolio = makeButton("btn-success", "Create Portfolio", create_portfolio);
     portfolio_listing.appendChild(createPortfolio);
 
     portfolio_listing.appendChild(document.createElement("p"));
