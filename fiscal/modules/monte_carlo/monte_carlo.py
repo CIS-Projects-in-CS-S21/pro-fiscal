@@ -8,10 +8,7 @@ from matplotlib import style
 """
 TODO:
 - Update comments
-- finish methods
-- maybe move to weekyl
-- 10k iterations
-- normalize weight by percentage of portfolio
+- Add weekly method
 """
 
 class Monte_carlo:
@@ -62,19 +59,19 @@ class Monte_carlo:
             for x in range(self.__iterations):
                 count = 0
                 #find yearly volatility
-                yearly_vol = self.__historical_returns[pos].std()
+                weekly_vol = self.__historical_returns[pos].std()
                 price_series = []
                 # create and add first simulated price
-                price = self.__last_prices[pos]*(1+np.random.normal(0, yearly_vol))
+                price = self.__last_prices[pos]*(1+np.random.normal(0, weekly_vol))
                 # apply weight and shares held to price
                 price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
 
-                #loop through each year
-                for i in range(self.__total_years):
-                    if count == self.__total_years - 1:
+                #loop through each financial week in a year (252 days rounds to 50 weeks)
+                for i in range(self.__total_years*50):
+                    if count == (self.__total_years*50) - 1:
                         break
                     # create and add next simulated price
-                    price = price_series[count]*(1+np.random.normal(0, yearly_vol))
+                    price = price_series[count]*(1+np.random.normal(0, weekly_vol))
                     #apply weight and shares held to price
                     price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
                     count +=1
@@ -108,14 +105,20 @@ class Monte_carlo:
                 # fetch price data for the year
                 prices = web.DataReader(self.__asset_names[0], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
                 # find yearly average and append to avgs
-                avgs.append(np.average(prices))
+                pos = 0
+                #add average weekly price
+                for j in range(50):
+                    #append average of 5 day slice to avgs
+                    avgs.append(np.average(prices[pos:(pos+5)]))
+                    pos += 5
+                    #add last price to array
+                    if (i == self.__total_years-1) and (j == 49):
+                        self.__last_prices.append(np.average(prices[pos:(pos+5)]))
+                
                 start += 1
-                # add last price to __last_prices lsit
-                if (i == self.__total_years-1):
-                    self.__last_prices.append(np.average(prices))
 
             # get prices of first stock element from yahoo
-            pricesDf = pd.DataFrame(avgs, index=range(self.__total_years), columns=['Yearly avg'])
+            pricesDf = pd.DataFrame(avgs, index=range(self.__total_years*50), columns=['Weekly avg'])
 
             self.__prices.append(pricesDf)
 
@@ -144,6 +147,6 @@ class Monte_carlo:
         return out
 
 if __name__ == "__main__":
-    monte = Monte_carlo(2015, 2020, ["AAPL", "AMZN"], [200, 75])
+    monte = Monte_carlo(2019, 2020, ["AAPL", "MSFT"], [20, 20])
     monte.run_sim()
     print(monte.get_results())
