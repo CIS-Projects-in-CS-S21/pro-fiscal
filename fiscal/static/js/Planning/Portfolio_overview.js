@@ -1,28 +1,42 @@
 /**
- * Function that return user portfolios.
- * @param {int} user_id the user identification number
+ * Function that return user a single portfolio.
+ * @param {int} portfolio_id the user identification number
  * @throws {InvalidArgumentException} when the user enter no value id.
  * @returns {Array} arrays of portfolios
  */
-function get_portfolios(user_id) {
+function get_portfolios(portfolio_id) {
+    let init = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "token " + localStorage.getItem("key")
+            },
+        }
 
+        fetch("/planning/portfolio/" + portfolio_id, init)
+            .then(response => {
+                console.log(response);
+                return response.json();
+            })
+            .then((portfolios) => {
+                // Do all the interface stuff here
+                console.log(portfolios);
+            }).catch((error) => {
+                console.error(error);
+        });
 }
 
 /**
  * Function that creates user portfolio account.
- * @param {int} user_id the user identification number
- * @param {string} account_name the user is known or referred to that account
+ * @param {object} data the data sent to the creation API
+ * @param {Element} error_elem the element to add a useful error message to
  * @returns {boolean} confirmation status
  * @throws {InvalidArgumentException} if the user enters invalid id or account name.
  */
-// function create_portfolio(user_id, account_name) {
-function create_portfolio() {
-    let data = {
-        "name": "A new account",
-        "description": "I like this account",
-        "account_type": "Savings",
-        "balance": 45.00,
-        "holdings": []
+function create_portfolio(data) {
+    if(!data["holdings"]){
+        data["holdings"] = [];
     }
 
     let init = {
@@ -30,7 +44,7 @@ function create_portfolio() {
             headers: {
                 'Content-Type': 'application/json',
                 "Accept": "application/json",
-                'Authorization': "Token " + localStorage.getItem("key")
+                'Authorization': "token " + localStorage.getItem("key")
             },
             body: JSON.stringify(data)
         }
@@ -44,7 +58,7 @@ function create_portfolio() {
                 // Do all the interface stuff here
                 console.log(portfolios);
             }).catch((error) => {
-                console.error(error);
+                error_elem.innerText = error;
         });
 
 }
@@ -66,10 +80,7 @@ function update_portfolio(portfolio_id, account_name) {
  * @returns {boolean} Returns confirmation status.
  * @throws {InvalidArgumentException} if the user enters no value id.
  */
-// function delete_portfolio(portfolio_id) {
-function delete_portfolio() {
-    let portfolio_id = 2;
-
+function delete_portfolio(portfolio_id) {
     let init = {
             method: 'DELETE',
             headers: {
@@ -183,6 +194,17 @@ function render_portfolio_overview() {
         return button;
     };
 
+    const makePickList = (optionList) => {
+        let list = document.createElement("select");
+        for(item in optionList){
+            let option = document.createElement("option");
+            option.value = optionList[item];
+            option.innerText = optionList[item];
+            list.appendChild(option);
+        }
+        return list;
+    }
+
     const handlePortfolioButtons = () => {
         let buttonGroup = document.createElement("div");
         let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", dud_function);
@@ -194,7 +216,6 @@ function render_portfolio_overview() {
         return buttonGroup;
     }
 
-    // portfolios = get_portfolios(1)
     const getPortfolioData = () => {
         let portfolios = "";
 
@@ -328,16 +349,72 @@ function render_portfolio_overview() {
         }
     }
 
+    const renderPortfolioCreation = () => {
+        let type_options = ["IRA", "401K", "Savings"];
+        let elem = document.createElement("div");
+        elem.classList.add("portfolio-creation");
+
+        let name_label = document.createElement("label");
+        name_label.innerText = "Name";
+        let name = document.createElement("input");
+        name.type = "text";
+        let account_type_label = document.createElement("label");
+        account_type_label.innerText = "Account Type";
+        let account_type = makePickList(type_options);
+        let balance_label = document.createElement("label");
+        balance_label.innerText = "Balance";
+        let balance = document.createElement("input");
+        balance.type = "text";
+        description_label = document.createElement("label");
+        description_label.innerText = "Description";
+        let description = document.createElement("textarea");
+        description.maxLength = 250;
+        let submit = makeButton("btn-secondary", "Submit", function () {
+            data = {};
+            data["name"] = name.value;
+            data["account_type"] = account_type.value;
+            data["balance"] = parseFloat(balance.value);
+            data["description"] = description.value;
+            console.log(data);
+            create_portfolio(data);
+
+            render();
+        })
+        let cancel = makeButton("btn-danger", "Cancel", render);
+
+        elem.appendChild(name_label);
+        elem.appendChild(name);
+        elem.appendChild(account_type_label);
+        elem.appendChild(account_type);
+        elem.appendChild(balance_label);
+        elem.appendChild(balance);
+        elem.appendChild(description_label);
+        elem.appendChild(description);
+        elem.appendChild(submit);
+        elem.appendChild(cancel);
+
+        return elem
+
+    }
+
     let portfolio_listing = document.createElement("div");
 
     //handlePortfolioButtons();
 
-    let createPortfolio = makeButton("btn-success", "Create Portfolio", create_portfolio);
-    portfolio_listing.appendChild(createPortfolio);
+    const render = () => {
+        portfolio_listing.innerHTML = "";
+        let createPortfolio = makeButton("btn-success", "Create Portfolio", function () {
+            portfolio_listing.removeChild(createPortfolio)
+            portfolio_listing.insertBefore(renderPortfolioCreation(), portfolio_listing.firstChild);
+        });
+        portfolio_listing.appendChild(createPortfolio);
 
-    portfolio_listing.appendChild(document.createElement("p"));
+        portfolio_listing.appendChild(document.createElement("p"));
 
-    getPortfolioData();
+        getPortfolioData();
+    }
+
+    render();
 
     return portfolio_listing;
 }

@@ -16,3 +16,4 @@ fiscal/node_modules
 
 # Environments
 env/
+fiscal/db.sqlite3
