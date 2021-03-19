@@ -29,6 +29,7 @@ function render_portfolio_growth() {
 
     let dateData = [], balanceData = [], daysAfterData = [], maximum = [];
     let chartBalanceData = [], chartDateData = [];
+    let maxDays = 0;
 
     const getPortfolioChangeData = () => {
         let portfolios = "";
@@ -45,7 +46,9 @@ function render_portfolio_growth() {
                 fillInHoles();
             })
             .then(() => {
-                createAreaChart();
+                // Dynamically create datasets
+                let datasets = createDynamicDatasets(portfolios);
+                createAreaChart(datasets);
             })
     }
 
@@ -62,17 +65,18 @@ function render_portfolio_growth() {
             let max = dateData[i].reduce(function (a, b) { return new Date(a) > new Date(b) ? new Date(a) : new Date(b); });
             maximum.push(days_after_update(max, new Date(dateData[i][0])));
         }
+        maxDays = maximum.reduce(function (a, b) { return a > b ? a : b });
     }
 
     const fillInHoles = () => {
         for (let i = 0; i < maximum.length; i++) {
-            chartDateData.push(Array.apply(null, Array(maximum[i] + 1)).map((val, idx) => idx));
-            chartBalanceData.push(new Array(maximum[i] + 1).fill(balanceData[i][0]));
+            chartDateData.push(Array.apply(null, Array(maxDays + 1)).map((val, idx) => idx));
+            chartBalanceData.push(new Array(maxDays + 1).fill(balanceData[i][0]));
             daysAfterData.push(calculate_days_after(dateData[i]));
 
             let index = 1;
-            for (let j = 1; j <= maximum[i]; j++) {
-                if (j < daysAfterData[i][index]) {
+            for (let j = 1; j <= maxDays; j++) {
+                if (j < daysAfterData[i][index] || index >= balanceData[i].length) {
                     chartBalanceData[i][j] = balanceData[i][index - 1];
                 } else {
                     chartBalanceData[i][j] = balanceData[i][index];
@@ -80,12 +84,30 @@ function render_portfolio_growth() {
                 }
             }
         }
-
-        // console.log(chartDateData);
-        // console.log(chartBalanceData);
     }
 
-    function createAreaChart() {
+    const createDynamicDatasets = (portfolios) => {
+        let datasets = [];
+        let colors = ['rgb(0, 63, 92)', 'rgb(188, 80, 144)', 'rgb(255, 166, 0)',
+            'rgb(239, 86, 117)', 'rgb(59, 122, 46)', 'rgb(88, 80, 141)', 'rgb(137, 78, 116)',
+            'rgb(237, 130, 85)', 'rgb(133, 85, 237)', 'rgb(133, 237, 85)'];
+
+        for (let i = 0; i < portfolios.length; i++) {
+            let item = portfolios[i];
+
+            datasets.push({
+                label: item["portfolio_name"],
+                backgroundColor: colors[i],
+                borderColor: colors[i],
+                data: chartBalanceData[i],
+                order: (i + 1)
+            });
+        }
+
+        return datasets;
+    }
+
+    function createAreaChart(dataItems) {
         var ctx = document.getElementById('myChart').getContext('2d');
 
         var chart = new Chart(ctx, {
@@ -94,51 +116,40 @@ function render_portfolio_growth() {
 
             // The data for our dataset
             data: {
-                labels: chartDateData[1],
-                datasets: [{
-                    label: "MyTestAccount",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: chartBalanceData[0],
-                    order: 1
-                }, {
-                    label: "MyTestAccount2 - Electric Boogaloo",
-                    backgroundColor: 'rgb(7, 47, 95)',
-                    borderColor: 'rgb(7, 47, 95)',
-                    data: chartBalanceData[1],
-                    order: 2
-                }]
+                labels: chartDateData[0],
+                datasets: dataItems
             },
 
             // Configuration options go here
             options: {
                 responsive: true,
-				title: {
-					display: true,
-					text: 'Your Portfolios - Growth'
-				},
+                title: {
+                    display: true,
+                    text: 'Your Portfolios - Growth'
+                },
                 tooltips: {
-					mode: 'index',
-					intersect: false,
-				},
-				hover: {
-					mode: 'nearest',
-					intersect: true
-				},
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
                 scales: {
                     xAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: 'Days since Starting the Portfolio'
-						}
-					}],
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Days since Starting the Portfolio'
+                        }
+                    }],
                     yAxes: [{
                         display: true,
-						scaleLabel: {
-							display: true,
-							labelString: 'Value (in Dollars)'
-						},
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value (in Dollars)'
+                        },
+                        stacked: true,
                         ticks: {
                             // Include a dollar sign in the ticks
                             callback: function (value, index, values) {
@@ -152,14 +163,11 @@ function render_portfolio_growth() {
 
         // Used to remove the Chart when we exit out of the Portfolio Growth Page
         function removeChart() {
-            console.log("Removing Chart");
             chart.destroy();
         }
 
         window.addEventListener('hashchange', removeChart);
     }
-
-
 
     getPortfolioChangeData();
 
@@ -167,3 +175,21 @@ function render_portfolio_growth() {
     contents.innerText = "Your Portfolios - Growth"; // Username here
     return contents;
 }
+
+/* 
+datasets: [{
+                    label: "MyTestAccount",
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: chartBalanceData[0],
+                    order: 1
+                }, {
+                    label: "MyTestAccount2 - Electric Boogaloo",
+                    backgroundColor: 'rgb(7, 47, 95)',
+                    borderColor: 'rgb(7, 47, 95)',
+                    data: chartBalanceData[1],
+                    order: 2
+                }]
+
+
+*/
