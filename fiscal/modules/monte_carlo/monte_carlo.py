@@ -17,14 +17,23 @@ class Monte_carlo:
 
     Attributes:
         iterations (int): The number of times to run the simulation
-        historical_returns (numPy.array): An array of the historical data
-            for the assests of the user
-        simResults (numPy.array): An array of the results of the user's
-            Monte_carlo simulation
-        expect_returns (numPy.array): An array of the expected returns
-            of the user's assets
-        volatility (numPy.array): An array of the standard deviation
-            (volatility) of the user's assets
+        historical_returns (list): A list containing the numPy.array of 
+            the historical returns for the assests of the user
+        sim_results (dictionary): An array of the results of the user's
+            Monte_carlo simulation. Key:value is the stock ticker name 
+            and the monte-carlo sim results for the ticker as a numPy.array
+        prices (list): A list of numPy.arrays of the historical weekly price
+            for each ticker
+        last_prices(list): A list of the last price for each assest
+        start_year(int): The starting year for the historical data to fetch
+        end_year(int): The ending year for the historical data to fetch
+        total_years(int): The total years to run the sim
+        asset_names(list): A list containing the name of each ticker
+        shares_held(list): A list containing the number of shared held
+            for each ticker
+        weights(list): A list of the weights corresponding to each held 
+            asset
+        
     """
     
     def __init__(self, start_year, end_year, asset_names, shares_held):
@@ -147,6 +156,8 @@ class Monte_carlo:
         return out
 
 if __name__ == "__main__":
+    # function to test if the class works if run as main
     monte = Monte_carlo(2019, 2020, ["AAPL", "MSFT"], [20, 20])
     monte.run_sim()
-    print(monte.get_results())
+    results = monte.get_results()
+    print(len(results.get('AAPL')))
