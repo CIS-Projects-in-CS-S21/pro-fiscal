@@ -49,7 +49,8 @@ def fetch_holdings(portfolio_data):
         # return from model is a string, must be converted
         holding["price"] = decimal.Decimal(holding["price"])
         holding["shares"] = decimal.Decimal(holding["shares"])
-        holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
+        if holding["cost_basis"]:
+            holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
         
     return holding_serializer.data
 
@@ -166,7 +167,7 @@ class PortfolioDetail(APIView):
             ps_data = portfolio_serializer.data            
             ps_data["balance_history"] = fetch_balance_history(ps_data)
 
-            return Response(ps_data, status=status.HTTP_201_CREATED)
+            return Response(ps_data, status=status.HTTP_200_OK)
         return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -183,3 +184,53 @@ class PortfolioDetail(APIView):
         portfolio = self.get_object(pk)
         portfolio.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class HoldingList(APIView):
+    def get(self, request):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def post(self, request):
+        holding_serializer = HoldingSerializer(data=request.data)
+        if holding_serializer.is_valid():
+            holding_serializer.save()
+            return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class HoldingDetail(APIView):
+    """
+    Get, update, or delete an individual holding
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self, key):
+        try:
+            return Holding.objects.get(pk=key)
+        except Holding.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk):
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding)
+
+        h_data = holding_serializer.data
+        h_data["price"] = decimal.Decimal(h_data["price"])
+        h_data["shares"] = decimal.Decimal(h_data["shares"])
+        h_data["cost_basis"] = decimal.Decimal(h_data["cost_basis"])
+
+        return Response(h_data)
+    
+    def put(self, request, pk):
+        holding_serializer = HoldingSerializer(data=request.data)
+        if holding_serializer.is_valid():
+            holding_serializer.save()
+            return Response(holding_serializer.data, status=status.HTTP_200_OK)
+        return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        holding = self.get_object(pk)
+        holding.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT);
