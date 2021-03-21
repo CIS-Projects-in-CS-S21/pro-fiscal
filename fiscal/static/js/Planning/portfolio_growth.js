@@ -27,14 +27,12 @@ function calculate_days_after(dateData) {
 
 function render_portfolio_growth() {
 
-    let dateData = [], balanceData = [], daysAfterData = [], maximum = [];
-    let chartBalanceData = [], chartDateData = [];
-    let maxDays = 0;
+    let dateData = [], balanceData = [];
 
     const getPortfolioChangeData = () => {
         let portfolios = "";
 
-        fetch("/static/json/portfolio_growth.json")
+        fetch("/static/json/portfolio_test.json")
             .then(response => {
                 return response.json();
             })
@@ -48,7 +46,7 @@ function render_portfolio_growth() {
             .then(() => {
                 // Dynamically create datasets
                 let datasets = createDynamicDatasets(portfolios);
-                createAreaChart(datasets);
+                createPieChart(datasets);
             })
     }
 
@@ -107,12 +105,12 @@ function render_portfolio_growth() {
         return datasets;
     }
 
-    function createAreaChart(dataItems) {
+    function createPieChart(dataItems) {
         var ctx = document.getElementById('myChart').getContext('2d');
 
         var chart = new Chart(ctx, {
             // The type of chart we want to create
-            type: 'line',
+            type: 'doughnut',
 
             // The data for our dataset
             data: {
@@ -172,7 +170,7 @@ function render_portfolio_growth() {
     getPortfolioChangeData();
 
     let contents = document.createElement("h3");
-    contents.innerText = "Your Portfolios - Growth"; // Username here
+    contents.innerText = "Your Portfolios - Diversification"; // Username here
     return contents;
 }
 
