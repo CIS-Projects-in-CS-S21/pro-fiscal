@@ -25,14 +25,13 @@
 .portfolio-creation {
     display: block;
     margin: auto;
-
 }
-.portfolio-creation label{
+
+.portfolio-creation label {
     display: block;
 }
 
-.portfolio-creation input,
-.portfolio-creation select{
+.portfolio-creation input, .portfolio-creation select {
     display: block;
 }
 
@@ -41,7 +40,9 @@
     padding: 10px;
 }
 
+/*
 .portfolio-creation button {
     display: block;
     padding: 10px;
 }
+*/

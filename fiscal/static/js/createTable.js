@@ -164,6 +164,7 @@ function createTable(params) {
     
     // Start of main
     var returnDiv = document.createElement("div");
+    returnDiv.classList.add("table-responsive");
 
     var itemTable = document.createElement("table");
     itemTable.classList.add("table");

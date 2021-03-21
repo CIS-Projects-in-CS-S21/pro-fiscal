@@ -17,16 +17,17 @@ function get_all_portfolios(successHandler, error_elem) {
     fetch("/planning/portfolio/", init)
         .then((response) => {
             if (!response.ok) {
-                throw new Error("" +  response.statusText)
+                throw new Error("" + response.statusText)
             }
             status = true;
             return response.json();
-        }).then(data =>{
+        }).then(data => {
             successHandler(data);
         }).catch(error => {
             status = false;
             console.error(error);
-    })
+            error_elem.innerText = error;
+        })
 
     return status;
 }
@@ -45,14 +46,14 @@ function get_portfolio(portfolio_id) {
             "Accept": "application/json",
             'Authorization': "token " + localStorage.getItem("key")
         },
-        }
+    }
 
     fetch("/planning/portfolio/" + portfolio_id, init)
-            .then(response => {
-                console.log(response);
-                return response.json();
-            }).catch((error) => {
-                console.error(error);
+        .then(response => {
+            console.log(response);
+            return response.json();
+        }).catch((error) => {
+            console.error(error);
         });
 
     return portfolio;
@@ -85,13 +86,13 @@ function create_portfolio(data, successHandler, error_elem) {
             }
             status = true
             return response.json();
-    }).then((data) => {
-        successHandler(data);
+        }).then((data) => {
+            successHandler(data);
         }
-    ).catch(error => {
-        status = false
-        error_elem.innerText = error;
-    })
+        ).catch(error => {
+            status = false
+            error_elem.innerText = error;
+        })
 
     return status;
 }
@@ -122,13 +123,13 @@ function update_portfolio(data, successHandler, error_elem) {
             }
             status = true
             return response.json();
-    }).then((data) => {
-        successHandler(data);
+        }).then((data) => {
+            successHandler(data);
         }
-    ).catch(error => {
-        status = false
-        error_elem.innerText = error;
-    })
+        ).catch(error => {
+            status = false
+            error_elem.innerText = error;
+        })
 
     return status;
 }
@@ -160,10 +161,10 @@ function delete_portfolio(portfolio_id, successHandler, error_elem) {
         }).then(() => {
             successHandler()
         }
-    ).catch(error => {
-        status = false;
-        error_elem.innerText = error;
-    })
+        ).catch(error => {
+            status = false;
+            error_elem.innerText = error;
+        })
 
     return status;
 }
@@ -198,7 +199,7 @@ function add_holding(data, successHandler, error_elem) {
             return response.json();
         }).then((data) => {
             successHandler(data);
-            }
+        }
         ).catch(error => {
             status = false
             error_elem.innerText += error;
@@ -234,13 +235,13 @@ function update_holding(data, successHandler, error_elem) {
             }
             status = true
             return response.json();
-    }).then((data) => {
-        successHandler(data);
+        }).then((data) => {
+            successHandler(data);
         }
-    ).catch(error => {
-        status = false
-        error_elem.innerText = error;
-    })
+        ).catch(error => {
+            status = false
+            error_elem.innerText = error;
+        })
 
     return status;
 }
@@ -274,10 +275,10 @@ function delete_holding(holding_id, successHandler, error_elem) {
         }).then(() => {
             successHandler()
         }
-    ).catch(error => {
-        status = false;
-        error_elem.innerText = error;
-    })
+        ).catch(error => {
+            status = false;
+            error_elem.innerText = error;
+        })
 
     return status;
 }
@@ -320,7 +321,7 @@ function clear_answers(user_id) {
 
 }
 
-function dud_function () {
+function dud_function() {
     console.log("For testing purposes");
 }
 
@@ -329,7 +330,7 @@ function dud_function () {
  * Contains private functions to render the individual sub-components.
  * @returns {Object} div container for the component
  */
-function render_portfolio_overview(){
+function render_portfolio_overview() {
     let all_portfolios = [];
     let error = document.createElement("div");
     error.classList.add("error");
@@ -352,7 +353,7 @@ function render_portfolio_overview(){
 
     const makePickList = (optionList) => {
         let list = document.createElement("select");
-        for(item in optionList){
+        for (item in optionList) {
             let option = document.createElement("option");
             option.value = optionList[item];
             option.innerText = optionList[item];
@@ -380,62 +381,62 @@ function render_portfolio_overview(){
     // }
 
     const handleHoldings = (holding) => {
-            let holding_elem = document.createElement("div");
-            holding_elem.classList.add("holding-data");
+        let holding_elem = document.createElement("div");
+        holding_elem.classList.add("holding-data");
 
-            let cleaner_holdings = [];
-            if(holding.length === 0){
-                cleaner_holdings.push({
-                    "Security Type": "",
-                    "Ticker": "",
-                    "Price": "",
-                    "Shares": "",
-                    "Purchase Date": "",
-                    "Cost Basis": "",
-                    "Update": "",
-                    "Delete": ""
-                });
-            }
-
-            for (let i = 0; i < holding.length; i++) {
-                let holdingItem = holding[i];
-
-                cleaner_holdings[i] = {};
-
-                cleaner_holdings[i]["Security Type"] = holdingItem["security_type"];
-                cleaner_holdings[i]["Ticker"] = holdingItem["ticker"];
-                cleaner_holdings[i]["Price"] = holdingItem["price"];
-                cleaner_holdings[i]["Shares"] = holdingItem["shares"];
-                cleaner_holdings[i]["Purchase Date"] = holdingItem["purchase_date"];
-                cleaner_holdings[i]["Cost Basis"] = holdingItem["cost_basis"];
-                // cleaner_holdings[i]["Update"] = `<button type='button' class='btn btn-secondary' onclick= 'dud_function(this)'>Update</button>`;
-                let update_button = document.createElement("button");
-                update_button.classList.add("btn", "btn-secondary");
-                update_button.innerText = "Update";
-                update_button["holding_id"] = holdingItem["id"];
-                update_button.addEventListener("click", function(){handleHoldingUpdate(this, this["holding_id"]);})
-                cleaner_holdings[i]["Update"] = update_button;
-                let delete_button = document.createElement("button");
-                delete_button.classList.add("btn", "btn-danger");
-                delete_button.innerText = "Delete";
-                delete_button["holding_id"] = holdingItem["id"];
-                delete_button.addEventListener("click", function(){handleHoldingDelete(this, this["holding_id"]);})
-                cleaner_holdings[i]["Delete"] = delete_button;
-                
-
-                // "` + CRUD_icons.update + `" onclick= "window.location.hash = '#/bookUpdate/` + cleanerResults[i].id + `'">
-                // cleaner_holdings[i]["Delete"] = `<button type='button' class='btn btn-danger' onclick= 'dud_function(this)'>Delete</button>`;
-            }
-
-            let holdingTable = createTable({
-                objList: cleaner_holdings,
-                sortOrderPropName: "Security Type"
+        let cleaner_holdings = [];
+        if (holding.length === 0) {
+            cleaner_holdings.push({
+                "Security Type": "",
+                "Ticker": "",
+                "Price": "",
+                "Shares": "",
+                "Purchase Date": "",
+                "Cost Basis": "",
+                "Update": "",
+                "Delete": ""
             });
-
-            holding_elem.appendChild(holdingTable);
-
-            return holding_elem;
         }
+
+        for (let i = 0; i < holding.length; i++) {
+            let holdingItem = holding[i];
+
+            cleaner_holdings[i] = {};
+
+            cleaner_holdings[i]["Security Type"] = holdingItem["security_type"];
+            cleaner_holdings[i]["Ticker"] = holdingItem["ticker"];
+            cleaner_holdings[i]["Price"] = holdingItem["price"];
+            cleaner_holdings[i]["Shares"] = holdingItem["shares"];
+            cleaner_holdings[i]["Purchase Date"] = holdingItem["purchase_date"];
+            cleaner_holdings[i]["Cost Basis"] = holdingItem["cost_basis"];
+            // cleaner_holdings[i]["Update"] = `<button type='button' class='btn btn-secondary' onclick= 'dud_function(this)'>Update</button>`;
+            let update_button = document.createElement("button");
+            update_button.classList.add("btn", "btn-secondary");
+            update_button.innerText = "Update";
+            update_button["holding_id"] = holdingItem["id"];
+            update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
+            cleaner_holdings[i]["Update"] = update_button;
+            let delete_button = document.createElement("button");
+            delete_button.classList.add("btn", "btn-danger");
+            delete_button.innerText = "Delete";
+            delete_button["holding_id"] = holdingItem["id"];
+            delete_button.addEventListener("click", function () { handleHoldingDelete(this, this["holding_id"]); })
+            cleaner_holdings[i]["Delete"] = delete_button;
+
+
+            // "` + CRUD_icons.update + `" onclick= "window.location.hash = '#/bookUpdate/` + cleanerResults[i].id + `'">
+            // cleaner_holdings[i]["Delete"] = `<button type='button' class='btn btn-danger' onclick= 'dud_function(this)'>Delete</button>`;
+        }
+
+        let holdingTable = createTable({
+            objList: cleaner_holdings,
+            sortOrderPropName: "Security Type"
+        });
+
+        holding_elem.appendChild(holdingTable);
+
+        return holding_elem;
+    }
 
     const handleHoldingCreate = (portfolio_container, list_id) => {
         let table_body = portfolio_container.getElementsByTagName("tbody")[0];
@@ -445,9 +446,9 @@ function render_portfolio_overview(){
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
-            if(form.purchase_date.value)
+            if (form.purchase_date.value)
                 data["purchase_date"] = form.purchase_date.value;
-            if(form.cost_basis.value)
+            if (form.cost_basis.value)
                 data["cost_basis"] = form.cost_basis.value;
             data["portfolio"] = all_portfolios[list_id]["id"];
 
@@ -457,10 +458,11 @@ function render_portfolio_overview(){
                     let holdings = table_body.parentElement.parentElement;
                     holdings.remove();
                     holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
-                    portfolio_container.appendChild(holdings);},
+                    portfolio_container.appendChild(holdings);
+                },
                 error)
 
-        }, function (){
+        }, function () {
             form.container.remove();
         });
         table_body.appendChild(form.container);
@@ -474,8 +476,8 @@ function render_portfolio_overview(){
         let list_id = elem["list_id"];
         let holdings = all_portfolios[list_id]["holdings"];
         let i;
-        for(i = 0; i < holdings.length; i++){
-            if(holdings[i]["id"] === holding_id){
+        for (i = 0; i < holdings.length; i++) {
+            if (holdings[i]["id"] === holding_id) {
                 break;
             }
         }
@@ -488,9 +490,9 @@ function render_portfolio_overview(){
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
-            if(form.purchase_date.value)
+            if (form.purchase_date.value)
                 data["purchase_date"] = form.purchase_date.value;
-            if(form.cost_basis.value)
+            if (form.cost_basis.value)
                 data["cost_basis"] = form.cost_basis.value;
             data["portfolio"] = all_portfolios[list_id]["id"];
 
@@ -499,14 +501,15 @@ function render_portfolio_overview(){
                     holdings[i] = new_data;
                     holdings_div.remove();
                     holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
-                    elem.appendChild(holdings_div);},
+                    elem.appendChild(holdings_div);
+                },
                 error)
 
-            }, function () {
-                holdings_div.remove();
-                holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
-                elem.appendChild(holdings_div);
-                }
+        }, function () {
+            holdings_div.remove();
+            holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
+            elem.appendChild(holdings_div);
+        }
         );
         form.security_type.value = holding["security_type"];
         form.ticker.value = holding["ticker"];
@@ -521,12 +524,12 @@ function render_portfolio_overview(){
 
     const handleHoldingDelete = (parent_elem, holding_id) => {
         let row = parent_elem.parentElement.parentElement;
-        delete_holding(holding_id, () => {row.remove();}, error);
+        delete_holding(holding_id, () => { row.remove(); }, error);
     }
 
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
         elem.innerHTML = "";
-         const successFunc = (portfolio_item) => {
+        const successFunc = (portfolio_item) => {
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
             // add the updated data to the collapsible button
@@ -534,18 +537,20 @@ function render_portfolio_overview(){
             elem.parentElement.insertBefore(new_contents, elem);
             elem.remove();
         };
+
+        /* Render the form for the Portfolio */
         let form = renderPortfolioForm(
             () => {
 
-            // TODO: add validation and errors
+                // TODO: add validation and errors
 
-            let data = portfolio;
-            data["name"] = form.name.value;
-            data["account_type"] = form.account_type.value;
-            data["balance"] = parseFloat(form.balance.value);
-            data["description"] = form.description.value;
-            update_portfolio(data, successFunc, error);
-        },
+                let data = portfolio;
+                data["name"] = form.name.value;
+                data["account_type"] = form.account_type.value;
+                data["balance"] = parseFloat(form.balance.value);
+                data["description"] = form.description.value;
+                update_portfolio(data, successFunc, error);
+            },
             () => {
                 let contents = renderPortfolioContents(portfolio, list_id);
                 elem.parentElement.insertBefore(contents, elem);
@@ -555,10 +560,11 @@ function render_portfolio_overview(){
 
 
         elem.appendChild(form.container);
+        
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
         form.balance.value = portfolio["balance"];
-        form.description = portfolio["description"];
+        form.description.value = portfolio["description"];
     }
 
     const handlePortfolioCreate = (parent_elem) => {
@@ -616,19 +622,21 @@ function render_portfolio_overview(){
                 let portfolio = all_portfolios[elem["list_id"]];
                 handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
             });
+            updatePortfolio.classList.add("mr-2");
+
             let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function () {
                 let portfolio = all_portfolios[elem["list_id"]];
                 delete_portfolio(portfolio["id"],
                     () => {
                         // remove button
-                        elem.previousSibling.remove()
+                        elem.previousSibling.remove();
                         // remove div
-                        elem.remove()
+                        elem.remove();
                     },
                     error);
                 numPortfolios--;
-
             });
+            deletePortfolio.classList.add("mr-2");
 
             let portfolioButtons = document.createElement("div");
             portfolioButtons.appendChild(updatePortfolio);
@@ -698,59 +706,67 @@ function render_portfolio_overview(){
 
     const renderHoldingForm = (saveFunc, cancelFunc) => {
         let form = {};
+
         form.container = document.createElement("tr");
+        form.container.classList.add("scrollable");
+
         let options = ["Stock", "Bond", "Cash"]; // TODO: replace with list fetched from DB
-        
         form.security_type = makePickList(options);
+
         let sec_cell = document.createElement("td");
         sec_cell.style.textAlign = "left";
         sec_cell.appendChild(form.security_type);
         form.container.appendChild(sec_cell);
-        
+
         form.ticker = document.createElement("input");
         form.ticker.type = "text";
+
         let ticker_cell = document.createElement("td");
         ticker_cell.style.textAlign = "left";
         ticker_cell.appendChild(form.ticker);
         form.container.appendChild(ticker_cell);
-        
+
         form.price = document.createElement("input");
         form.price.type = "text";
         form.price.style.textAlign = "right";
+
         let price_cell = document.createElement("td");
         price_cell.style.textAlign = "right";
         price_cell.appendChild(form.price);
         form.container.appendChild(price_cell);
-        
+
         form.shares = document.createElement("input");
         form.shares.type = "text";
         form.shares.style.textAlign = "right";
+
         let shares_cell = document.createElement("td");
         shares_cell.style.textAlign = "right";
         shares_cell.appendChild(form.shares);
         form.container.appendChild(shares_cell);
-        
+
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
+
         let date_cell = document.createElement("td");
         date_cell.style.textAlign = "right";
         date_cell.appendChild(form.purchase_date);
         form.container.appendChild(date_cell);
-        
+
         form.cost_basis = document.createElement("input");
         form.cost_basis.type = "text";
         form.cost_basis.style.textAlign = "right";
+
         let cost_basis_cell = document.createElement("td");
         cost_basis_cell.style.textAlign = "right";
         cost_basis_cell.appendChild(form.cost_basis);
         form.container.appendChild(cost_basis_cell);
-        
-        form.save = makeButton("btn-success", "Save", saveFunc)
+
+        form.save = makeButton("btn-success", "Save", saveFunc);
         let save_cell = document.createElement("td");
         save_cell.style.textAlign = "center";
         save_cell.appendChild(form.save);
         form.container.appendChild(save_cell);
-        
+
         form.cancel = makeButton("btn-danger", "Cancel", cancelFunc);
         let cancel_cell = document.createElement("td");
         cancel_cell.style.textAlign = "center";
@@ -771,20 +787,36 @@ function render_portfolio_overview(){
         name_label.innerText = "Name";
         form.name = document.createElement("input");
         form.name.type = "text";
+
         let account_type_label = document.createElement("label");
         account_type_label.innerText = "Account Type";
         form.account_type = makePickList(type_options);
+
         let balance_label = document.createElement("label");
         balance_label.innerText = "Balance";
         form.balance = document.createElement("input");
         form.balance.type = "text";
+
         let description_label = document.createElement("label");
         description_label.innerText = "Description";
         form.description = document.createElement("textarea");
         form.description.maxLength = 250;
-        form.submit = makeButton("btn-secondary", "Submit", saveFunc)
-        let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
 
+        let buttonGroupSubmit = document.createElement("div");
+        buttonGroupSubmit.classList.add("btn-group");
+
+        let buttonGroupCancel = document.createElement("div");
+        buttonGroupCancel.classList.add("btn-group");
+
+        form.submit = makeButton("btn-secondary", "Submit", saveFunc);
+        form.submit.classList.add("mr-2");
+        let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
+        cancel.classList.add("mr-2");
+
+        let title = document.createElement("h2");
+        title.innerText = "Add a Portfolio Here";
+
+        form.container.appendChild(title);
         form.container.appendChild(name_label);
         form.container.appendChild(form.name);
         form.container.appendChild(account_type_label);
@@ -793,18 +825,26 @@ function render_portfolio_overview(){
         form.container.appendChild(form.balance);
         form.container.appendChild(description_label);
         form.container.appendChild(form.description);
-        form.container.appendChild(form.submit);
-        form.container.appendChild(cancel);
+        form.container.appendChild(document.createElement("br"));
 
-        return form
+        buttonGroupSubmit.appendChild(form.submit);
+        buttonGroupCancel.appendChild(cancel);
+
+        form.container.appendChild(buttonGroupSubmit);
+        form.container.appendChild(buttonGroupCancel);
+
+        //form.container.appendChild(form.submit);
+        //form.container.appendChild(cancel);
+
+        return form;
 
     }
 
     const renderCreateButton = () => {
-        let createPortfolio = makeButton("btn-success", "Create Portfolio", () =>{
+        let createPortfolio = makeButton("btn-success", "Create Portfolio", () => {
             handlePortfolioCreate(createPortfolio);
         });
-        return createPortfolio
+        return createPortfolio;
     }
 
     const render = () => {
