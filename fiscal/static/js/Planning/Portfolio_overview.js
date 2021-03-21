@@ -202,7 +202,7 @@ function add_holding(data, successHandler, error_elem) {
         }
         ).catch(error => {
             status = false
-            error_elem.innerText += error;
+            error_elem.innerText = error;
         })
 
     return status;
@@ -410,15 +410,30 @@ function render_portfolio_overview() {
             cleaner_holdings[i]["Purchase Date"] = holdingItem["purchase_date"];
             cleaner_holdings[i]["Cost Basis"] = holdingItem["cost_basis"];
             // cleaner_holdings[i]["Update"] = `<button type='button' class='btn btn-secondary' onclick= 'dud_function(this)'>Update</button>`;
+            /*
             let update_button = document.createElement("button");
             update_button.classList.add("btn", "btn-secondary");
             update_button.innerText = "Update";
+            */
+
+            let update_button = createButton({
+                type: "btn-secondary",
+                text: "Update"
+            });
             update_button["holding_id"] = holdingItem["id"];
             update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
+
+            /*
             let delete_button = document.createElement("button");
             delete_button.classList.add("btn", "btn-danger");
             delete_button.innerText = "Delete";
+            */
+
+            let delete_button = createButton({
+                type: "btn-danger",
+                text: "Delete"
+            });
             delete_button["holding_id"] = holdingItem["id"];
             delete_button.addEventListener("click", function () { handleHoldingDelete(this, this["holding_id"]); })
             cleaner_holdings[i]["Delete"] = delete_button;
