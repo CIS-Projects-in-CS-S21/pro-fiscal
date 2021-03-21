@@ -16,3 +16,6 @@ fiscal/node_modules
 
 # Environments
 env/
+
+# DB stuff
+fiscal/fiscal/.env
