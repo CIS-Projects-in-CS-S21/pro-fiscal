@@ -209,7 +209,7 @@ function add_holding(data, successHandler, error_elem) {
 
 /**
  * Function that updates the holding data
- * @param {Object} data the data sent to the creation API
+ * @param {Object} data the data sent to the update API
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
  * @returns {boolean} Returns confirmation status.
@@ -337,6 +337,7 @@ function render_portfolio_overview(){
     let numPortfolios = 0;
 
     let portfolio_listing = document.createElement("div");
+    portfolio_listing.classList.add("portfolio-list");
 
     const makeButton = (buttonType, buttonText, handlerFunction) => {
         let button = createButton({
@@ -523,67 +524,140 @@ function render_portfolio_overview(){
         delete_holding(holding_id, () => {row.remove();}, error);
     }
 
-    const createContents = (portfolio_item) => {
-        let elem = document.createElement("div");
-        elem.classList.add("portfolio-content");
+    const handlePortfolioUpdate = (elem, portfolio, list_id) => {
+        elem.innerHTML = "";
+         const successFunc = (portfolio_item) => {
+            all_portfolios[list_id] = portfolio_item;
+            let new_contents = renderPortfolioContents(portfolio_item, list_id);
+            // add the updated data to the collapsible button
+            elem.previousSibling.innerText = portfolio_item["name"];
+            elem.parentElement.insertBefore(new_contents, elem);
+            elem.remove();
+        };
+        let form = renderPortfolioForm(
+            () => {
 
-        let portfolio_data = document.createElement("div");
-        portfolio_data.classList.add("portfolio-data");
-        elem.appendChild(portfolio_data);
+            // TODO: add validation and errors
 
-        let account_type = document.createElement("p");
-        account_type.classList.add("padded_paragraph");
-        account_type.innerText = "Account Type: " + portfolio_item["account_type"];
-
-        let description = document.createElement("p");
-        description.classList.add("padded_paragraph");
-        description.innerText = portfolio_item["description"];
-
-        let balance = document.createElement("p");
-        balance.classList.add("padded_paragraph");
-        balance.innerText = "Balance: $" + portfolio_item["balance"];
-
-        // let portfolioButtons = handlePortfolioButtons();
-        let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", function(){
-            let portfolio = all_portfolios[elem["list_id"]];
-            handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
-        });
-        let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function (){
-            let portfolio = all_portfolios[elem["list_id"]];
-            delete_portfolio(portfolio["id"],
-                () => {
-                    // remove button
-                    elem.previousSibling.remove()
-                    // remove div
-                    elem.remove()},
-                error);
-            numPortfolios--;
-
-        });
-
-        let portfolioButtons = document.createElement("div");
-        portfolioButtons.appendChild(updatePortfolio);
-        portfolioButtons.appendChild(deletePortfolio);
-
-        let holdings = handleHoldings(portfolio_item["holdings"]);
-
-        let createHolding = makeButton("btn-success", "Create Holding", function(){
-            handleHoldingCreate(elem, elem["list_id"]);
-        });
+            let data = portfolio;
+            data["name"] = form.name.value;
+            data["account_type"] = form.account_type.value;
+            data["balance"] = parseFloat(form.balance.value);
+            data["description"] = form.description.value;
+            update_portfolio(data, successFunc, error);
+        },
+            () => {
+                let contents = renderPortfolioContents(portfolio, list_id);
+                elem.parentElement.insertBefore(contents, elem);
+                elem.remove();
+            }
+        );
 
 
-        portfolio_data.appendChild(account_type);
-        portfolio_data.appendChild(description);
-        portfolio_data.appendChild(balance);
+        elem.appendChild(form.container);
+        form.name.value = portfolio["name"];
+        form.account_type.value = portfolio["account_type"];
+        form.balance.value = portfolio["balance"];
+        form.description = portfolio["description"];
+    }
 
-        elem.appendChild(portfolioButtons);
-        elem.appendChild(document.createElement("p"));
+    const handlePortfolioCreate = (parent_elem) => {
+        let form = renderPortfolioForm(
+            function () {
 
-        elem.appendChild(createHolding);
-        elem.appendChild(document.createElement("p"));
+                // TODO: add validation and errors
 
-        elem.appendChild(holdings);
+                const successFunc = (data) => {
+                    handleSinglePortfolio(data);
+                    portfolio_listing.insertBefore(renderCreateButton(), form.container);
+                    form.container.remove();
+                }
 
+                let data = {};
+                data["name"] = form.name.value;
+                data["account_type"] = form.account_type.value;
+                data["balance"] = parseFloat(form.balance.value);
+                data["description"] = form.description.value;
+                create_portfolio(data, successFunc, error);
+            },
+            function () {
+                portfolio_listing.insertBefore(renderCreateButton(), form.container);
+                form.container.remove();
+            }
+        )
+        portfolio_listing.insertBefore(form.container, parent_elem);
+        portfolio_listing.removeChild(parent_elem)
+    }
+
+    const renderPortfolioContents = (portfolio_item, list_id) => {
+
+        const createPortfolioContents = (portfolio_item) => {
+            let elem = document.createElement("div");
+            elem.classList.add("portfolio-content");
+
+            let portfolio_data = document.createElement("div");
+            portfolio_data.classList.add("portfolio-data");
+            elem.appendChild(portfolio_data);
+
+            let account_type = document.createElement("p");
+            account_type.classList.add("padded_paragraph");
+            account_type.innerText = "Account Type: " + portfolio_item["account_type"];
+
+            let description = document.createElement("p");
+            description.classList.add("padded_paragraph");
+            description.innerText = portfolio_item["description"];
+
+            let balance = document.createElement("p");
+            balance.classList.add("padded_paragraph");
+            balance.innerText = "Balance: $" + portfolio_item["balance"];
+
+            // let portfolioButtons = handlePortfolioButtons();
+            let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", function () {
+                let portfolio = all_portfolios[elem["list_id"]];
+                handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
+            });
+            let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function () {
+                let portfolio = all_portfolios[elem["list_id"]];
+                delete_portfolio(portfolio["id"],
+                    () => {
+                        // remove button
+                        elem.previousSibling.remove()
+                        // remove div
+                        elem.remove()
+                    },
+                    error);
+                numPortfolios--;
+
+            });
+
+            let portfolioButtons = document.createElement("div");
+            portfolioButtons.appendChild(updatePortfolio);
+            portfolioButtons.appendChild(deletePortfolio);
+
+            let holdings = handleHoldings(portfolio_item["holdings"]);
+
+            let createHolding = makeButton("btn-success", "Create Holding", function () {
+                handleHoldingCreate(elem, elem["list_id"]);
+            });
+
+
+            portfolio_data.appendChild(account_type);
+            portfolio_data.appendChild(description);
+            portfolio_data.appendChild(balance);
+
+            elem.appendChild(portfolioButtons);
+            elem.appendChild(document.createElement("p"));
+
+            elem.appendChild(createHolding);
+            elem.appendChild(document.createElement("p"));
+
+            elem.appendChild(holdings);
+
+            return elem;
+        }
+
+        let elem = createPortfolioContents(portfolio_item);
+        elem["list_id"] = list_id;
         return elem;
     }
 
@@ -597,6 +671,7 @@ function render_portfolio_overview(){
     }
 
     const handleSinglePortfolio = (portfolio_item) => {
+        // Only call this when a new account is being added
         all_portfolios.push(portfolio_item);
 
         let portfolio_button = document.createElement("button");
@@ -605,8 +680,7 @@ function render_portfolio_overview(){
 
         portfolio_button.innerText = portfolio_item["name"];
 
-        let portfolio_contents = createContents(portfolio_item);
-        portfolio_contents["list_id"] = numPortfolios++;
+        let portfolio_contents = renderPortfolioContents(portfolio_item, numPortfolios++);
 
         portfolio_listing.appendChild(portfolio_button);
         portfolio_listing.appendChild(portfolio_contents);
@@ -621,6 +695,7 @@ function render_portfolio_overview(){
             }
         });
     }
+
     const renderHoldingForm = (saveFunc, cancelFunc) => {
         let form = {};
         form.container = document.createElement("tr");
@@ -685,11 +760,9 @@ function render_portfolio_overview(){
         return form;
     }
 
-    const renderPortfolioForm = () => {
+    const renderPortfolioForm = (saveFunc, cancelFunc) => {
         let form = {};
-        
-        form.apiFunc = create_portfolio;
-        form.successFunc = handleSinglePortfolio;
+
         let type_options = ["IRA", "401K", "Savings"]; // TODO: replace with list fetched from DB
         form.container = document.createElement("div");
         form.container.classList.add("portfolio-creation");
@@ -709,18 +782,8 @@ function render_portfolio_overview(){
         description_label.innerText = "Description";
         form.description = document.createElement("textarea");
         form.description.maxLength = 250;
-        form.submit = makeButton("btn-secondary", "Submit", function () {
-
-            // TODO: add validation and errors
-
-            let data = {};
-            data["name"] = form.name.value;
-            data["account_type"] = form.account_type.value;
-            data["balance"] = parseFloat(form.balance.value);
-            data["description"] = form.description.value;
-            form.apiFunc(data, form.successFunc, error);
-        })
-        let cancel = makeButton("btn-danger", "Cancel", render);
+        form.submit = makeButton("btn-secondary", "Submit", saveFunc)
+        let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
 
         form.container.appendChild(name_label);
         form.container.appendChild(form.name);
@@ -737,51 +800,20 @@ function render_portfolio_overview(){
 
     }
 
-    const handlePortfolioUpdate = (elem, portfolio, list_id) => {
-        elem.innerHTML = "";
-        let form = renderPortfolioForm();
-
-        form.apiFunc = update_portfolio;
-        form.successFunc = function (portfolio_item){
-            all_portfolios[list_id] = portfolio_item;
-            let new_contents = createContents(portfolio_item);
-            // add the updated data to the collapsible button
-            elem.previousSibling.innerText = portfolio_item["name"];
-            elem.parentElement.insertBefore(new_contents, elem);
-            elem.remove();
-        };
-
-        elem.appendChild(form.container);
-        form.name.value = portfolio["name"];
-        form.account_type.value = portfolio["account_type"];
-        form.balance.value = portfolio["balance"];
-        form.description = portfolio["description"];
-        update_submit = makeButton("btn-secondary", "Submit", function () {
-
-            // TODO: add validation and errors
-
-            let data = portfolio;
-            data["name"] = form.name.value;
-            data["account_type"] = form.account_type.value;
-            data["balance"] = parseFloat(form.balance.value);
-            data["description"] = form.description.value;
-            form.apiFunc(data, form.successFunc, error);
+    const renderCreateButton = () => {
+        let createPortfolio = makeButton("btn-success", "Create Portfolio", () =>{
+            handlePortfolioCreate(createPortfolio);
         });
-        form.container.insertBefore(update_submit, form.submit);
-        form.submit.remove();
-        form.submit = update_submit;
+        return createPortfolio
     }
 
     const render = () => {
         portfolio_listing.innerHTML = "";
         all_portfolios = [];
         numPortfolios = 0;
-        let createPortfolio = makeButton("btn-success", "Create Portfolio", function () {
-            portfolio_listing.insertBefore(renderPortfolioForm().container, createPortfolio);
-            portfolio_listing.removeChild(createPortfolio)
-        });
+
         portfolio_listing.appendChild(error);
-        portfolio_listing.appendChild(createPortfolio);
+        portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));
 
