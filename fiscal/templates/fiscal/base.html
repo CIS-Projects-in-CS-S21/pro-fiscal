@@ -78,10 +78,10 @@
                         class="dropdown-toggle">Budgeting</a>
                     <ul class="collapse list-unstyled" id="budgetSubmenu">
                         <li>
-                            <a href="#">Spending Overview</a>
+                            <a href="#/budget-overview">Spending Overview</a>
                         </li>
                         <li>
-                            <a href="#">Manage Spending</a>
+                            <a href="#">Spending Visualization</a>
                         </li>
                     </ul>
                 </li>
@@ -174,8 +174,10 @@
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
     <script src="{% static 'js/createButton.js' %}"></script>
+    <script src="{% static 'js/makePickList.js' %}"></script>
     <script src="{% static 'js/createTable.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
+    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
 
@@ -201,6 +203,7 @@
         myRoutes['#/home'] = home;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
+        myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
 
         //Check if key exists
