@@ -84,7 +84,7 @@ class SerializerTest(TestCase):
     def test_portfolio_contains_expected_fields(self):
         data = self.port_serializer.data
         self.assertEqual((set(data.keys())),
-                         set(self.acct_attr.keys()).union(['holdings']), "Portfolio contained unexpected fields")
+                         set(self.acct_attr.keys()).union(['holdings', 'balance_history']), "Portfolio contained unexpected fields")
 
     def test_holding_validity(self):
         data = {
