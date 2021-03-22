@@ -1,5 +1,5 @@
 from rest_framework import serializers
-# from budget_tool.models import Expense
+from budget_tool.models import Expense
 
 class ExpenseSerializer(serializers.ModelSerializer):
     """
@@ -12,4 +12,6 @@ class ExpenseSerializer(serializers.ModelSerializer):
             model (__class__): The Expense model class
             fields (list): A list of the fields in the Expense model
         """
-        pass
+        model = Expense
+        fields = ['expense_id', 'user_id', 'amount', 'transaction_date', 'description', 'category']
+
