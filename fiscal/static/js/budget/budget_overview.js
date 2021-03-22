@@ -81,7 +81,8 @@ function delete_item(expense_id) {
 
 function render_budget_overview() {
 
-    const renderBudgetForm = (saveFunction, cancelFunction) => {
+    // Need mechanism to disable pick list for creating expense item
+    const renderBudgetForm = (saveFunction, cancelFunction, disablePickList) => {
         let form = {};
 
         form.container = document.createElement("tr");
@@ -122,6 +123,10 @@ function render_budget_overview() {
             "Groceries/Household", "Entertainment", "Essentials", "Non-Essentials", "Other"];
 
         form.categories = makePickList(categories);
+        if (disablePickList) {
+            form.categories.disabled = true;
+            form.categories.value = "Other";
+        }
 
         let categoryCell = document.createElement("td");
         categoryCell.style.textAlign = "left";
@@ -172,7 +177,7 @@ function render_budget_overview() {
             }, errorDOM);
         }, function () {
             form.container.remove();
-        });
+        }, true);
 
         tableBody.appendChild(form.container);
     };
@@ -209,7 +214,7 @@ function render_budget_overview() {
             expense_container.remove();
             expense_container = handleUserExpenses(all_expenses);
             elem.appendChild(expense_container);
-        });
+        }, false);
 
         form.purchase_date.value = expenseItem["purchase_date"];
         form.details.value = expenseItem["transaction"];
