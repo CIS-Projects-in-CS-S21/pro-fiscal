@@ -1,5 +1,9 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from modules.monte_carlo.monte_carlo import Monte_carlo
+from planning_tool.serializers import *
 
 class Classifier_API(APIView):
     """
@@ -114,6 +118,7 @@ class Monte_carlo_API(APIView):
             of the users' names (key) and the results of their monte_carlo
             simulation (value)
     """
+    permission_classes = [permissions.IsAuthenticated]
 
     def __init__(self):
         """
@@ -121,7 +126,7 @@ class Monte_carlo_API(APIView):
         """
         pass
 
-    def get(self, request, key):
+    def get(self, request):
         """
          Gets the results of the monte_carlo simulation
 
@@ -133,9 +138,22 @@ class Monte_carlo_API(APIView):
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
-        pass
+        if request.user.is_authenticated:
+            data = self.__aggregate_data(request.user)
+            start = request.data["start"]
+            end = request.data["end"]
+            if start and end:
+                self.sim = Monte_carlo(start, end, data["tickers"], data["shares"])
+                self.sim.run_sim()
+                results = self.sim.get_results()
+                return Response(results, status.HTTP_200_OK)
+            else:
+                return Response({"Error": "start and end are required"}, status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"Error": "User is not logged in"}, status.HTTP_401_UNAUTHORIZED)
 
-    def __aggregate_data(self, request_data, key):
+
+    def __aggregate_data(self, user):
         """
         Combines the request data and stores it in the corresponding key
 
@@ -147,4 +165,14 @@ class Monte_carlo_API(APIView):
         Returns:
             dict: A dictionary container the key value pair of the aggregated data
         """
-        pass
+        portfolios = Portfolio.objects.filter(user=user)
+        port_serializer = PortfolioSerializer(portfolios, many=True)
+        tickers = []
+        shares = []
+        for portfolio in port_serializer.data:
+            holdings = Holding.objects.filter(pk__in=portfolio["holdings"])
+            hold_serializer = HoldingSerializer(holdings, many=True)
+            for holding in hold_serializer.data:
+                tickers.append(holding["ticker"])
+                shares.append(holding["shares"])
+        return {"tickers": tickers, "shares": shares}
