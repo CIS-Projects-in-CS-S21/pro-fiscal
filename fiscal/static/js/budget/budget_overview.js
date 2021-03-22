@@ -1,10 +1,35 @@
+const categories = ["Housing", "Transportation", "Debt", "Insurance",
+    "Utilities", "Medical/Healthcare", "Savings", "Retirement", "Education",
+    "Groceries/Household", "Entertainment", "Essentials", "Non-Essentials", "Other"];
+
 /**
  * Function that fetches expense items from the database based on the provided user id.
  * @param {int} user_id ID of the user.
  * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
  * @returns {Array} Collection of budget items associated with the user.
  */
-function fetch_user_items(user_id) {
+const getExpenseData = (appendDOM, successHandler, errorDOM) => {
+    let status = false;
+
+    fetch("/static/json/expense_test.json")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            status = !status;
+            return response.json();
+        })
+        .then((data) => {
+            let table = successHandler(data);
+            appendDOM.appendChild(table);
+        }).catch(error => {
+            status = false;
+            console.log(error);
+            errorDOM.innerText = error;
+        })
+};
+
+function render_create_form() {
 
 }
 
@@ -32,7 +57,7 @@ function input_item(expense) {
  * @param {Object} expense Item consisting of a user's ID, the purchase date, a description of the transaction, and the cost of the transaction
  * @returns {Form} Returns an expense item form for the user to update.
  */
-function update_form(expense) {
+function render_update_form(expense) {
 
 }
 
@@ -62,39 +87,71 @@ function delete_item(expense_id) {
 
 function render_budget_overview() {
 
-    const getExpenseData = () => {
-        let expenses = "";
+    const createExpense = (container) => {
+        console.log("Create");
+    }
 
-        fetch("/static/json/expense_test.json")
-            .then(response => {
-                return response.json();
-            })
-            .then((data) => {
-                expenses = data["expense_items"];
-            })
-            .then(() => {
-                // console.log(expenses);
-                let expense_container = handleUserExpenses(expenses);
-                expense_view.appendChild(expense_container);
-            })
-    };
+    const handleExpenseUpdate = (parent_elem, expense_id) => {
+        console.log(expense_id);
+    }
+
+    const handleExpenseDelete = (parent_elem, expense_id) => {
+        console.log(expense_id);
+    }
 
     const handleUserExpenses = (expenses) => {
         let expense_container = document.createElement("div");
 
         let cleaner_expenses = [];
 
-        expenses.forEach((element, index) => {
-            cleaner_expenses[index] = {
+        if (expenses.length === 0) {
+            cleaner_expenses.push({
+                "Purchase Date": "",
+                "Transaction Detail": "",
+                "Cost": "",
+                "Category": "",
+                "Update": "",
+                "Delete": ""
+            });
+        }
+
+        let expenseItems = expenses["expense_items"];
+
+        for (let i = 0; i < expenseItems.length; i++) {
+            let element = expenseItems[i];
+
+            let update_button = createButton({
+                type: "btn-secondary",
+                text: "Update"
+            });
+
+            update_button["expense_id"] = element["id"];
+            update_button.addEventListener("click", function () {
+                handleExpenseUpdate(this, this["expense_id"]);
+            });
+
+            let delete_button = createButton({
+                type: "btn-danger",
+                text: "Delete"
+            });
+
+            delete_button["expense_id"] = element["id"];
+            delete_button.addEventListener("click", function () {
+                handleExpenseDelete(this, this["expense_id"]);
+            });
+
+            cleaner_expenses.push({
                 "Purchase Date": element["purchase_date"],
                 "Transaction Detail": element["transaction"],
                 "Cost": element["cost"],
                 "Category": element["category"],
-                "Update": `<button type='button' class='btn btn-secondary' onclick= 'dud_function()'>Update</button>`,
-                "Delete": `<button type='button' class='btn btn-danger' onclick= 'dud_function()'>Delete</button>`
-            };
-        });
+                "Update": update_button,
+                "Delete": delete_button
+            });
+        }
 
+        console.log(cleaner_expenses);
+        
         let expenseTable = createTable({
             objList: cleaner_expenses,
             sortOrderPropName: "Purchase Date"
@@ -105,20 +162,35 @@ function render_budget_overview() {
         return expense_container;
     }
 
+    function render() {
+        expense_view.innerHTML = "";
+        all_expenses = [];
+        num_expenses = 0;
+
+        let createExpenseButton = createButton({
+            type: "btn-success",
+            text: "Add Expense"
+        });
+
+        createExpenseButton.addEventListener("click", dud_function);
+
+        expense_view.appendChild(errorDOM);
+        expense_view.appendChild(createExpenseButton);
+        expense_view.appendChild(document.createElement("p"));
+
+        getExpenseData(expense_view, handleUserExpenses, errorDOM);
+    }
+
+    /* Main starts here */
+    let all_expenses = [];
+    let num_expenses = 0;
+
+    let errorDOM = document.createElement("div");
+    errorDOM.classList.add("error");
+
     let expense_view = document.createElement("div");
 
-    let createExpense = createButton({
-        type: "btn-success",
-        text: "Add Expense"
-    });
-
-    createExpense.addEventListener("click", dud_function);
-
-    getExpenseData();
-
-    expense_view.appendChild(createExpense);
-
-    expense_view.appendChild(document.createElement("p"));
+    render();
 
     return expense_view;
 }

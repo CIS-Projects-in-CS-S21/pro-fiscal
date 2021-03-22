@@ -31,20 +31,24 @@ function createTable(params) {
     }
 
     function convert(item) {
-        if (!item || item.length === 0) {
-            return -1; // Null/Empty string
-        }
-
-        // Date checking
-        let parsedDate = Date.parse(item);
-
-        if (isNaN(item) && !isNaN(parsedDate)) {
-            return parsedDate; // Item is indeed a date
+        if(typeof item === 'Node' || item instanceof Node){
+            return "";
         } else {
-            if (isNaN(item)) {
-                return item.toUpperCase();
+            if (!item || item.length === 0) {
+                return -1; // Null/Empty string
+            }
+
+            // Date checking
+            let parsedDate = Date.parse(item);
+
+            if (isNaN(item) && !isNaN(parsedDate)) {
+                return parsedDate; // Item is indeed a date
             } else {
-                return Number(item); // Item is a number
+                if (isNaN(item)) {
+                    return item.toUpperCase();
+                } else {
+                    return Number(item); // Item is a number
+                }
             }
         }
     }
@@ -52,7 +56,11 @@ function createTable(params) {
     /* Create a row to add data in a row of the HTML table based on its elementType */
     function appendToRow(elementType, row, data, alignment) {
         let elem = document.createElement(elementType);
-        elem.innerHTML = data;
+        if(typeof data === 'Node' || data instanceof Node) {
+            elem.appendChild(data);
+        } else{
+            elem.innerHTML = data;
+        }
         elem.style.textAlign = alignment;
         row.appendChild(elem);
         return elem;
@@ -60,18 +68,23 @@ function createTable(params) {
 
     /* Function to align items depending on its data type */
     function alignment(value) {
-        let date = Date.parse(value);
         let alignments = ["left", "center", "right"];
-
-        // Check if value is a date
-        if (isNaN(value) && (!isNaN(date))) {
+        if(typeof value === 'Node' || value instanceof Node) {
             return alignments[1];
         }
+        else{
+            let date = Date.parse(value);
 
-        if (isNaN(value)) {
-            return alignments[0];
+            // Check if value is a date
+            if (isNaN(value) && (!isNaN(date))) {
+                return alignments[1];
+            }
+
+            if (isNaN(value)) {
+                return alignments[0];
+            }
+            return alignments[2];
         }
-        return alignments[2];
     }
 
     // Capitalize first letter and create spaces when a capital letter is found
@@ -151,6 +164,7 @@ function createTable(params) {
     
     // Start of main
     var returnDiv = document.createElement("div");
+    returnDiv.classList.add("table-responsive");
 
     var itemTable = document.createElement("table");
     itemTable.classList.add("table");
