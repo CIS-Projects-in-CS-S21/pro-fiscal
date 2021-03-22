@@ -7,8 +7,12 @@ from matplotlib import style
 
 """
 TODO:
-- Update comments
-- Add weekly method
+- fix weight issue
+- switch data fetch to entire timeframe
+- 'vectorize' tickers (reduce 'for each ticker' loop)
+- 1d return with combined values
+    - 1d week of sim, 1d iteration, for entire portfolio combined
+
 """
 
 class Monte_carlo:
@@ -40,7 +44,7 @@ class Monte_carlo:
         """
         Initializes the Monte_carlo object
         """
-        self.__iterations = 10000
+        self.__iterations = 1000
         self.__sim_results = {}
         self.__historical_returns = []
         self.__prices = []
@@ -70,10 +74,12 @@ class Monte_carlo:
                 #find yearly volatility
                 weekly_vol = self.__historical_returns[pos].std()
                 price_series = []
+                prices_weighted = []
                 # create and add first simulated price
                 price = self.__last_prices[pos]*(1+np.random.normal(0, weekly_vol))
                 # apply weight and shares held to price
-                price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
+                price_series.append(price[0])
+                prices_weighted.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
 
                 #loop through each financial week in a year (252 days rounds to 50 weeks)
                 for i in range(self.__total_years*50):
@@ -82,10 +88,11 @@ class Monte_carlo:
                     # create and add next simulated price
                     price = price_series[count]*(1+np.random.normal(0, weekly_vol))
                     #apply weight and shares held to price
-                    price_series.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
+                    price_series.append(price[0])
+                    prices_weighted.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
                     count +=1
                 
-                results[x] = price_series
+                results[x] = prices_weighted
 
             self.__sim_results[self.__asset_names[pos]] = results
 
@@ -104,6 +111,7 @@ class Monte_carlo:
         Fetches the historical data of the user's assets
         """
         #iterate through 
+        count = 0
         for entry in self.__asset_names:
             start = self.__start_year
 
@@ -112,7 +120,7 @@ class Monte_carlo:
             # iterate through each year
             for i in range(self.__total_years):
                 # fetch price data for the year
-                prices = web.DataReader(self.__asset_names[0], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
+                prices = web.DataReader(self.__asset_names[count], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
                 # find yearly average and append to avgs
                 pos = 0
                 #add average weekly price
@@ -125,6 +133,8 @@ class Monte_carlo:
                         self.__last_prices.append(np.average(prices[pos:(pos+5)]))
                 
                 start += 1
+
+            count += 1
 
             # get prices of first stock element from yahoo
             pricesDf = pd.DataFrame(avgs, index=range(self.__total_years*50), columns=['Weekly avg'])
@@ -160,4 +170,4 @@ if __name__ == "__main__":
     monte = Monte_carlo(2019, 2020, ["AAPL", "MSFT"], [20, 20])
     monte.run_sim()
     results = monte.get_results()
-    print(len(results.get('AAPL')))
+    print(results)
