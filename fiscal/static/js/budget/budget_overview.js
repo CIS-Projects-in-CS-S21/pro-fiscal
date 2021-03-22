@@ -16,7 +16,9 @@ const getExpenseData = (appendDOM, successHandler, errorDOM) => {
             return response.json();
         })
         .then((data) => {
-            let table = successHandler(data);
+            let expenseItems = data["expense_items"];
+
+            let table = successHandler(expenseItems);
             appendDOM.appendChild(table);
         }).catch(error => {
             status = false;
@@ -156,16 +158,9 @@ function render_budget_overview() {
         let form = renderBudgetForm(function () {
             let data = {};
 
-            if (form.purchase_date.value) {
-                data["purchase_date"] = form.purchase_date.value;
-            }
-            
+            data["purchase_date"] = form.purchase_date.value;
             data["transaction"] = form.details.value;
-
-            if (form.cost.value) {
-                data["cost"] = form.cost.value;
-            }
-            
+            data["cost"] = parseFloat(form.cost.value);
             data["category"] = form.categories.value;
 
             input_item(data, (new_data) => {
@@ -175,18 +170,57 @@ function render_budget_overview() {
                 expenses = handleUserExpenses(all_expenses);
                 container.appendChild(expenses);
             }, errorDOM);
-        }, function() {
+        }, function () {
             form.container.remove();
         });
 
         tableBody.appendChild(form.container);
     };
 
-    const handleExpenseUpdate = (parent_elem, expense_id) => {
-        console.log(expense_id);
+    const handleExpenseUpdate = (container, expense_id) => {
+        let row = container.parentElement.parentElement;
+        let expense_container = row.parentElement.parentElement.parentElement.parentElement;
+        let elem = expense_container.parentElement;
+
+        let i;
+        for (i = 0; i < all_expenses.length; i++) {
+            if (all_expenses[i]["id"] === expense_id) {
+                break;
+            }
+        }
+
+        let expenseItem = all_expenses[i];
+
+        let form = renderBudgetForm(function () {
+            let data = {};
+
+            data["purchase_date"] = form.purchase_date.value;
+            data["transaction"] = form.details.value;
+            data["cost"] = parseFloat(form.cost.value);
+            data["category"] = form.categories.value;
+
+            input_item(data, (new_data) => {
+                all_expenses[i] = new_data;
+                expense_container.remove();
+                expense_container = handleUserExpenses(all_expenses);
+                elem.appendChild(expense_container);
+            }, errorDOM);
+        }, function () {
+            expense_container.remove();
+            expense_container = handleUserExpenses(all_expenses);
+            elem.appendChild(expense_container);
+        });
+
+        form.purchase_date.value = expenseItem["purchase_date"];
+        form.details.value = expenseItem["transaction"];
+        form.cost.value = expenseItem["cost"];
+        form.categories.value = expenseItem["category"];
+
+        row.parentElement.insertBefore(form.container, row);
+        row.remove();
     }
 
-    const handleExpenseDelete = (parent_elem, expense_id) => {
+    const handleExpenseDelete = (container, expense_id) => {
         console.log(expense_id);
     }
 
@@ -206,10 +240,10 @@ function render_budget_overview() {
             });
         }
 
-        let expenseItems = expenses["expense_items"];
-
-        for (let i = 0; i < expenseItems.length; i++) {
-            let element = expenseItems[i];
+        all_expenses = expenses;
+        
+        for (let i = 0; i < expenses.length; i++) {
+            let element = expenses[i];
 
             let update_button = createButton({
                 type: "btn-secondary",
@@ -241,8 +275,6 @@ function render_budget_overview() {
             });
         }
 
-        console.log(cleaner_expenses);
-
         let expenseTable = createTable({
             objList: cleaner_expenses,
             sortOrderPropName: "Purchase Date"
@@ -263,7 +295,7 @@ function render_budget_overview() {
             text: "Add Expense"
         });
 
-        createExpenseButton.addEventListener("click", function() {
+        createExpenseButton.addEventListener("click", function () {
             handleCreateExpense(expense_view);
         });
 
