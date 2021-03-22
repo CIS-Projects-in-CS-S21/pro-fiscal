@@ -140,15 +140,15 @@ class Monte_carlo_API(APIView):
         """
         if request.user.is_authenticated:
             data = self.__aggregate_data(request.user)
-            start = request.data["start"]
-            end = request.data["end"]
-            if start and end:
+            try:
+                start = request.data["start"]
+                end = request.data["end"]
                 self.sim = Monte_carlo(start, end, data["tickers"], data["shares"])
                 self.sim.run_sim()
                 results = self.sim.get_results()
                 return Response(results, status.HTTP_200_OK)
-            else:
-                return Response({"Error": "start and end are required"}, status.HTTP_400_BAD_REQUEST)
+            except KeyError:
+                return Response({"Error": "Required parameter not provided"}, status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"Error": "User is not logged in"}, status.HTTP_401_UNAUTHORIZED)
 
