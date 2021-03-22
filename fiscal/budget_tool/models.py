@@ -21,3 +21,6 @@ class Expense(models.Model):
     description = models.TextField()
     category = models.CharField(max_length=230)
 
+
+def __str__(self):
+    return self.expense_id, self.user_id, self.amount, self.transaction_date, self.description, self.category
