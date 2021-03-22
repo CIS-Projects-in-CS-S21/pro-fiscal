@@ -1,7 +1,7 @@
 import decimal
 
-from budgeting_tool.models import Expense
-from budgeting_tool.serializers import ExpenseSerializer
+from budget_tool.models import Expense
+from budget_tool.serializers import ExpenseSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -27,6 +27,7 @@ class ExpenseList(APIView):
         expense_serializer = ExpenseSerializer(expense, many=True)
 
         for expense in expense_serializer.data:
+            """
             # expense["balance"] = decimal.Decimal(expense["balance"])
             #
             # holdings = Holding.objects.filter(pk__in=expense['holdings'])
@@ -38,8 +39,8 @@ class ExpenseList(APIView):
             #     holding["shares"] = decimal.Decimal(holding["shares"])
             #     holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
 
-            expense["holdings"] = holding_serializer.data
-
+            #expense["holdings"] = holding_serializer.data
+"""
         return Response(expense_serializer.data)
 
     def post(self, request):
