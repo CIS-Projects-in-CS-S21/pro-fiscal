@@ -284,7 +284,7 @@ class DetailViewTest(TestCase):
         view.setup(request)
         resp = view.put(request, 1)
 
-        self.assertEquals(resp.status_code, 201, resp.data)
+        self.assertEquals(resp.status_code, 200, resp.data)
 
     def test_delete_portFolioDetail(self):
         request = self.factory.delete("portfolio/1")
