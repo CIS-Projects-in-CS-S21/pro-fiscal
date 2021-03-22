@@ -1,7 +1,3 @@
-const categories = ["Housing", "Transportation", "Debt", "Insurance",
-    "Utilities", "Medical/Healthcare", "Savings", "Retirement", "Education",
-    "Groceries/Household", "Entertainment", "Essentials", "Non-Essentials", "Other"];
-
 /**
  * Function that fetches expense items from the database based on the provided user id.
  * @param {int} user_id ID of the user.
@@ -29,10 +25,6 @@ const getExpenseData = (appendDOM, successHandler, errorDOM) => {
         })
 };
 
-function render_create_form() {
-
-}
-
 /**
  * Function that creates and renders the form for adding an item.
  * @returns {Form} Returns an expense item form for the user to input.
@@ -48,7 +40,7 @@ function submit_form() {
  * @throws Will throw an error if null or an empty expense object is inputted.
  * @throws Will throw an error if a user_id is not provided, NaN, null, etc.
  */
-function input_item(expense) {
+function input_item(expense, successHandler, errorDOM) {
 
 }
 
@@ -87,9 +79,108 @@ function delete_item(expense_id) {
 
 function render_budget_overview() {
 
-    const createExpense = (container) => {
-        console.log("Create");
-    }
+    const renderBudgetForm = (saveFunction, cancelFunction) => {
+        let form = {};
+
+        form.container = document.createElement("tr");
+        form.container.classList.add("scrollable");
+
+        /* Purchase Date for Expense Items */
+        form.purchase_date = document.createElement("input");
+        form.purchase_date.type = "date";
+
+        let dateCell = document.createElement("td");
+        dateCell.style.textAlign = "right";
+        dateCell.appendChild(form.purchase_date);
+        form.container.appendChild(dateCell);
+
+        /* Transaction Details for Expense Items */
+        form.details = document.createElement("input");
+        form.details.type = "text";
+
+        let detailsCell = document.createElement("td");
+        detailsCell.style.textAlign = "left";
+        detailsCell.appendChild(form.details);
+        form.container.appendChild(detailsCell);
+
+        /* Cost for Expense Items */
+        form.cost = document.createElement("input");
+        form.cost.type = "number";
+        form.cost.min = "0.01";
+        form.cost.step = "0.01";
+
+        let cost_cell = document.createElement("td");
+        cost_cell.style.textAlign = "right";
+        cost_cell.appendChild(form.cost);
+        form.container.appendChild(cost_cell);
+
+        /* Categories for Expense Items */
+        const categories = ["Housing", "Transportation", "Debt", "Insurance",
+            "Utilities", "Medical/Healthcare", "Savings", "Retirement", "Education",
+            "Groceries/Household", "Entertainment", "Essentials", "Non-Essentials", "Other"];
+
+        form.categories = makePickList(categories);
+
+        let categoryCell = document.createElement("td");
+        categoryCell.style.textAlign = "left";
+        categoryCell.appendChild(form.categories);
+        form.container.appendChild(categoryCell);
+
+        /* Submit Handler for Expense Items */
+        form.save = createButton({
+            type: "btn-success",
+            text: "Save"
+        });
+        form.save.addEventListener("click", saveFunction);
+        let save_cell = document.createElement("td");
+        save_cell.style.textAlign = "center";
+        save_cell.appendChild(form.save);
+        form.container.appendChild(save_cell);
+
+        /* Cancel Handler for Expense Items */
+        form.cancel = createButton({
+            type: "btn-danger",
+            text: "Cancel"
+        });
+        form.cancel.addEventListener("click", cancelFunction);
+        let cancel_cell = document.createElement("td");
+        cancel_cell.style.textAlign = "center";
+        cancel_cell.appendChild(form.cancel);
+        form.container.appendChild(cancel_cell);
+
+        return form;
+    };
+
+    const handleCreateExpense = (container) => {
+        let tableBody = container.getElementsByTagName("tbody")[0];
+        let form = renderBudgetForm(function () {
+            let data = {};
+
+            if (form.purchase_date.value) {
+                data["purchase_date"] = form.purchase_date.value;
+            }
+            
+            data["transaction"] = form.details.value;
+
+            if (form.cost.value) {
+                data["cost"] = form.cost.value;
+            }
+            
+            data["category"] = form.categories.value;
+
+            input_item(data, (new_data) => {
+                all_expenses.push(new_data);
+                let expenses = tableBody.parentElement.parentElement;
+                expenses.remove();
+                expenses = handleUserExpenses(all_expenses);
+                container.appendChild(expenses);
+            }, errorDOM);
+        }, function() {
+            form.container.remove();
+        });
+
+        tableBody.appendChild(form.container);
+    };
 
     const handleExpenseUpdate = (parent_elem, expense_id) => {
         console.log(expense_id);
@@ -151,7 +242,7 @@ function render_budget_overview() {
         }
 
         console.log(cleaner_expenses);
-        
+
         let expenseTable = createTable({
             objList: cleaner_expenses,
             sortOrderPropName: "Purchase Date"
@@ -172,7 +263,9 @@ function render_budget_overview() {
             text: "Add Expense"
         });
 
-        createExpenseButton.addEventListener("click", dud_function);
+        createExpenseButton.addEventListener("click", function() {
+            handleCreateExpense(expense_view);
+        });
 
         expense_view.appendChild(errorDOM);
         expense_view.appendChild(createExpenseButton);
