@@ -282,8 +282,8 @@ function render_budget_overview() {
 
         let expenseTable = createTable({
             objList: cleaner_expenses,
-            sortOrderPropName: sortingOrder,
-            reverse: reverseSorting
+            sortOrderPropName: sortingOrder[0],
+            reverse: reverseSorting[0]
         });
 
         expense_container.appendChild(expenseTable);

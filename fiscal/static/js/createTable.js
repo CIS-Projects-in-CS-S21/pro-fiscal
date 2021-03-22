@@ -142,8 +142,8 @@ function createTable(params) {
 
             colHead.onclick = function () {
                 createTableBody(itemTable, list, this.sortPropName, this.reverse);
-                sortingOrder = this.sortPropName;
-                reverseSorting = this.reverse;
+                sortingOrder[tableIndex] = this.sortPropName;
+                reverseSorting[tableIndex] = this.reverse;
                 this.reverse = !this.reverse;
             };
         }
@@ -177,9 +177,14 @@ function createTable(params) {
 
     var reverseProperty = params.reverse || false;
 
+    var tableIndex = params.index || 0;
+
     // Not sure if needed, but keep it so that when a different component that requires the table calls the function, you update these fields accordingly
-    sortingOrder = sortOrderPropName;
-    reverseSorting = false;
+    sortingOrder = [];
+    reverseSorting = [];
+
+    sortingOrder.push(sortOrderPropName);
+    reverseSorting.push(reverseProperty);
 
     console.log(sortOrderPropName);
     console.log(reverseProperty);
@@ -190,5 +195,5 @@ function createTable(params) {
     return returnDiv;
 }
 
-let sortingOrder = "";
-let reverseSorting = false;
+let sortingOrder = [];
+let reverseSorting = [];
