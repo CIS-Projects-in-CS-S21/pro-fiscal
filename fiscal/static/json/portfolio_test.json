@@ -1,58 +1,59 @@
-{
-    "id": 1,
-    "username": "Test",
-    "portfolio_accounts": [
-        {
-            "id": 1,
-            "user": 1,
-            "username": "Test",
-            "account_type": "IRA",
-            "name": "MyTestAccount",
-            "description": "Just a Test",
-            "balance": 100.00,
-            "holdings": [
-                {
-                    "id": 1,
-                    "portfolio_id": 2,
-                    "security_type": "Stock",
-                    "ticker": "GOOG",
-                    "price": 1000.50,
-                    "shares": 20,
-                    "purchase_date": "02-20-2021",
-                    "cost_basis": 800.50
-                }, 
-                {
-                    "id": 2,
-                    "portfolio_id": 2,
-                    "security_type": "Bond",
-                    "ticker": "AMZN",
-                    "price": 100.99,
-                    "shares": 4,
-                    "purchase_date": "02-20-2021",
-                    "cost_basis": 60.65
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "user": 1,
-            "username": "Test",
-            "account_type": "IRA",
-            "name": "MyTestAccount2 - Electric Boogaloo",
-            "description": "Repeat",
-            "balance": 100.00,
-            "holdings": [
-                {
-                    "id": 3,
-                    "portfolio_id": 3,
-                    "security_type": "Bond",
-                    "ticker": "GNMA",
-                    "price": 530.50,
-                    "shares": 2,
-                    "purchase_date": "02-20-2021",
-                    "cost_basis": 40.20
-                }
-            ]
-        }
-    ]
-}
+
+    {
+        "id": 1,
+        "username": "Test",
+        "portfolio_accounts": [
+            {
+                "id": 1,
+                "user": 1,
+                "username": "Test",
+                "account_type": "IRA",
+                "name": "MyTestAccount",
+                "description": "Just a Test",
+                "balance": 100.00,
+                "holdings": [
+                    {
+                        "id": 1,
+                        "portfolio_id": 2,
+                        "security_type": "Stock",
+                        "ticker": "GOOG",
+                        "price": 1000.50,
+                        "shares": 20,
+                        "purchase_date": "02-20-2021",
+                        "cost_basis": 800.50
+                    },
+                    {
+                        "id": 2,
+                        "portfolio_id": 2,
+                        "security_type": "Bond",
+                        "ticker": "AMZN",
+                        "price": 100.99,
+                        "shares": 4,
+                        "purchase_date": "02-20-2021",
+                        "cost_basis": 60.65
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "user": 1,
+                "username": "Test",
+                "account_type": "IRA",
+                "name": "MyTestAccount2 - Electric Boogaloo",
+                "description": "Repeat",
+                "balance": 100.00,
+                "holdings": [
+                    {
+                        "id": 3,
+                        "portfolio_id": 3,
+                        "security_type": "Bond",
+                        "ticker": "GNMA",
+                        "price": 530.50,
+                        "shares": 2,
+                        "purchase_date": "02-20-2021",
+                        "cost_basis": 40.20
+                    }
+                ]
+            }
+        ]
+    }
