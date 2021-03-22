@@ -4,7 +4,7 @@
  * @param {Date} start_date The Date where the user first purchased the Portfolio
  * @returns {int} Denotes how many days has passed from start_date to curr_date
  */
-const days_after_update = (curr_date, start_date) => {
+ const days_after_update = (curr_date, start_date) => {
     return parseInt((curr_date - start_date) / (1000 * 60 * 60 * 24), 10);
 };
 
@@ -175,21 +175,3 @@ function render_portfolio_growth() {
     contents.innerText = "Your Portfolios - Growth"; // Username here
     return contents;
 }
-
-/* 
-datasets: [{
-                    label: "MyTestAccount",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: chartBalanceData[0],
-                    order: 1
-                }, {
-                    label: "MyTestAccount2 - Electric Boogaloo",
-                    backgroundColor: 'rgb(7, 47, 95)',
-                    borderColor: 'rgb(7, 47, 95)',
-                    data: chartBalanceData[1],
-                    order: 2
-                }]
-
-
-*/

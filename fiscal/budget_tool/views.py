@@ -1,9 +1,20 @@
+import decimal
+
+from planning_tool.models import Holding
+from planning_tool.serializers import HoldingSerializer
+from planning_tool.models import Portfolio
+from planning_tool.serializers import PortfolioSerializer
+
+from django.http import Http404
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
 
 class ExpenseList(APIView):
     """
     List all expenses, or create a new one
     """
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         """

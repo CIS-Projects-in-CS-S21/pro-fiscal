@@ -56,7 +56,7 @@
                             <a href="#/portfolio-overview">Portfolio Overview</a>
                         </li>
                         <li>
-                            <a href="#">Portfolio Diversification</a>
+                            <a href="#/portfolio-diversification">Portfolio Diversification</a>
                         </li>
                         <li>
                             <a href="#/portfolio-growth">Portfolio Growth</a>
@@ -168,7 +168,7 @@
         <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
-    
+
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
@@ -177,6 +177,7 @@
     <script src="{% static 'js/makePickList.js' %}"></script>
     <script src="{% static 'js/createTable.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
+    <script src="{% static 'js/Planning/portfolio_diversification.js' %}"></script>
     <script src="{% static 'js/budget/budget_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
@@ -203,6 +204,7 @@
         myRoutes['#/home'] = home;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
+        myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
         myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
 
