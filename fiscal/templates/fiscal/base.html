@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 
@@ -55,7 +56,10 @@
                             <a href="#/portfolio-overview">Portfolio Overview</a>
                         </li>
                         <li>
-                            <a href="#">Manage Portfolios</a>
+                            <a href="#">Portfolio Diversification</a>
+                        </li>
+                        <li>
+                            <a href="#/portfolio-growth">Portfolio Growth</a>
                         </li>
                         <li>
                             <a href="#">Monte Carlo</a>
@@ -136,10 +140,12 @@
                 </div>
             </nav>
 
-
             <div id="insert-data-here">
 
             </div>
+
+            <canvas id="myChart"></canvas>
+
         </div>
     </div>
 
@@ -155,9 +161,14 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"
         integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
         crossorigin="anonymous"></script>
-    <!-- jQuery Custom Scroller CDN -->
+    <!-- CDN for D3, a Chart Library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- CDN for Chart.js, a Chart Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+    
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
@@ -165,6 +176,7 @@
     <script src="{% static 'js/createButton.js' %}"></script>
     <script src="{% static 'js/createTable.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
+    <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
 
     <script type="text/javascript">
@@ -186,9 +198,10 @@
 
         var myRoutes = [];
 
-        myRoutes['#/home'] = home;        
+        myRoutes['#/home'] = home;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
+        myRoutes['#/portfolio-growth'] = render_portfolio_growth;
 
         //Check if key exists
         const key = localStorage.getItem("key");
