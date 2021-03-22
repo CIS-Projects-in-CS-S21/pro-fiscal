@@ -282,7 +282,8 @@ function render_budget_overview() {
 
         let expenseTable = createTable({
             objList: cleaner_expenses,
-            sortOrderPropName: "Purchase Date"
+            sortOrderPropName: sortingOrder,
+            reverse: reverseSorting
         });
 
         expense_container.appendChild(expenseTable);
@@ -299,6 +300,8 @@ function render_budget_overview() {
             type: "btn-success",
             text: "Add Expense"
         });
+
+        sortingOrder = "Purchase Date"
 
         createExpenseButton.addEventListener("click", function () {
             handleCreateExpense(expense_view);
