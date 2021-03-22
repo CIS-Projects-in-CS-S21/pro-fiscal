@@ -21,3 +21,28 @@
     overflow: hidden;
     background-color: #F1F1F1;
 }
+
+.portfolio-creation {
+    display: block;
+    margin: auto;
+}
+
+.portfolio-creation label {
+    display: block;
+}
+
+.portfolio-creation input, .portfolio-creation select {
+    display: block;
+}
+
+.portfolio-creation textarea {
+    display: block;
+    padding: 10px;
+}
+
+/*
+.portfolio-creation button {
+    display: block;
+    padding: 10px;
+}
+*/

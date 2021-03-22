@@ -79,7 +79,7 @@ function createTable(params) {
             if (isNaN(value) && (!isNaN(date))) {
                 return alignments[1];
             }
-
+          
             if (isNaN(value)) {
                 return alignments[0];
             }
