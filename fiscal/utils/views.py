@@ -120,11 +120,11 @@ class Monte_carlo_API(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    def __init__(self):
-        """
-        Initializes the Monte_carlo_API object
-        """
-        pass
+    # def __init__(self):
+    #     """
+    #     Initializes the Monte_carlo_API object
+    #     """
+    #     pass
 
     def get(self, request):
         """
