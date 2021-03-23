@@ -4,9 +4,10 @@ from budget_tool.models import Expense
 from budget_tool.serializers import ExpenseSerializer
 
 from django.http import Http404
+from rest_framework import status, permissions
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
 
 class ExpenseList(APIView):
     """
@@ -27,20 +28,7 @@ class ExpenseList(APIView):
         expense_serializer = ExpenseSerializer(expense, many=True)
 
         for expense in expense_serializer.data:
-            """
-            # expense["balance"] = decimal.Decimal(expense["balance"])
-            #
-            # holdings = Holding.objects.filter(pk__in=expense['holdings'])
-            # holding_serializer = HoldingSerializer(holdings, many=True)
-            #
-            # for holding in holding_serializer.data:
-            #     # return from model is a string, must be converted
-            #     holding["price"] = decimal.Decimal(holding["price"])
-            #     holding["shares"] = decimal.Decimal(holding["shares"])
-            #     holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
-
-            #expense["holdings"] = holding_serializer.data
-"""
+            expense["amount"] = expense_serializer.data
         return Response(expense_serializer.data)
 
     def post(self, request):
@@ -53,13 +41,12 @@ class ExpenseList(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        request.data["user"] = request.user.pk
+        request.data["user_id"] = request.user.pk
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
             expense_serializer.save()
             return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
         return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class ExpenseDetail(APIView):
     """
@@ -71,6 +58,7 @@ class ExpenseDetail(APIView):
             return Expense.objects.get(pk=key)
         except Expense.DoesNotExist:
             raise Http404
+
     def get(self, request, key):
         """
         Get the specified expense
@@ -85,23 +73,12 @@ class ExpenseDetail(APIView):
         expense = self.get_object(key)
         expense_serializer = ExpenseSerializer(expense)
 
-        ps_data = expense_serializer.data
+        exp_data = expense_serializer.data
 
         # return from model is a string, must be converted
-        ps_data["balance"] = decimal.Decimal(ps_data["balance"])
+        exp_data["amount"] = decimal.Decimal(exp_data["amount"])
 
-        # holdings = Holding.objects.filter(pk__in=ps_data['holdings'])
-        # holding_serializer = HoldingSerializer(holdings, many=True)
-        #
-        # for holding in holding_serializer.data:
-        #     # return from model is a string, must be converted
-        #     holding["price"] = decimal.Decimal(holding["price"])
-        #     holding["shares"] = decimal.Decimal(holding["shares"])
-        #     holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
-        #
-        # ps_data["holdings"] = holding_serializer.data
-        #
-        # return Response(ps_data)
+        return Response(exp_data)
 
     def put(self, request, key):
         """
@@ -114,7 +91,7 @@ class ExpenseDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        request.data["user"] = request.user.pk
+        request.data["user_id"] = request.user.pk
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
             expense_serializer.save()
