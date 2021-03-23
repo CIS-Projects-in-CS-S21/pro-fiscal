@@ -175,3 +175,5 @@ function render_portfolio_growth() {
     contents.innerText = "Your Portfolios - Growth"; // Username here
     return contents;
 }
+
+// module.exports = days_after_update;
