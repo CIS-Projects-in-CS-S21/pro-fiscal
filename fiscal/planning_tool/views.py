@@ -1,4 +1,4 @@
-import decimal
+import decimal, datetime
 
 from planning_tool.models import Holding, Balance_History
 from planning_tool.models import Portfolio
@@ -8,7 +8,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from django.db.models.functions import Now
+
 
 
 def fetch_balance_history(portfolio_data):
@@ -192,8 +192,13 @@ class HoldingList(APIView):
     def post(self, request):
         holding_serializer = HoldingSerializer(data=request.data)
         if holding_serializer.is_valid():
-            holding_serializer.save()
-            return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
+                input_date = holding_serializer.validated_data["purchase_date"]
+                if input_date < datetime.date.today():
+                    holding_serializer.save()
+                    return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    holding_serializer.errors.update({"purchase_date": "Date may not be in the future"})
+                    return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HoldingDetail(APIView):
@@ -226,8 +231,13 @@ class HoldingDetail(APIView):
     def put(self, request, pk):
         holding_serializer = HoldingSerializer(data=request.data)
         if holding_serializer.is_valid():
-            holding_serializer.save()
-            return Response(holding_serializer.data, status=status.HTTP_200_OK)
+            input_date = holding_serializer.validated_data["purchase_date"]
+            if input_date < datetime.date.today():
+                holding_serializer.save()
+                return Response(holding_serializer.data, status=status.HTTP_200_OK)
+            else:
+                holding_serializer.errors.update({"purchase_date": "Date may not be in the future"})
+                return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, pk):
