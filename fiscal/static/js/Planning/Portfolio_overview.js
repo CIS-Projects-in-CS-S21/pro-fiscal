@@ -332,6 +332,7 @@ function dud_function() {
  */
 function render_portfolio_overview() {
     let all_portfolios = [];
+
     let error = document.createElement("div");
     error.classList.add("error");
 
@@ -339,6 +340,8 @@ function render_portfolio_overview() {
 
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
+
+    let modal = modalFW({});
 
     const makeButton = (buttonType, buttonText, handlerFunction) => {
         let button = createButton({
@@ -868,6 +871,8 @@ function render_portfolio_overview() {
         numPortfolios = 0;
 
         portfolio_listing.appendChild(error);
+        portfolio_listing.appendChild(modal);
+        modal.alert("I think this works");
         portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));
