@@ -231,8 +231,14 @@ function render_portfolio_overview() {
     }
 
     const handleHoldingDelete = (parent_elem, holding_id) => {
+        function toDeleteHolding () {
+            delete_holding(holding_id, () => {
+                row.remove();
+            }, error)
+        }
+
         let row = parent_elem.parentElement.parentElement;
-        delete_holding(holding_id, () => { row.remove(); }, error);
+        modal.confirm("Are you sure you want to delete this holding?", toDeleteHolding);
     }
 
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
@@ -504,7 +510,9 @@ function render_portfolio_overview() {
         let balance_label = document.createElement("label");
         balance_label.innerText = "Balance";
         form.balance = document.createElement("input");
-        form.balance.type = "text";
+        form.balance.type = "number";
+        form.balance.min = "0.01";
+        form.balance.step = "0.01";
 
         let description_label = document.createElement("label");
         description_label.innerText = "Description";
@@ -517,13 +525,13 @@ function render_portfolio_overview() {
         let buttonGroupCancel = document.createElement("div");
         buttonGroupCancel.classList.add("btn-group");
 
-        form.submit = makeButton("btn-secondary", "Submit", saveFunc);
+        form.submit = makeButton("btn-success", "Submit", saveFunc);
         form.submit.classList.add("mr-2");
         let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
         cancel.classList.add("mr-2");
 
         let title = document.createElement("h2");
-        title.innerText = "Add a Portfolio Here";
+        title.innerText = "Manage Portfolio";
 
         form.container.appendChild(title);
         form.container.appendChild(name_label);
@@ -563,7 +571,6 @@ function render_portfolio_overview() {
 
         portfolio_listing.appendChild(error);
         portfolio_listing.appendChild(modal);
-        modal.alert("I think this works");
         portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));

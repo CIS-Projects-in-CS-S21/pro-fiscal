@@ -8,6 +8,8 @@ function modalFW(params) {
     var className = params.className || "modal";
     var hideClass = params.hideClass || "modal-hide";
     var showClass = params.showClass || "modal-show";
+    var submitButton = "";
+    var cancelButton = "";
     
     function hide(elem){
         elem.classList.add(hideClass);
