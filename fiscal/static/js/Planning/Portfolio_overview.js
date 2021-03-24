@@ -80,24 +80,6 @@ function render_portfolio_overview() {
         return list;
     }
 
-    // const handlePortfolioButtons = () => {
-    //     let buttonGroup = document.createElement("div");
-    //     let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", dud_function);
-    //     let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function (){
-    //             elem = deletePortfolio.parentElement.parentElement;
-    //             let to_delete = portfolios[elem.list_id];
-    //             console.log(portfolios);
-    //             console.log(elem.list_id);
-    //             console.log("deleting" + to_delete["id"]);
-    //             // delete_portfolio(to_delete["id"], error);
-    //     });
-    //
-    //     buttonGroup.appendChild(updatePortfolio);
-    //     buttonGroup.appendChild(deletePortfolio);
-    //
-    //     return buttonGroup;
-    // }
-
     const handleHoldings = (holding) => {
         let holding_elem = document.createElement("div");
         holding_elem.classList.add("holding-data");
@@ -127,12 +109,6 @@ function render_portfolio_overview() {
             cleaner_holdings[i]["Shares"] = holdingItem["shares"];
             cleaner_holdings[i]["Purchase Date"] = holdingItem["purchase_date"];
             cleaner_holdings[i]["Cost Basis"] = holdingItem["cost_basis"];
-            // cleaner_holdings[i]["Update"] = `<button type='button' class='btn btn-secondary' onclick= 'dud_function(this)'>Update</button>`;
-            /*
-            let update_button = document.createElement("button");
-            update_button.classList.add("btn", "btn-secondary");
-            update_button.innerText = "Update";
-            */
 
             let update_button = createButton({
                 type: "btn-secondary",
@@ -142,12 +118,6 @@ function render_portfolio_overview() {
             update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
 
-            /*
-            let delete_button = document.createElement("button");
-            delete_button.classList.add("btn", "btn-danger");
-            delete_button.innerText = "Delete";
-            */
-
             let delete_button = createButton({
                 type: "btn-danger",
                 text: "Delete"
@@ -155,10 +125,6 @@ function render_portfolio_overview() {
             delete_button["holding_id"] = holdingItem["id"];
             delete_button.addEventListener("click", function () { handleHoldingDelete(this, this["holding_id"]); })
             cleaner_holdings[i]["Delete"] = delete_button;
-
-
-            // "` + CRUD_icons.update + `" onclick= "window.location.hash = '#/bookUpdate/` + cleanerResults[i].id + `'">
-            // cleaner_holdings[i]["Delete"] = `<button type='button' class='btn btn-danger' onclick= 'dud_function(this)'>Delete</button>`;
         }
 
         let holdingTable = createTable({
@@ -179,10 +145,14 @@ function render_portfolio_overview() {
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
-            if (form.purchase_date.value)
+            if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
-            if (form.cost_basis.value)
+            }
+
+            if (form.cost_basis.value) {
                 data["cost_basis"] = form.cost_basis.value;
+            }
+
             data["portfolio"] = all_portfolios[list_id]["id"];
 
             add_holding(data,
@@ -198,6 +168,9 @@ function render_portfolio_overview() {
         }, function () {
             form.container.remove();
         });
+
+        formMaxDate("no_future_inputs");
+
         table_body.appendChild(form.container);
 
     }
@@ -242,8 +215,10 @@ function render_portfolio_overview() {
             holdings_div.remove();
             holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
             elem.appendChild(holdings_div);
-        }
-        );
+        });
+
+        formMaxDate("no_future_inputs");
+
         form.security_type.value = holding["security_type"];
         form.ticker.value = holding["ticker"];
         form.price.value = holding["price"];
@@ -293,7 +268,7 @@ function render_portfolio_overview() {
 
 
         elem.appendChild(form.container);
-        
+
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
         form.balance.value = portfolio["balance"];
@@ -479,6 +454,7 @@ function render_portfolio_overview() {
 
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
+        form.purchase_date.classList.add("no_future_inputs");
 
         let date_cell = document.createElement("td");
         date_cell.style.textAlign = "right";

@@ -1,2 +1,2 @@
-const days_after_update = require("../js/Planning/portfolio_growth");
+const days_after_update = require("../js/days_after_update");
 

@@ -10,12 +10,12 @@ function modalFW(params) {
     var showClass = params.showClass || "modal-show";
     
     function hide(elem){
-        elem.classList.add(params.hideClass);
+        elem.classList.add(hideClass);
         elem.style.display = "none";
     }
     
     function show(elem){
-        elem.classList.remove(params.hideClass);
+        elem.classList.remove(hideClass);
         elem.style.display = "block";
     }
     
@@ -34,10 +34,10 @@ function modalFW(params) {
         
         var messageText = document.createElement("p");
         messageArea.appendChild(messageText);
-        messageText.innerHTML = message;
+        messageText.innerText = message;
         
         var exitButton = document.createElement("button");        
-        exitButton.innerHTML = "OK";
+        exitButton.innerText = "OK";
         exitButton.onclick = function(){
             hide(modal);
         };
