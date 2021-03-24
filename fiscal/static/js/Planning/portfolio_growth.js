@@ -34,7 +34,18 @@ function render_portfolio_growth() {
     const getPortfolioChangeData = () => {
         let portfolios = "";
 
-        fetch("/static/json/portfolio_growth.json")
+        let url = "/planning/portfolio/"
+        let init = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "token " + localStorage.getItem("key")
+            }
+        }
+
+        fetch(url, init)
+        // fetch("/static/json/portfolio_growth.json")
             .then(response => {
                 return response.json();
             })
@@ -56,15 +67,27 @@ function render_portfolio_growth() {
         for (let i = 0; i < portfolios.length; i++) {
             let item = portfolios[i];
 
-            dateData[i] = item["dates"];
-            balanceData[i] = item["balances"];
+            // dateData[i] = item["dates"];
+            // balanceData[i] = item["balances"];
+            //
+            // dateData[i].push(item["latest_balance"]["date"]);
+            // balanceData[i].push(item["latest_balance"]["balance"]);
 
-            dateData[i].push(item["latest_balance"]["date"]);
-            balanceData[i].push(item["latest_balance"]["balance"]);
+            // Get Balance History arrays
+            dateData[i] = item["balance_history"]["date"];
+            balanceData[i] = item["balance_history"]["balance"]
+
+
+            // add the current balance and date
+            dateData[i].push(item["date"]);
+            balanceData[i].push(item["balance"]);
 
             let max = dateData[i].reduce(function (a, b) { return new Date(a) > new Date(b) ? new Date(a) : new Date(b); });
             maximum.push(days_after_update(max, new Date(dateData[i][0])));
         }
+
+
+
         maxDays = maximum.reduce(function (a, b) { return a > b ? a : b });
     }
 
@@ -96,7 +119,7 @@ function render_portfolio_growth() {
             let item = portfolios[i];
 
             datasets.push({
-                label: item["portfolio_name"],
+                label: item["name"],
                 backgroundColor: colors[i],
                 borderColor: colors[i],
                 data: chartBalanceData[i],

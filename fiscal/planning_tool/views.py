@@ -1,4 +1,5 @@
 import decimal
+import datetime
 
 from planning_tool.models import Holding, Balance_History
 from planning_tool.models import Portfolio
@@ -156,10 +157,12 @@ class PortfolioDetail(APIView):
             Response: JSON formatted data and HTTP status
         """
         old_data = self.get_object(pk)
-        new_history = Balance_History(portfolio=old_data, balance=old_data.balance)
+        date = datetime.date.today()
+        new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
         new_history.save()
 
         request.data["user"] = request.user.pk
+        request.data["date"] = date
         portfolio_serializer = PortfolioSerializer(old_data, data=request.data)
         if portfolio_serializer.is_valid():
             portfolio_serializer.save()
