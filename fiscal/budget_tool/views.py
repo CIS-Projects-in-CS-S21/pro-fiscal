@@ -91,7 +91,7 @@ class ExpenseDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        request.data["user_id"] = request.user.pk
+        request.data["expense_id"] = request.key
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
             expense_serializer.save()
