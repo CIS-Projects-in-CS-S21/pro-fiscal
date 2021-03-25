@@ -1,13 +1,11 @@
 import decimal, datetime
 
-from planning_tool.models import Holding, Balance_History
-from planning_tool.models import Portfolio
-from planning_tool.serializers import PortfolioSerializer, HoldingSerializer, BalanceHistorySerializer
+from planning_tool.serializers import *
 
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
 
 
 
@@ -244,3 +242,19 @@ class HoldingDetail(APIView):
         holding = self.get_object(pk)
         holding.delete()
         return Response(status=status.HTTP_204_NO_CONTENT);
+
+
+class AccountTypeList(generics.ListAPIView):
+    """
+    Provides a read-only list of account types in the database
+    """
+    queryset = Account_Type.objects.all()
+    serializer_class = Account_TypeSerializer
+
+
+class SecurityTypeList(generics.ListAPIView):
+    """
+    Provides a read-only list of security types in the database
+    """
+    queryset = Security_Type.objects.all()
+    serializer_class = Security_TypeSerializer
