@@ -22,7 +22,8 @@
     max-width: 480px;
     padding: 20px;
     border: 1px solid #888;
-    background-color: #fefefe;
+    border-radius: 5px;
+    background-color: #F5F9F1;
     box-shadow: 5px 5px 5px #4b4f4c;
 }
 

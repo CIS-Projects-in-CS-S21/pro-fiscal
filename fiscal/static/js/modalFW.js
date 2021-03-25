@@ -67,7 +67,8 @@ function modalFW(params) {
         
         var okButton = document.createElement("INPUT");
         okButton.setAttribute("type", "button");
-        okButton.setAttribute("value", "OK");
+        okButton.setAttribute("value", "Confirm");
+        okButton.classList.add("btn", "btn-danger");
         okButton.onclick = function(){
             hide(modal);
             callBack();
@@ -77,6 +78,7 @@ function modalFW(params) {
         var cancelButton = document.createElement("INPUT");
         cancelButton.setAttribute("type", "button");
         cancelButton.setAttribute("value", "Cancel");
+        cancelButton.classList.add("btn", "btn-info");
         cancelButton.onclick = function(){
             hide(modal);
         };
@@ -101,7 +103,6 @@ function modalFW(params) {
             hide(modal);
         };
         
-                
         messageArea.appendChild(exitButton);
         modal.appendChild(messageArea);        
         
