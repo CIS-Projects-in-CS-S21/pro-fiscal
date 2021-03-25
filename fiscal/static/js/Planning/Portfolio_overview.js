@@ -56,28 +56,6 @@ function render_portfolio_overview() {
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
 
-    const makeButton = (buttonType, buttonText, handlerFunction) => {
-        let button = createButton({
-            type: buttonType,
-            text: buttonText
-        });
-
-        button.addEventListener("click", handlerFunction);
-
-        return button;
-    };
-
-    const makePickList = (optionList) => {
-        let list = document.createElement("select");
-        for (item in optionList) {
-            let option = document.createElement("option");
-            option.value = optionList[item];
-            option.innerText = optionList[item];
-            list.appendChild(option);
-        }
-        return list;
-    }
-
     const handleHoldings = (holding) => {
         let holding_elem = document.createElement("div");
         holding_elem.classList.add("holding-data");
@@ -112,7 +90,7 @@ function render_portfolio_overview() {
                 type: "btn-secondary",
                 text: "Update"
             });
-            
+
             update_button["holding_id"] = holdingItem["id"];
             update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
@@ -241,18 +219,22 @@ function render_portfolio_overview() {
     }
 
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
-        elem.innerHTML = "";
         const successFunc = (portfolio_item) => {
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
             // add the updated data to the collapsible button
             elem.previousSibling.innerText = portfolio_item["name"];
             elem.parentElement.insertBefore(new_contents, elem);
+
             elem.remove();
         };
 
+        /* Function starts here */
+        elem.innerHTML = "";
+
         /* Render the form for the Portfolio */
         let form = renderPortfolioForm(
+            "Update " + portfolio["name"],
             () => {
 
                 // TODO: add validation and errors
@@ -270,9 +252,10 @@ function render_portfolio_overview() {
                 elem.remove();
             }
         );
-
-
+        
+        elem.appendChild(document.createElement("br"));
         elem.appendChild(form.container);
+        elem.appendChild(document.createElement("br"));
 
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
@@ -282,6 +265,7 @@ function render_portfolio_overview() {
 
     const handlePortfolioCreate = (parent_elem) => {
         let form = renderPortfolioForm(
+            "Create Portfolio",
             function () {
 
                 // TODO: add validation and errors
@@ -298,14 +282,17 @@ function render_portfolio_overview() {
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
                 portfolio_api.create_portfolio(data, successFunc, error);
+                $('.portfolio-list').append(detached);
             },
             function () {
                 portfolio_listing.insertBefore(renderCreateButton(), form.container);
                 form.container.remove();
+                $('.portfolio-list').append(detached);
             }
         )
         portfolio_listing.insertBefore(form.container, parent_elem);
-        portfolio_listing.removeChild(parent_elem)
+        portfolio_listing.removeChild(parent_elem);
+        let detached = $('.collapsible-container').detach();
     }
 
     const renderPortfolioContents = (portfolio_item, list_id) => {
@@ -330,14 +317,13 @@ function render_portfolio_overview() {
             balance.classList.add("padded_paragraph");
             balance.innerText = "Balance: $" + portfolio_item["balance"];
 
-            // let portfolioButtons = handlePortfolioButtons();
-            let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", function () {
+            // On click functions for updates and deletions
+            const updatePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
                 handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
-            });
-            updatePortfolio.classList.add("mr-2");
+            }
 
-            let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function () {
+            const deletePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
 
                 function toDeletePortfolio() {
@@ -353,6 +339,20 @@ function render_portfolio_overview() {
                 }
 
                 modal.confirm("Are you sure you want to delete this portfolio?", toDeletePortfolio);
+            }
+
+            let updatePortfolio = createButton({
+                type: "btn-secondary",
+                text: "Update Portfolio",
+                onclickhandler: updatePortfolioHandler
+            });
+
+            updatePortfolio.classList.add("mr-2");
+
+            let deletePortfolio = createButton({
+                type: "btn-danger",
+                text: "Delete Portfolio",
+                onclickhandler: deletePortfolioHandler
             });
 
             deletePortfolio.classList.add("mr-2");
@@ -363,8 +363,14 @@ function render_portfolio_overview() {
 
             let holdings = handleHoldings(portfolio_item["holdings"]);
 
-            let createHolding = makeButton("btn-success", "Create Holding", function () {
+            const createHoldingHandler = () => {
                 handleHoldingCreate(elem, elem["list_id"]);
+            }
+
+            let createHolding = createButton({
+                type: "btn-success",
+                text: "Create Holding",
+                onclickhandler: createHoldingHandler
             });
 
             portfolio_data.appendChild(account_type);
@@ -399,6 +405,9 @@ function render_portfolio_overview() {
         // Only call this when a new account is being added
         all_portfolios.push(portfolio_item);
 
+        let menuContainer = document.createElement("div");
+        menuContainer.classList.add("collapsible-container");
+
         let portfolio_button = document.createElement("button");
         portfolio_button.type = "button";
         portfolio_button.classList.add("collapsible-overview");
@@ -407,8 +416,9 @@ function render_portfolio_overview() {
 
         let portfolio_contents = renderPortfolioContents(portfolio_item, numPortfolios++);
 
-        portfolio_listing.appendChild(portfolio_button);
-        portfolio_listing.appendChild(portfolio_contents);
+        menuContainer.appendChild(portfolio_button);
+        menuContainer.appendChild(portfolio_contents);
+        portfolio_listing.appendChild(menuContainer);
 
         portfolio_button.addEventListener("click", function () {
             this.classList.toggle("active");
@@ -425,7 +435,6 @@ function render_portfolio_overview() {
         let form = {};
 
         form.container = document.createElement("tr");
-        form.container.classList.add("scrollable");
 
         let options = ["Stock", "Bond", "Cash"]; // TODO: replace with list fetched from DB
         form.security_type = makePickList(options);
@@ -479,13 +488,23 @@ function render_portfolio_overview() {
         cost_basis_cell.appendChild(form.cost_basis);
         form.container.appendChild(cost_basis_cell);
 
-        form.save = makeButton("btn-success", "Save", saveFunc);
+        form.save = createButton({
+            type: "btn-success",
+            text: "Save",
+            onclickhandler: saveFunc
+        });
+
         let save_cell = document.createElement("td");
         save_cell.style.textAlign = "center";
         save_cell.appendChild(form.save);
         form.container.appendChild(save_cell);
 
-        form.cancel = makeButton("btn-danger", "Cancel", cancelFunc);
+        form.cancel = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: cancelFunc
+        });
+
         let cancel_cell = document.createElement("td");
         cancel_cell.style.textAlign = "center";
         cancel_cell.appendChild(form.cancel);
@@ -494,7 +513,7 @@ function render_portfolio_overview() {
         return form;
     }
 
-    const renderPortfolioForm = (saveFunc, cancelFunc) => {
+    const renderPortfolioForm = (formTitle, saveFunc, cancelFunc) => {
         let form = {};
 
         let type_options = ["IRA", "401K", "Savings"]; // TODO: replace with list fetched from DB
@@ -528,13 +547,24 @@ function render_portfolio_overview() {
         let buttonGroupCancel = document.createElement("div");
         buttonGroupCancel.classList.add("btn-group");
 
-        form.submit = makeButton("btn-success", "Submit", saveFunc);
+        form.submit = createButton({
+            type: "btn-success",
+            text: "Submit",
+            onclickhandler: saveFunc
+        });
+
         form.submit.classList.add("mr-2");
-        let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
+
+        let cancel = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: cancelFunc
+        });
+
         cancel.classList.add("mr-2");
 
         let title = document.createElement("h2");
-        title.innerText = "Manage Portfolio";
+        title.innerText = formTitle;
 
         form.container.appendChild(title);
         form.container.appendChild(name_label);
@@ -553,17 +583,22 @@ function render_portfolio_overview() {
         form.container.appendChild(buttonGroupSubmit);
         form.container.appendChild(buttonGroupCancel);
 
-        //form.container.appendChild(form.submit);
-        //form.container.appendChild(cancel);
-
         return form;
-
     }
 
     const renderCreateButton = () => {
-        let createPortfolio = makeButton("btn-success", "Create Portfolio", () => {
+
+        let createPortfolio = createButton({
+            type: "btn-success",
+            text: "Create Portfolio"
+        });
+
+        createPortfolio.classList.add("portfolio-creator");
+
+        createPortfolio.addEventListener("click", () => {
             handlePortfolioCreate(createPortfolio);
         });
+
         return createPortfolio;
     }
 

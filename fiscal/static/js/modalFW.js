@@ -65,7 +65,6 @@ function modalFW(params) {
         messageArea.appendChild(messageText);
         messageText.innerHTML = message;
         
-        
         var okButton = document.createElement("INPUT");
         okButton.setAttribute("type", "button");
         okButton.setAttribute("value", "OK");
@@ -107,7 +106,6 @@ function modalFW(params) {
         modal.appendChild(messageArea);        
         
         show(modal);
-        
     };
     
     return modal;    
