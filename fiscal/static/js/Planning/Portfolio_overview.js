@@ -112,7 +112,7 @@ function render_portfolio_overview() {
                 type: "btn-secondary",
                 text: "Update"
             });
-            
+
             update_button["holding_id"] = holdingItem["id"];
             update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
@@ -262,7 +262,26 @@ function render_portfolio_overview() {
                 data["account_type"] = form.account_type.value;
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
-                portfolio_api.update_portfolio(data, successFunc, error);
+
+                let errors = [];
+                if (form.name.value === undefined || form.name.value === '') {
+                    let errorMsg = "You need to add a Name to your Portfolio";
+                    errors.push(errorMsg);
+                }
+
+                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
+                    let errorMsg = "Your entered balance is either empty or not a number";
+                    errors.push(errorMsg);
+                } else if (currencyValidation(form.balance.value) === null) {
+                    let errorMsg = "Your entered balance has too many digits.";
+                    errors.push(errorMsg);
+                }
+
+                if (errors.length === 0) {
+                    portfolio_api.update_portfolio(data, successFunc, error);
+                } else {
+                    modal.renderErrorMessages(errors);
+                }
             },
             () => {
                 let contents = renderPortfolioContents(portfolio, list_id);
@@ -307,9 +326,7 @@ function render_portfolio_overview() {
                 if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
                     let errorMsg = "Your entered balance is either empty or not a number";
                     errors.push(errorMsg);
-                }
-
-                if (currencyValidation(form.balance.value) === null) {
+                } else if (currencyValidation(form.balance.value) === null) {
                     let errorMsg = "Your entered balance has too many digits.";
                     errors.push(errorMsg);
                 }
