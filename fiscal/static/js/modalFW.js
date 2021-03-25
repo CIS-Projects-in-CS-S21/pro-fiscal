@@ -41,7 +41,6 @@ function modalFW(params) {
         exitButton.onclick = function(){
             hide(modal);
         };
-        
                 
         messageArea.appendChild(exitButton);
         modal.appendChild(messageArea);        
@@ -65,7 +64,6 @@ function modalFW(params) {
         messageArea.appendChild(messageText);
         messageText.innerHTML = message;
         
-        
         var okButton = document.createElement("INPUT");
         okButton.setAttribute("type", "button");
         okButton.setAttribute("value", "OK");
@@ -85,6 +83,36 @@ function modalFW(params) {
         messageArea.appendChild(cancelButton);        
         show(modal);
     };
+
+    modal.renderErrorMessages = function (elements) {
+        modal.innerHTML = "";
+        
+        var messageArea = document.createElement("div");
+        modal.appendChild(messageArea);
+
+        let errorHeader = document.createElement('h2');
+        errorHeader.innerText = "Errors";
+        messageArea.appendChild(errorHeader);
+
+        for (let i = 0; i < elements.length; i++) {
+            let elem = document.createElement("p");
+            elem.innerText = elements[i];
+            messageArea.appendChild(elem);
+            messageArea.appendChild(document.createElement("br"));
+        }
+
+        var closeBtn = document.createElement("INPUT");
+        closeBtn.setAttribute("type", "button");
+        closeBtn.setAttribute("value", "Close");
+        closeBtn.classList.add("btn", "btn-info");
+        closeBtn.onclick = function(){
+            hide(modal);
+        };
+        
+        messageArea.appendChild(closeBtn);
+
+        show(modal);
+    }
 
     /**
      * A function to display a modal containing a DOM element

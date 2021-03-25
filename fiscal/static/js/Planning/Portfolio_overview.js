@@ -297,7 +297,23 @@ function render_portfolio_overview() {
                 data["account_type"] = form.account_type.value;
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
-                portfolio_api.create_portfolio(data, successFunc, error);
+
+                let errors = [];
+                if (form.name.value === undefined || form.name.value === '') {
+                    let errorMsg = "You need to add a Name to your Portfolio";
+                    errors.push(errorMsg);
+                }
+
+                if (form.balance.value === undefined || form.name.value === '' || isNaN(form.balance.value)) {
+                    let errorMsg = "Your entered balance is either empty or not a number";
+                    errors.push(errorMsg);
+                }
+
+                if (errors.length === 0) {
+                    portfolio_api.create_portfolio(data, successFunc, error);
+                } else {
+                    modal.renderErrorMessages(errors);
+                }
             },
             function () {
                 portfolio_listing.insertBefore(renderCreateButton(), form.container);
@@ -456,7 +472,9 @@ function render_portfolio_overview() {
         form.container.appendChild(ticker_cell);
 
         form.price = document.createElement("input");
-        form.price.type = "text";
+        form.price.type = "number";
+        form.price.min = "0.01";
+        form.price.step = "0.01";
         form.price.style.textAlign = "right";
 
         let price_cell = document.createElement("td");
@@ -465,7 +483,9 @@ function render_portfolio_overview() {
         form.container.appendChild(price_cell);
 
         form.shares = document.createElement("input");
-        form.shares.type = "text";
+        form.shares.type = "number";
+        form.shares.min = "0.01";
+        form.shares.step = "0.01";
         form.shares.style.textAlign = "right";
 
         let shares_cell = document.createElement("td");
@@ -483,7 +503,9 @@ function render_portfolio_overview() {
         form.container.appendChild(date_cell);
 
         form.cost_basis = document.createElement("input");
-        form.cost_basis.type = "text";
+        form.cost_basis.type = "number";
+        form.cost_basis.min = "0.01";
+        form.cost_basis.step = "0.01";
         form.cost_basis.style.textAlign = "right";
 
         let cost_basis_cell = document.createElement("td");
