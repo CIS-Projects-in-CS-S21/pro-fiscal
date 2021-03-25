@@ -42,7 +42,8 @@ function parseDate(dateString){
 function render_portfolio_growth() {
 
     let dateData = [], balanceData = [], daysAfterData = [], maximum = [];
-    let chartBalanceData = [], chartDateData = [];
+    let chartBalanceData = [];
+    let chartDateData;
     let maxDays = 0;
 
     const getPortfolioChangeData = () => {
@@ -122,11 +123,12 @@ function render_portfolio_growth() {
     // Use the preceding balance values to create a continuous data set
     const fillInHoles = () => {
         let dates = generateDateArr();
+        chartDateData = dates;
         for(let i = 0; i < balanceData.length; i++){
             chartBalanceData.push([]);
             let index = 1;
             for(let j = 0; j < dates.length; j++){
-                chartDateData[j] = dates[j].toLocaleDateString()
+                // chartDateData[j] = dates[j].toLocaleDateString()
                 if (parseDate(dateData[i][index]) >= dates[j] || index >= balanceData[i].length) {
                     chartBalanceData[i][j] = balanceData[i][index - 1];
                 } else {
@@ -176,6 +178,7 @@ function render_portfolio_growth() {
             // Configuration options go here
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 title: {
                     display: true,
                     text: 'Your Portfolios - Growth'
@@ -190,12 +193,10 @@ function render_portfolio_growth() {
                 },
                 scales: {
                     xAxes: [{
-                        display: true,
-                        // type: 'time',
-                        // distribution: 'series',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Date'
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: "MM-DD-YYYY"
                         }
                     }],
                     yAxes: [{
