@@ -195,11 +195,13 @@ portfolio_api.add_holding = function (data, successHandler, error_elem) {
 
     fetch("/planning/holding/", init)
         .then((response) => {
+            /*
             if (!response.ok) {
                 console.log(response);
                 throw new Error("" + response.statusText)
             }
-            status = true
+            */
+            status = true;
             return response.json();
         }).then((data) => {
             successHandler(data);

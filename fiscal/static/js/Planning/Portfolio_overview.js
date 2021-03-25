@@ -140,30 +140,81 @@ function render_portfolio_overview() {
         let table_body = portfolio_container.getElementsByTagName("tbody")[0];
         let form = renderHoldingForm(function () {
             let data = {};
+            let errors = [];
+
+            let input_date = '';
+            let input_cost_basis = 0;
+
+            // Everything but Ticker and Cost Basis
+
             data["security_type"] = form.security_type.value;
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
+
             if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
+                input_date = new Date(form.purchase_date.value);
+                // Get Midnight of the current date
+                let d = new Date();
+                d.setHours(0, 0, 0, 0);
+
+                if (days_after_update(d, input_date) < 0) {
+                    let errorMsg = "You cannot pick a date from the future.";
+                    errors.push(errorMsg);
+                }
             }
 
             if (form.cost_basis.value) {
                 data["cost_basis"] = form.cost_basis.value;
+                input_cost_basis = form.cost_basis.value;
+                if (currencyValidation(input_cost_basis) === null) {
+                    let errorMsg = "Your entered cost basis has too many decimal places, or your cost basis is a negative number.";
+                    errors.push(errorMsg);
+                }
             }
 
             data["portfolio"] = all_portfolios[list_id]["id"];
 
-            portfolio_api.add_holding(data,
-                (new_data) => {
-                    all_portfolios[list_id]["holdings"].push(new_data);
-                    let holdings = table_body.parentElement.parentElement;
-                    holdings.remove();
-                    holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
-                    portfolio_container.appendChild(holdings);
-                },
-                error)
+            if (form.ticker.value.length > 5) {
+                let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
+                errors.push(errorMsg);
+            }
 
+            if (form.price.value === undefined || form.price.value === '' || isNaN(form.price.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.price.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value)) {
+                let errorMsg = "Your entered number of shares is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.shares.value) === null) {
+                let errorMsg = "Your entered number of shares has too many decimal places, or your number of shares is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (input_date === '') {
+                let errorMsg = "You have to add a Purchase Date for your Holding.";
+                errors.push(errorMsg);
+            }
+
+            if (errors.length === 0) {
+                portfolio_api.add_holding(data,
+                    (new_data) => {
+                        all_portfolios[list_id]["holdings"].push(new_data);
+                        let holdings = table_body.parentElement.parentElement;
+                        holdings.remove();
+                        holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
+                        portfolio_container.appendChild(holdings);
+                    },
+                    error);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             form.container.remove();
         });
@@ -191,25 +242,74 @@ function render_portfolio_overview() {
 
         let form = renderHoldingForm(function () {
             let data = {};
+            let errors = [];
+            
             data["security_type"] = form.security_type.value;
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
-            if (form.purchase_date.value)
+            if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
-            if (form.cost_basis.value)
+                input_date = new Date(form.purchase_date.value);
+                // Get Midnight of the current date
+                let d = new Date();
+                d.setHours(0, 0, 0, 0);
+
+                if (days_after_update(d, input_date) < 0) {
+                    let errorMsg = "You cannot pick a date from the future.";
+                    errors.push(errorMsg);
+                }
+            }
+
+            if (form.cost_basis.value) {
                 data["cost_basis"] = form.cost_basis.value;
+                input_cost_basis = form.cost_basis.value;
+                if (currencyValidation(input_cost_basis) === null) {
+                    let errorMsg = "Your entered cost basis has too many decimal places, or your cost basis is a negative number.";
+                    errors.push(errorMsg);
+                }
+            }
+
             data["portfolio"] = all_portfolios[list_id]["id"];
 
-            portfolio_api.add_holding(data,
-                (new_data) => {
-                    holdings[i] = new_data;
-                    holdings_div.remove();
-                    holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
-                    elem.appendChild(holdings_div);
-                },
-                error)
+            if (form.ticker.value.length > 5) {
+                let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
+                errors.push(errorMsg);
+            }
 
+            if (form.price.value === undefined || form.price.value === '' || isNaN(form.price.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.price.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value)) {
+                let errorMsg = "Your entered number of shares is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.shares.value) === null) {
+                let errorMsg = "Your entered number of shares has too many decimal places, or your number of shares is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (input_date === '') {
+                let errorMsg = "You have to add a Purchase Date for your Holding.";
+                errors.push(errorMsg);
+            }
+
+            if (errors.length === 0) {
+                portfolio_api.add_holding(data,
+                    (new_data) => {
+                        holdings[i] = new_data;
+                        holdings_div.remove();
+                        holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
+                        elem.appendChild(holdings_div);
+                    },
+                    error);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             holdings_div.remove();
             holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
@@ -265,15 +365,15 @@ function render_portfolio_overview() {
 
                 let errors = [];
                 if (form.name.value === undefined || form.name.value === '') {
-                    let errorMsg = "You need to add a Name to your Portfolio";
+                    let errorMsg = "You need to add a Name to your Portfolio.";
                     errors.push(errorMsg);
                 }
 
                 if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
-                    let errorMsg = "Your entered balance is either empty or not a number";
+                    let errorMsg = "Your entered balance is either empty or not a number.";
                     errors.push(errorMsg);
                 } else if (currencyValidation(form.balance.value) === null) {
-                    let errorMsg = "Your entered balance has too many digits.";
+                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
                     errors.push(errorMsg);
                 }
 
@@ -327,7 +427,7 @@ function render_portfolio_overview() {
                     let errorMsg = "Your entered balance is either empty or not a number";
                     errors.push(errorMsg);
                 } else if (currencyValidation(form.balance.value) === null) {
-                    let errorMsg = "Your entered balance has too many digits.";
+                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
                     errors.push(errorMsg);
                 }
 
