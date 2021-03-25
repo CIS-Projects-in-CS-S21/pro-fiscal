@@ -421,13 +421,25 @@ function render_portfolio_overview() {
         });
     }
 
+    const handleAccountTypes = (types) => {
+        types.forEach(element => {
+            account_types.push(element["type"]);
+        });
+    }
+
+    const handleSecurityTypes = (types) => {
+        types.forEach(element => {
+            security_types.push(element["type"]);
+        });
+    }
+
     const renderHoldingForm = (saveFunc, cancelFunc) => {
         let form = {};
 
         form.container = document.createElement("tr");
         form.container.classList.add("scrollable");
 
-        let options = ["Stock", "Bond", "Cash"]; // TODO: replace with list fetched from DB
+        let options = security_types; // TODO: replace with list fetched from DB
         form.security_type = makePickList(options);
 
         let sec_cell = document.createElement("td");
@@ -497,7 +509,7 @@ function render_portfolio_overview() {
     const renderPortfolioForm = (saveFunc, cancelFunc) => {
         let form = {};
 
-        let type_options = ["IRA", "401K", "Savings"]; // TODO: replace with list fetched from DB
+        let type_options = account_types; // TODO: replace with list fetched from DB
         form.container = document.createElement("div");
         form.container.classList.add("portfolio-creation");
 
@@ -572,11 +584,17 @@ function render_portfolio_overview() {
         all_portfolios = [];
         numPortfolios = 0;
 
+        account_types = [];
+        security_types = [];
+
         portfolio_listing.appendChild(error);
         portfolio_listing.appendChild(modal);
         portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));
+
+        portfolio_api.get_account_types(handleAccountTypes, error);
+        portfolio_api.get_security_types(handleSecurityTypes, error);
 
         portfolio_api.get_all_portfolios(handleUserPortfolios, error);
     };
