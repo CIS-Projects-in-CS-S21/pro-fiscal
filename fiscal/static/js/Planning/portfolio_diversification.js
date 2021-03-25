@@ -100,7 +100,6 @@ function render_portfolio_diversification() {
                     }
                 })
 
-                // Used to remove the Chart when we exit out of the Portfolio Growth Page
                 function removeChart() {
                     chart.destroy();
                 }
