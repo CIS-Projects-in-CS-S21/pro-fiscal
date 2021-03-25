@@ -83,9 +83,11 @@ portfolio_api.create_portfolio = function (data, successHandler, error_elem) {
 
     fetch("/planning/portfolio/", init)
         .then((response) => {
+
             if (!response.ok) {
                 throw new Error("" + response.statusText)
             }
+            
             status = true
             return response.json();
         }).then((data) => {

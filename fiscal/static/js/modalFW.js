@@ -88,23 +88,23 @@ function modalFW(params) {
         modal.innerHTML = "";
         
         var messageArea = document.createElement("div");
+        messageArea.classList.add("text-center");
         modal.appendChild(messageArea);
 
-        let errorHeader = document.createElement('h2');
-        errorHeader.innerText = "Errors";
+        let errorHeader = document.createElement('h4');
+        errorHeader.innerText = "You encountered some Errors";
         messageArea.appendChild(errorHeader);
 
         for (let i = 0; i < elements.length; i++) {
             let elem = document.createElement("p");
             elem.innerText = elements[i];
             messageArea.appendChild(elem);
-            messageArea.appendChild(document.createElement("br"));
         }
 
         var closeBtn = document.createElement("INPUT");
         closeBtn.setAttribute("type", "button");
         closeBtn.setAttribute("value", "Close");
-        closeBtn.classList.add("btn", "btn-info");
+        closeBtn.classList.add("btn", "btn-info", "centered-btn");
         closeBtn.onclick = function(){
             hide(modal);
         };

@@ -304,8 +304,13 @@ function render_portfolio_overview() {
                     errors.push(errorMsg);
                 }
 
-                if (form.balance.value === undefined || form.name.value === '' || isNaN(form.balance.value)) {
+                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
                     let errorMsg = "Your entered balance is either empty or not a number";
+                    errors.push(errorMsg);
+                }
+
+                if (currencyValidation(form.balance.value) === null) {
+                    let errorMsg = "Your entered balance has too many digits.";
                     errors.push(errorMsg);
                 }
 
