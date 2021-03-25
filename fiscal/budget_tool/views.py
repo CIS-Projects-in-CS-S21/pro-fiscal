@@ -112,3 +112,4 @@ class ExpenseDetail(APIView):
         expense = self.get_object(key)
         expense.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    """test"""
