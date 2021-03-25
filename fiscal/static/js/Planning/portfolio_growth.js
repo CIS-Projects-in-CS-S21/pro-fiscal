@@ -25,6 +25,20 @@ function calculate_days_after(dateData) {
     return daysAfter;
 }
 
+/**
+ * Helper function that parses dates in 'YYYY-MM-DD' string format to a date object
+ * @param dateString
+ * @returns {Date}
+ */
+function parseDate(dateString){
+    let arr = dateString.split('-');
+    let year = parseInt(arr[0]);
+    let month = parseInt(arr[1]) - 1;
+    let day = parseInt(arr[2]);
+
+    return new Date(year, month, day);
+}
+
 function render_portfolio_growth() {
 
     let dateData = [], balanceData = [], daysAfterData = [], maximum = [];
@@ -45,12 +59,12 @@ function render_portfolio_growth() {
         }
 
         fetch(url, init)
-        // fetch("/static/json/portfolio_growth.json")
             .then(response => {
                 return response.json();
             })
             .then((data) => {
                 portfolios = data;
+
             })
             .then(() => {
                 extractPortfolioBalanceDates(portfolios);
@@ -67,45 +81,61 @@ function render_portfolio_growth() {
         for (let i = 0; i < portfolios.length; i++) {
             let item = portfolios[i];
 
-            // dateData[i] = item["dates"];
-            // balanceData[i] = item["balances"];
-            //
-            // dateData[i].push(item["latest_balance"]["date"]);
-            // balanceData[i].push(item["latest_balance"]["balance"]);
-
             // Get Balance History arrays
             dateData[i] = item["balance_history"]["date"];
             balanceData[i] = item["balance_history"]["balance"]
-
 
             // add the current balance and date
             dateData[i].push(item["date"]);
             balanceData[i].push(item["balance"]);
 
-            let max = dateData[i].reduce(function (a, b) { return new Date(a) > new Date(b) ? new Date(a) : new Date(b); });
-            maximum.push(days_after_update(max, new Date(dateData[i][0])));
         }
 
-
-
-        maxDays = maximum.reduce(function (a, b) { return a > b ? a : b });
     }
 
-    const fillInHoles = () => {
-        for (let i = 0; i < maximum.length; i++) {
-            chartDateData.push(Array.apply(null, Array(maxDays + 1)).map((val, idx) => idx));
-            chartBalanceData.push(new Array(maxDays + 1).fill(balanceData[i][0]));
-            daysAfterData.push(calculate_days_after(dateData[i]));
+    // Generate an array of date objects from the earliest portfolio date to the present
+    const generateDateArr = () => {
+        function addDays(date, days) {
+            var new_date = new Date(date.valueOf());
+            new_date.setDate(date.getDate() + days);
+            return new_date;
+        }
 
+        let startDate = parseDate(dateData[0][0]);
+        for (let i = 1; i < dateData.length; i++){
+            let date = parseDate(dateData[i][0]);
+            if (date < startDate){
+                startDate = date;
+            }
+        }
+        let dateArr = [];
+        let stopDate = new Date();
+        let current = startDate;
+        while(current < stopDate){
+            dateArr.push(current);
+            current = addDays(current, 1);
+        }
+
+        return dateArr;
+    }
+
+    // Use the preceding balance values to create a continuous data set
+    const fillInHoles = () => {
+        let dates = generateDateArr();
+        for(let i = 0; i < balanceData.length; i++){
+            chartBalanceData.push([]);
             let index = 1;
-            for (let j = 1; j <= maxDays; j++) {
-                if (j < daysAfterData[i][index] || index >= balanceData[i].length) {
+            for(let j = 0; j < dates.length; j++){
+                chartDateData[j] = dates[j].toLocaleDateString()
+                if (parseDate(dateData[i][index]) >= dates[j] || index >= balanceData[i].length) {
                     chartBalanceData[i][j] = balanceData[i][index - 1];
                 } else {
                     chartBalanceData[i][j] = balanceData[i][index];
                     index++;
                 }
+
             }
+
         }
     }
 
@@ -139,7 +169,7 @@ function render_portfolio_growth() {
 
             // The data for our dataset
             data: {
-                labels: chartDateData[0],
+                labels: chartDateData,
                 datasets: dataItems
             },
 
@@ -161,9 +191,11 @@ function render_portfolio_growth() {
                 scales: {
                     xAxes: [{
                         display: true,
+                        // type: 'time',
+                        // distribution: 'series',
                         scaleLabel: {
                             display: true,
-                            labelString: 'Days since Starting the Portfolio'
+                            labelString: 'Date'
                         }
                     }],
                     yAxes: [{
