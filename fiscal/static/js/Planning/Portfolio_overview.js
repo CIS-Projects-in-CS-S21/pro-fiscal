@@ -56,8 +56,6 @@ function render_portfolio_overview() {
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
 
-    let modal = modalFW({});
-
     const makeButton = (buttonType, buttonText, handlerFunction) => {
         let button = createButton({
             type: buttonType,
@@ -114,6 +112,7 @@ function render_portfolio_overview() {
                 type: "btn-secondary",
                 text: "Update"
             });
+            
             update_button["holding_id"] = holdingItem["id"];
             update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
@@ -155,7 +154,7 @@ function render_portfolio_overview() {
 
             data["portfolio"] = all_portfolios[list_id]["id"];
 
-            add_holding(data,
+            portfolio_api.add_holding(data,
                 (new_data) => {
                     all_portfolios[list_id]["holdings"].push(new_data);
                     let holdings = table_body.parentElement.parentElement;
@@ -202,7 +201,7 @@ function render_portfolio_overview() {
                 data["cost_basis"] = form.cost_basis.value;
             data["portfolio"] = all_portfolios[list_id]["id"];
 
-            add_holding(data,
+            portfolio_api.add_holding(data,
                 (new_data) => {
                     holdings[i] = new_data;
                     holdings_div.remove();
@@ -231,8 +230,8 @@ function render_portfolio_overview() {
     }
 
     const handleHoldingDelete = (parent_elem, holding_id) => {
-        function toDeleteHolding () {
-            delete_holding(holding_id, () => {
+        function toDeleteHolding() {
+            portfolio_api.delete_holding(holding_id, () => {
                 row.remove();
             }, error)
         }
@@ -263,7 +262,7 @@ function render_portfolio_overview() {
                 data["account_type"] = form.account_type.value;
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
-                update_portfolio(data, successFunc, error);
+                portfolio_api.update_portfolio(data, successFunc, error);
             },
             () => {
                 let contents = renderPortfolioContents(portfolio, list_id);
@@ -298,7 +297,7 @@ function render_portfolio_overview() {
                 data["account_type"] = form.account_type.value;
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
-                create_portfolio(data, successFunc, error);
+                portfolio_api.create_portfolio(data, successFunc, error);
             },
             function () {
                 portfolio_listing.insertBefore(renderCreateButton(), form.container);
@@ -340,16 +339,22 @@ function render_portfolio_overview() {
 
             let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function () {
                 let portfolio = all_portfolios[elem["list_id"]];
-                delete_portfolio(portfolio["id"],
-                    () => {
-                        // remove button
-                        elem.previousSibling.remove();
-                        // remove div
-                        elem.remove();
-                    },
-                    error);
-                numPortfolios--;
+
+                function toDeletePortfolio() {
+                    portfolio_api.delete_portfolio(portfolio["id"],
+                        () => {
+                            // remove button
+                            elem.previousSibling.remove();
+                            // remove div
+                            elem.remove();
+                        },
+                        error);
+                    numPortfolios--;
+                }
+
+                modal.confirm("Are you sure you want to delete this portfolio?", toDeletePortfolio);
             });
+
             deletePortfolio.classList.add("mr-2");
 
             let portfolioButtons = document.createElement("div");
@@ -361,7 +366,6 @@ function render_portfolio_overview() {
             let createHolding = makeButton("btn-success", "Create Holding", function () {
                 handleHoldingCreate(elem, elem["list_id"]);
             });
-
 
             portfolio_data.appendChild(account_type);
             portfolio_data.appendChild(description);
@@ -388,7 +392,6 @@ function render_portfolio_overview() {
         all_portfolios = [];
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
-
         }
     }
 
@@ -575,7 +578,7 @@ function render_portfolio_overview() {
 
         portfolio_listing.appendChild(document.createElement("p"));
 
-        get_all_portfolios(handleUserPortfolios, error);
+        portfolio_api.get_all_portfolios(handleUserPortfolios, error);
     };
 
     render();

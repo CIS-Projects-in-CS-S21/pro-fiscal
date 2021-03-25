@@ -1,10 +1,12 @@
+let portfolio_api = {};
+
 /**
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
  * @returns {boolean} confirmation status
  * @throws {InvalidArgumentException} if the user enters invalid id or account name.
  */
- function get_all_portfolios(successHandler, error_elem) {
+portfolio_api.get_all_portfolios = function (successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'GET',
@@ -38,7 +40,7 @@
  * @throws {InvalidArgumentException} when the user enter no value id.
  * @returns {Array} arrays of portfolios
  */
-function get_portfolio(portfolio_id) {
+portfolio_api.get_portfolio = function (portfolio_id) {
     let init = {
         method: 'GET',
         headers: {
@@ -67,7 +69,7 @@ function get_portfolio(portfolio_id) {
  * @returns {boolean} confirmation status
  * @throws {InvalidArgumentException} if the user enters invalid data.
  */
-function create_portfolio(data, successHandler, error_elem) {
+portfolio_api.create_portfolio = function (data, successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'POST',
@@ -104,7 +106,7 @@ function create_portfolio(data, successHandler, error_elem) {
  * @param {Node} error_elem the element to add a useful error message to
  * @throws {InvalidArgumentException} if the user enters invalid data.
  */
-function update_portfolio(data, successHandler, error_elem) {
+portfolio_api.update_portfolio = function (data, successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'PUT',
@@ -141,7 +143,7 @@ function update_portfolio(data, successHandler, error_elem) {
  * @returns {boolean} Returns confirmation status.
  * @throws {InvalidArgumentException} if the user enters no value id.
  */
-function delete_portfolio(portfolio_id, successHandler, error_elem) {
+portfolio_api.delete_portfolio = function (portfolio_id, successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'DELETE',
@@ -177,7 +179,7 @@ function delete_portfolio(portfolio_id, successHandler, error_elem) {
  * @returns {boolean} Returns confirmation status.
  * @throws {InvalidArgumentException} if the user add no value or -ve value.
  */
-function add_holding(data, successHandler, error_elem) {
+portfolio_api.add_holding = function (data, successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'POST',
@@ -216,7 +218,7 @@ function add_holding(data, successHandler, error_elem) {
  * @returns {boolean} Returns confirmation status.
  * @throws {InvalidArgumentException} if the user enters wrong portfolio id.
  */
-function update_holding(data, successHandler, error_elem) {
+portfolio_api.update_holding = function (data, successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'PUT',
@@ -255,7 +257,7 @@ function update_holding(data, successHandler, error_elem) {
  * @returns {boolean} Returns confirmation status.
  * @throws {InvalidArgumentException} if portfolio is invalid.
  */
-function delete_holding(holding_id, successHandler, error_elem) {
+portfolio_api.delete_holding = function (holding_id, successHandler, error_elem) {
     let status = false;
     let init = {
         method: 'DELETE',
@@ -281,4 +283,4 @@ function delete_holding(holding_id, successHandler, error_elem) {
         })
 
     return status;
-}
+};
