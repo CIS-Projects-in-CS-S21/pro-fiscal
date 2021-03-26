@@ -264,7 +264,7 @@ function render_portfolio_overview() {
         form.description.value = portfolio["description"];
     }
 
-    const handlePortfolioCreate = (parent_elem) => {
+    const handlePortfolioCreate = () => {
         let form = renderPortfolioForm(
             "Create Portfolio",
             function () {
@@ -451,6 +451,7 @@ function render_portfolio_overview() {
 
         let options = ["Stock", "Bond", "Cash"]; // TODO: replace with list fetched from DB
         form.security_type = makePickList(options);
+        form.security_type.classList.add("form-control");
 
         let sec_cell = document.createElement("td");
         sec_cell.style.textAlign = "left";
@@ -459,6 +460,7 @@ function render_portfolio_overview() {
 
         form.ticker = document.createElement("input");
         form.ticker.type = "text";
+        form.ticker.classList.add("form-control");
 
         let ticker_cell = document.createElement("td");
         ticker_cell.style.textAlign = "left";
@@ -468,6 +470,7 @@ function render_portfolio_overview() {
         form.price = document.createElement("input");
         form.price.type = "text";
         form.price.style.textAlign = "right";
+        form.price.classList.add("form-control");
 
         let price_cell = document.createElement("td");
         price_cell.style.textAlign = "right";
@@ -477,6 +480,7 @@ function render_portfolio_overview() {
         form.shares = document.createElement("input");
         form.shares.type = "text";
         form.shares.style.textAlign = "right";
+        form.shares.classList.add("form-control");
 
         let shares_cell = document.createElement("td");
         shares_cell.style.textAlign = "right";
@@ -486,6 +490,7 @@ function render_portfolio_overview() {
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
         form.purchase_date.classList.add("no_future_inputs");
+        form.purchase_date.classList.add("form-control");
 
         let date_cell = document.createElement("td");
         date_cell.style.textAlign = "right";
@@ -495,6 +500,7 @@ function render_portfolio_overview() {
         form.cost_basis = document.createElement("input");
         form.cost_basis.type = "text";
         form.cost_basis.style.textAlign = "right";
+        form.cost_basis.classList.add("form-control");
 
         let cost_basis_cell = document.createElement("td");
         cost_basis_cell.style.textAlign = "right";
