@@ -220,6 +220,7 @@ function render_portfolio_overview() {
 
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
         const successFunc = (portfolio_item) => {
+            modal.hideModal();
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
             // add the updated data to the collapsible button
@@ -247,16 +248,16 @@ function render_portfolio_overview() {
                 portfolio_api.update_portfolio(data, successFunc, error);
             },
             () => {
+                modal.hideModal();
+
                 let contents = renderPortfolioContents(portfolio, list_id);
                 elem.parentElement.insertBefore(contents, elem);
                 elem.remove();
             }
         );
         
-        elem.appendChild(document.createElement("br"));
-        elem.appendChild(form.container);
-        elem.appendChild(document.createElement("br"));
-
+        modal.renderForm(form.container);
+        
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
         form.balance.value = portfolio["balance"];
