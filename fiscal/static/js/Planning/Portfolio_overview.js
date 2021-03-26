@@ -255,9 +255,9 @@ function render_portfolio_overview() {
                 elem.remove();
             }
         );
-        
+
         modal.renderForm(form.container);
-        
+
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
         form.balance.value = portfolio["balance"];
@@ -272,9 +272,12 @@ function render_portfolio_overview() {
                 // TODO: add validation and errors
 
                 const successFunc = (data) => {
+                    modal.hideModal();
                     handleSinglePortfolio(data);
+                    /*
                     portfolio_listing.insertBefore(renderCreateButton(), form.container);
                     form.container.remove();
+                    */
                 }
 
                 let data = {};
@@ -286,14 +289,23 @@ function render_portfolio_overview() {
                 $('.portfolio-list').append(detached);
             },
             function () {
+                modal.hideModal();
+                /*
                 portfolio_listing.insertBefore(renderCreateButton(), form.container);
                 form.container.remove();
                 $('.portfolio-list').append(detached);
+                */
             }
-        )
+        );
+
+
+        modal.renderForm(form.container);
+
+        /*
         portfolio_listing.insertBefore(form.container, parent_elem);
         portfolio_listing.removeChild(parent_elem);
         let detached = $('.collapsible-container').detach();
+        */
     }
 
     const renderPortfolioContents = (portfolio_item, list_id) => {
@@ -525,10 +537,12 @@ function render_portfolio_overview() {
         name_label.innerText = "Name";
         form.name = document.createElement("input");
         form.name.type = "text";
+        form.name.classList.add("form-control");
 
         let account_type_label = document.createElement("label");
         account_type_label.innerText = "Account Type";
         form.account_type = makePickList(type_options);
+        form.account_type.classList.add("form-control");
 
         let balance_label = document.createElement("label");
         balance_label.innerText = "Balance";
@@ -536,17 +550,23 @@ function render_portfolio_overview() {
         form.balance.type = "number";
         form.balance.min = "0.01";
         form.balance.step = "0.01";
+        form.balance.classList.add("form-control");
 
         let description_label = document.createElement("label");
         description_label.innerText = "Description";
         form.description = document.createElement("textarea");
+        form.description.classList.add("form-control");
+        form.description.rows = "5";
         form.description.maxLength = 250;
 
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
+
         let buttonGroupSubmit = document.createElement("div");
-        buttonGroupSubmit.classList.add("btn-group");
+        buttonGroupSubmit.classList.add("btn-group", "mr-auto");
 
         let buttonGroupCancel = document.createElement("div");
-        buttonGroupCancel.classList.add("btn-group");
+        buttonGroupCancel.classList.add("btn-group", "ml-auto");
 
         form.submit = createButton({
             type: "btn-success",
@@ -566,6 +586,7 @@ function render_portfolio_overview() {
 
         let title = document.createElement("h2");
         title.innerText = formTitle;
+        title.classList.add("text-center");
 
         form.container.appendChild(title);
         form.container.appendChild(name_label);
@@ -581,8 +602,10 @@ function render_portfolio_overview() {
         buttonGroupSubmit.appendChild(form.submit);
         buttonGroupCancel.appendChild(cancel);
 
-        form.container.appendChild(buttonGroupSubmit);
-        form.container.appendChild(buttonGroupCancel);
+        buttonDiv.appendChild(buttonGroupSubmit);
+        buttonDiv.appendChild(buttonGroupCancel);
+
+        form.container.appendChild(buttonDiv);
 
         return form;
     }

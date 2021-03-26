@@ -39,13 +39,15 @@
     height: 90%;
 }
 
+/*
 .modal INPUT {
-    /*margin-left: 1ex;*/
+    margin-left: 1ex;
     grid-row: 2;
-    /* margin: auto; */
+    margin: auto;
     width: 160px;
     height: 90%
 }
+*/
 
 .modal.modal-hide {
     opacity: 0;
