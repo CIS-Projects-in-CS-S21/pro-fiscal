@@ -1,11 +1,10 @@
 function render_portfolio_diversification() {
     var contents = document.createElement("div");
-
     let header = document.createElement("h3");
     header.innerText = "Your Portfolios - Diversification"; // Username here
-    contents.appendChild(header);
-
     let error = document.createElement("p");
+    contents.style.textAlign = "center";
+    contents.appendChild(header);
     contents.appendChild(error);
 
     const COLOR_OPTIONS = [
@@ -20,6 +19,31 @@ function render_portfolio_diversification() {
         "rgb(133, 85, 237)",
         "rgb(133, 237, 85)",
     ];
+
+    const getDiversificationData = () => {
+        var url = "/planning/portfolio/"
+        var init = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "token " + localStorage.getItem("key")
+            }
+        }
+
+        fetch(url, init)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                // console.log(data);
+                const dataSet = createDataset(data);
+                createPieChart(dataSet);
+            }).catch((msg) => {
+                error.innerText += msg + '<br>';
+        });
+    }
+
     const reduceDataset = (dataset) => {
         const currentVal = [];
 
@@ -80,60 +104,49 @@ function render_portfolio_diversification() {
         return {labels, values, finalDataset};
     };
 
-    function createPieChart() {
+    function createPieChart(dataSet) {
         var ctx = document.getElementById("myChart").getContext("2d");
 
-        var url = "/planning/portfolio/"
-        var init = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                "Accept": "application/json",
-                'Authorization': "token " + localStorage.getItem("key")
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+
+            // The data for our dataset
+
+            type: "doughnut",
+            data: {
+                labels: dataSet.labels,
+                datasets: [{data: dataSet.values, backgroundColor: COLOR_OPTIONS}],
+
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'top',
+                    labels: {
+                        fontSize: 18
+                    }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (val, data) =>
+                            (`$${data.datasets[val.datasetIndex].data[val.index].toLocaleString()}`)
+
+                    }
+                }
             }
+
+        })
+
+        // Used to remove the Chart when we exit out of the Portfolio Growth Page
+        function removeChart() {
+            chart.destroy();
         }
 
-        // return fetch("/static/json/portfolio_test.json")
-        return fetch(url, init)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                const dataSet = createDataset(data);
-
-                var chart = new Chart(ctx, {
-                    // The type of chart we want to create
-
-                    // The data for our dataset
-
-                    type: "doughnut",
-                    data: {
-                        labels: dataSet.labels,
-                        datasets: [{data: dataSet.values, backgroundColor: COLOR_OPTIONS}],
-
-                    },
-                    options: {
-                        animate: true,
-                        tooltips: {
-                            callbacks: {
-                                label: (val, data) =>
-                                    (`$${data.datasets[val.datasetIndex].data[val.index].toLocaleString()}`)
-
-                            }
-                        }
-                    }
-                })
-
-                // Used to remove the Chart when we exit out of the Portfolio Growth Page
-                function removeChart() {
-                    chart.destroy();
-                }
-
-                window.addEventListener("hashchange", removeChart);
-            });
+        window.addEventListener("hashchange", removeChart);
     }
-    createPieChart();
+
+    getDiversificationData();
 
     return contents;
 }

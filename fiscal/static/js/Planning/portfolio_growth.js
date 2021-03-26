@@ -41,6 +41,15 @@ function parseDate(dateString){
 
 function render_portfolio_growth() {
 
+    var contents = document.createElement("div");
+    let header = document.createElement("h3");
+    header.innerText = "Your Portfolios - Growth"; // Username here
+    let error = document.createElement("p");
+    contents.style.textAlign = "center";
+    contents.appendChild(header);
+    contents.appendChild(error);
+
+
     let dateData = [], balanceData = [], daysAfterData = [], maximum = [];
     let chartBalanceData = [];
     let chartDateData;
@@ -75,7 +84,9 @@ function render_portfolio_growth() {
                 // Dynamically create datasets
                 let datasets = createDynamicDatasets(portfolios);
                 createAreaChart(datasets);
-            })
+            }).catch((msg) => {
+                error.innerText += msg + '<br>';
+        })
     }
 
     const extractPortfolioBalanceDates = (portfolios) => {
@@ -126,11 +137,10 @@ function render_portfolio_growth() {
         chartDateData = dates;
         for(let i = 0; i < balanceData.length; i++){
             chartBalanceData.push([]);
-            let index = 1;
+            let index = 0;
             for(let j = 0; j < dates.length; j++){
-                // chartDateData[j] = dates[j].toLocaleDateString()
-                if (parseDate(dateData[i][index]) >= dates[j] || index >= balanceData[i].length) {
-                    chartBalanceData[i][j] = balanceData[i][index - 1];
+                if (parseDate(dateData[i][index]) >= dates[j] || index + 1 >= balanceData[i].length) {
+                    chartBalanceData[i][j] = balanceData[i][index];
                 } else {
                     chartBalanceData[i][j] = balanceData[i][index];
                     index++;
@@ -179,9 +189,10 @@ function render_portfolio_growth() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                title: {
-                    display: true,
-                    text: 'Your Portfolios - Growth'
+                legend: {
+                    labels: {
+                        fontSize: 18
+                    }
                 },
                 tooltips: {
                     mode: 'index',
@@ -196,21 +207,27 @@ function render_portfolio_growth() {
                         type: 'time',
                         time: {
                             unit: 'month',
-                            tooltipFormat: "MM-DD-YYYY"
+                            tooltipFormat: "MM/DD/YYYY"
+                        },
+                        ticks: {
+                            fontSize: 14
                         }
+
                     }],
                     yAxes: [{
                         display: true,
                         scaleLabel: {
                             display: true,
-                            labelString: 'Value (in Dollars)'
+                            labelString: 'Value (in Dollars)',
+                            fontSize: 16
                         },
                         stacked: true,
                         ticks: {
                             // Include a dollar sign in the ticks
                             callback: function (value, index, values) {
                                 return '$' + value;
-                            }
+                            },
+                            fontSize: 14
                         }
                     }]
                 }
@@ -227,7 +244,5 @@ function render_portfolio_growth() {
 
     getPortfolioChangeData();
 
-    let contents = document.createElement("h3");
-    contents.innerText = "Your Portfolios - Growth"; // Username here
     return contents;
 }
