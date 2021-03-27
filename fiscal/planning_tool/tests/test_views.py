@@ -266,6 +266,17 @@ class PortfolioDetailViewTest(TestCase):
             self.assertEquals(ret_holdings[field], expected_holdings[field], f"Unexpected value in holding for {field}")
 
     def test_put_portFolioDetail(self):
+        new_hold = {
+            "portfolio_id": 1,
+            "security_type": self.sec_type,
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": datetime.datetime(2020, 12, 20)
+        }
+        hold = Holding.objects.create(**new_hold)
+
         data = {
             'user': 1,
             'account_type': "IRA",
@@ -285,6 +296,7 @@ class PortfolioDetailViewTest(TestCase):
         resp = view.put(request, 1)
 
         self.assertEquals(resp.status_code, 200, resp.data)
+        self.assertTrue(resp.data["holdings"])
 
     def test_delete_portFolioDetail(self):
         request = self.factory.delete("portfolio/1")

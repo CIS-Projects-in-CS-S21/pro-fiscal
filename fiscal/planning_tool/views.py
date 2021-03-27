@@ -164,7 +164,8 @@ class PortfolioDetail(APIView):
         if portfolio_serializer.is_valid():
             portfolio_serializer.save()
 
-            ps_data = portfolio_serializer.data            
+            ps_data = portfolio_serializer.data
+            ps_data["holdings"] = fetch_holdings(ps_data)
             ps_data["balance_history"] = fetch_balance_history(ps_data)
 
             return Response(ps_data, status=status.HTTP_200_OK)
