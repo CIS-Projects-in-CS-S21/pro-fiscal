@@ -52,6 +52,7 @@ function render_portfolio_overview() {
     error.classList.add("error");
 
     let numPortfolios = 0;
+    let portfolioBalanceSum = 0;
 
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
@@ -286,7 +287,7 @@ function render_portfolio_overview() {
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
                 portfolio_api.create_portfolio(data, successFunc, error);
-                $('.portfolio-list').append(detached);
+                // $('.portfolio-list').append(detached);
             },
             function () {
                 modal.hideModal();
@@ -329,6 +330,8 @@ function render_portfolio_overview() {
             let balance = document.createElement("p");
             balance.classList.add("padded_paragraph");
             balance.innerText = "Balance: $" + portfolio_item["balance"];
+            portfolioBalanceSum += portfolio_item["balance"];
+            console.log(parseFloat(portfolioBalanceSum).toFixed(2));
 
             // On click functions for updates and deletions
             const updatePortfolioHandler = () => {
@@ -338,6 +341,7 @@ function render_portfolio_overview() {
 
             const deletePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
+                let oldBalance = portfolio["balance"];
 
                 function toDeletePortfolio() {
                     portfolio_api.delete_portfolio(portfolio["id"],
@@ -348,6 +352,8 @@ function render_portfolio_overview() {
                             elem.remove();
                         },
                         error);
+                    portfolioBalanceSum -= oldBalance;
+                    console.log(parseFloat(portfolioBalanceSum).toFixed(2));
                     numPortfolios--;
                 }
 
@@ -373,6 +379,8 @@ function render_portfolio_overview() {
             let portfolioButtons = document.createElement("div");
             portfolioButtons.appendChild(updatePortfolio);
             portfolioButtons.appendChild(deletePortfolio);
+
+            // console.log(portfolio_item["holdings"]);
 
             let holdings = handleHoldings(portfolio_item["holdings"]);
 
@@ -409,6 +417,7 @@ function render_portfolio_overview() {
     const handleUserPortfolios = (portfolios) => {
         // called when all the portfolios are being rendered, clear the list
         all_portfolios = [];
+        portfolioBalanceSum = 0;
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
         }
