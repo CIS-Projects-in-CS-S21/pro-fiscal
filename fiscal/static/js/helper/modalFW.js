@@ -58,30 +58,55 @@
         modal.innerHTML = "";
 
         var messageArea = document.createElement("div");
-        messageArea.classList.add("confirmation_modal");
+        messageArea.classList.add("text-center");
         modal.appendChild(messageArea);
 
         var messageText = document.createElement("p");
         messageArea.appendChild(messageText);
         messageText.innerHTML = message;
 
-        var okButton = document.createElement("INPUT");
-        okButton.setAttribute("type", "button");
-        okButton.setAttribute("value", "OK");
-        okButton.onclick = function(){
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
+
+        let buttonGroupConfirm = document.createElement("div");
+        buttonGroupConfirm.classList.add("btn-group", "mr-auto");
+
+        let buttonGroupCancel = document.createElement("div");
+        buttonGroupCancel.classList.add("btn-group", "ml-auto");
+
+        let clickOK = function () {
             hide(modal);
             callBack();
-        };
-        messageArea.appendChild(okButton);
+        }
 
-        var cancelButton = document.createElement("INPUT");
-        cancelButton.setAttribute("type", "button");
-        cancelButton.setAttribute("value", "Cancel");
-        cancelButton.onclick = function(){
+        let clickCancel = function () {
             hide(modal);
-        };
+        }
 
-        messageArea.appendChild(cancelButton);        
+        let okButton = createButton({
+            type: "btn-success",
+            text: "Yes",
+            onclickhandler: clickOK
+        });
+        
+        okButton.classList.add("mr-2");
+
+        let cancelButton = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: clickCancel
+        });
+
+        cancelButton.classList.add("mr-2");
+
+        buttonGroupConfirm.appendChild(okButton);
+        buttonGroupCancel.appendChild(cancelButton);
+
+        buttonDiv.appendChild(buttonGroupConfirm);
+        buttonDiv.appendChild(buttonGroupCancel);
+
+        messageArea.appendChild(buttonDiv);
+        
         show(modal);
     };
 

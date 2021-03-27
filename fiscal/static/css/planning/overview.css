@@ -46,3 +46,11 @@
     padding: 10px;
 }
 */
+
+.dashboard {
+    width: 100%;
+    padding: 0.5rem 1rem; /* Vertical padding, Horizontal padding */
+    margin-bottom: 1rem; /* Maintain space between different tutor flex boxes */
+    background-color: #DADDD7;
+    border-radius: 0.5rem;
+}

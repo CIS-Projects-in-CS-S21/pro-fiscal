@@ -31,7 +31,7 @@ function createTable(params) {
     }
 
     function convert(item) {
-        if(typeof item === 'Node' || item instanceof Node){
+        if (typeof item === 'Node' || item instanceof Node) {
             return "";
         } else {
             if (!item || item.length === 0) {
@@ -56,9 +56,9 @@ function createTable(params) {
     /* Create a row to add data in a row of the HTML table based on its elementType */
     function appendToRow(elementType, row, data, alignment) {
         let elem = document.createElement(elementType);
-        if(typeof data === 'Node' || data instanceof Node) {
+        if (typeof data === 'Node' || data instanceof Node) {
             elem.appendChild(data);
-        } else{
+        } else {
             elem.innerHTML = data;
         }
         elem.style.textAlign = alignment;
@@ -69,17 +69,17 @@ function createTable(params) {
     /* Function to align items depending on its data type */
     function alignment(value) {
         let alignments = ["left", "center", "right"];
-        if(typeof value === 'Node' || value instanceof Node) {
+        if (typeof value === 'Node' || value instanceof Node) {
             return alignments[1];
         }
-        else{
+        else {
             let date = Date.parse(value);
 
             // Check if value is a date
             if (isNaN(value) && (!isNaN(date))) {
                 return alignments[1];
             }
-          
+
             if (isNaN(value)) {
                 return alignments[0];
             }
@@ -155,7 +155,7 @@ function createTable(params) {
             makeRow(row, list[i]);
         }
     }
-    
+
     // Start of main
     var returnDiv = document.createElement("div");
     returnDiv.classList.add("table-responsive");

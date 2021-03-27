@@ -54,6 +54,9 @@ function render_portfolio_overview() {
     let numPortfolios = 0;
     let portfolioBalanceSum = 0;
 
+    let portfolioDashboard = document.createElement("div");
+    portfolioDashboard.classList.add("dashboard");
+
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
 
@@ -212,7 +215,7 @@ function render_portfolio_overview() {
         function toDeleteHolding() {
             portfolio_api.delete_holding(holding_id, () => {
                 row.remove();
-            }, error)
+            }, error);
         }
 
         let row = parent_elem.parentElement.parentElement;
@@ -224,6 +227,7 @@ function render_portfolio_overview() {
             modal.hideModal();
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
+            renderPortfolioDashboard();
             // add the updated data to the collapsible button
             elem.previousSibling.innerText = portfolio_item["name"];
             elem.parentElement.insertBefore(new_contents, elem);
@@ -275,6 +279,7 @@ function render_portfolio_overview() {
                 const successFunc = (data) => {
                     modal.hideModal();
                     handleSinglePortfolio(data);
+                    renderPortfolioDashboard();
                     /*
                     portfolio_listing.insertBefore(renderCreateButton(), form.container);
                     form.container.remove();
@@ -329,9 +334,8 @@ function render_portfolio_overview() {
 
             let balance = document.createElement("p");
             balance.classList.add("padded_paragraph");
-            balance.innerText = "Balance: $" + portfolio_item["balance"];
+            balance.innerText = "Balance: $" + parseFloat(portfolio_item["balance"]).toFixed(2);
             portfolioBalanceSum += portfolio_item["balance"];
-            console.log(parseFloat(portfolioBalanceSum).toFixed(2));
 
             // On click functions for updates and deletions
             const updatePortfolioHandler = () => {
@@ -353,7 +357,7 @@ function render_portfolio_overview() {
                         },
                         error);
                     portfolioBalanceSum -= oldBalance;
-                    console.log(parseFloat(portfolioBalanceSum).toFixed(2));
+                    renderPortfolioDashboard();
                     numPortfolios--;
                 }
 
@@ -421,6 +425,8 @@ function render_portfolio_overview() {
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
         }
+        renderPortfolioDashboard();
+        portfolio_listing.prepend(portfolioDashboard);
     }
 
     const handleSinglePortfolio = (portfolio_item) => {
@@ -451,6 +457,19 @@ function render_portfolio_overview() {
                 content.style.display = "block";
             }
         });
+    }
+
+    const renderPortfolioDashboard = () => {
+        portfolioDashboard.innerHTML = "";
+
+        let title = document.createElement("h3");
+        title.innerHTML = "<strong>Overview of your Portfolios and Holdings</strong>";
+
+        let netWorth = document.createElement("div");
+        netWorth.innerHTML = `Portfolio Net Worth: $` + parseFloat(portfolioBalanceSum).toFixed(2);
+
+        portfolioDashboard.appendChild(title);
+        portfolioDashboard.appendChild(netWorth);
     }
 
     const renderHoldingForm = (saveFunc, cancelFunc) => {
@@ -648,6 +667,8 @@ function render_portfolio_overview() {
 
         portfolio_listing.appendChild(error);
         portfolio_listing.appendChild(modal);
+        portfolio_listing.appendChild(portfolioDashboard);
+
         portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));
