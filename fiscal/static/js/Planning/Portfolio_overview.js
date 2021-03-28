@@ -227,6 +227,7 @@ function render_portfolio_overview() {
             modal.hideModal();
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
+            portfolioBalanceSum -= parseFloat(oldBalance);
             renderPortfolioDashboard();
             // add the updated data to the collapsible button
             elem.previousSibling.innerText = portfolio_item["name"];
@@ -335,11 +336,12 @@ function render_portfolio_overview() {
             let balance = document.createElement("p");
             balance.classList.add("padded_paragraph");
             balance.innerText = "Balance: $" + parseFloat(portfolio_item["balance"]).toFixed(2);
-            portfolioBalanceSum += portfolio_item["balance"];
+            portfolioBalanceSum += parseFloat(portfolio_item["balance"]);
 
             // On click functions for updates and deletions
             const updatePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
+                oldBalance = parseFloat(portfolio_item["balance"]);
                 handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
             }
 
