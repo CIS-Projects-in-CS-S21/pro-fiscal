@@ -27,8 +27,7 @@ class ExpenseList(APIView):
         expense = Expense.objects.filter(user=request.user)
         expense_serializer = ExpenseSerializer(expense, many=True)
 
-        for expense in expense_serializer.data:
-            expense["amount"] = expense_serializer.data
+        expense["amount"] = expense_serializer.data
         return Response(expense_serializer.data)
 
     def post(self, request):
