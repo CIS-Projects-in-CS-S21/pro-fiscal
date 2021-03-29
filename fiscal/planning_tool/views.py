@@ -88,7 +88,7 @@ class PortfolioList(APIView):
 
         return Response(portfolio_serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, format='application/json'):
         """
         Add a new account
 
@@ -121,7 +121,7 @@ class PortfolioDetail(APIView):
         except Portfolio.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, format='application/json'):
         """
         Get the specified portfolio account
 
@@ -145,7 +145,7 @@ class PortfolioDetail(APIView):
 
         return Response(ps_data)
 
-    def put(self, request, pk, format=None):
+    def put(self, request, pk, format='application/json'):
         """
         Update the specified portfolio account
 
