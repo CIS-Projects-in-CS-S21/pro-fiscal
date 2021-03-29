@@ -64,7 +64,9 @@ function render_portfolio_growth() {
             })
             .then((data) => {
                 portfolios = data;
-
+                if(portfolios.length == 0){
+                    throw new Error("You have no portfolios");
+                }
             })
             .then(() => {
                 extractPortfolioBalanceDates(portfolios);
@@ -75,7 +77,7 @@ function render_portfolio_growth() {
                 let datasets = createDynamicDatasets(portfolios);
                 createAreaChart(datasets);
             }).catch((msg) => {
-                error.innerText += msg + '<br>';
+                error.innerHTML += msg;
         })
     }
 

@@ -36,11 +36,14 @@ function render_portfolio_diversification() {
                 return response.json();
             })
             .then((data) => {
+                if(data.length == 0){
+                    throw new Error("You have no portfolios");
+                }
                 // console.log(data);
                 const dataSet = createDataset(data);
                 createPieChart(dataSet);
             }).catch((msg) => {
-                error.innerText += msg + '<br>';
+                error.innerHTML += msg + '<br>';
         });
     }
 
