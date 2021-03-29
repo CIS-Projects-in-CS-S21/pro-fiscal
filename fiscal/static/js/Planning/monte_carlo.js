@@ -5,7 +5,27 @@
  * @returns {Array} Return arrays of future value.
  */
 function render_future_value (forecast_data) {
+let content = `
+         <p class="form-style">Monte Carlo Simulation</p>
 
+         <user-data class="user-inputs">
+        <div id="simulation">
+        Enter the amount that you need to withdrawn in each month: <input id="AnnualDeposit" type="number">
+        Enter the amount that you need to add to saving until retirement : <input id="incomeToBeWithdrawn" type="number">
+        Enter your assumption for the future value of inflation rate: <input id="inflation" type="number">
+        Enter the number of years that you left for the retirement: <input id="Years" type="number">
+
+          <button id="submitInfo">Submit</button>
+    </div>
+     </user-data>
+
+
+    `;
+
+
+    let elem = document.createElement("div");
+    elem.innerHTML = content;
+    return elem;
 }
 
 /**

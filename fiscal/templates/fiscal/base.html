@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{% static 'css/planning/overview.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/planning/MonteCarlo.css' %}">
 
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
@@ -58,7 +59,7 @@
                             <a href="#">Manage Portfolios</a>
                         </li>
                         <li>
-                            <a href="#">Monte Carlo</a>
+                            <a href="#/monte-carlo">Monte Carlo</a>
                         </li>
                         <li>
                             <a href="#">Wealth Target Calculator</a>
@@ -166,6 +167,7 @@
     <script src="{% static 'js/createTable.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/routeFW.js' %}"></script>
+    <script src="{% static 'js/planning/monte_carlo.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -189,6 +191,7 @@
         myRoutes['#/home'] = home;        
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
+        myRoutes['#/monte-carlo'] = render_future_value;
 
         //Check if key exists
         const key = localStorage.getItem("key");
