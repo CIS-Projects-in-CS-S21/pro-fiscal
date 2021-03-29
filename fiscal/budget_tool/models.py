@@ -14,12 +14,12 @@ class Expense(models.Model):
         category (String): Category of the expense
     """
     expense_id = models.IntegerField(primary_key=True)
-    user_id = models.ForeignKey(User, related_name='expense', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='expense', on_delete=models.CASCADE)
     amount = models.DecimalField(decimal_places=2, max_digits=20)
     transaction_date = models.DateField(default=timezone.now)
-    description = models.TextField()
+    description = models.TextField(default='')
     category = models.CharField(max_length=230)
 
 
 def __str__(self):
-    return self.expense_id, self.user_id, self.amount, self.transaction_date, self.description, self.category
+    return self.expense_id, self.user, self.amount, self.transaction_date, self.description, self.category

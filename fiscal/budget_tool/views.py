@@ -27,7 +27,7 @@ class ExpenseList(APIView):
         expense = Expense.objects.filter(user=request.user)
         expense_serializer = ExpenseSerializer(expense, many=True)
 
-        expense["amount"] = expense_serializer.data
+        """expense["amount"] = expense_serializer.data"""
         return Response(expense_serializer.data)
 
     def post(self, request):
@@ -40,7 +40,7 @@ class ExpenseList(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        request.data["user_id"] = request.user.pk
+        request.data["user"] = request.user.pk
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
             expense_serializer.save()
@@ -90,7 +90,7 @@ class ExpenseDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        request.data["expense_id"] = request.key
+        # request.data["expense_id"] = key
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
             expense_serializer.save()
