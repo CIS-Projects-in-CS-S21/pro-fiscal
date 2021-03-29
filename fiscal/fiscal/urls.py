@@ -23,6 +23,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="fiscal/base.html")),
     path('register/', TemplateView.as_view(template_name="fiscal/registration.html"), name="register"),
     path('planning/',include('planning_tool.urls')),
+    path('expense/',include('budget_tool.urls')),
     path('rest-auth/', include('rest_auth.urls')),
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('monte-carlo/', Monte_carlo_API.as_view(), name="monte_carlo")
