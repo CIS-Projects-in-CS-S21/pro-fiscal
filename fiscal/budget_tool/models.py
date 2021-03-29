@@ -13,7 +13,7 @@ class Expense(models.Model):
         description (String): Short description of the expense
         category (String): Category of the expense
     """
-    expense_id = models.IntegerField(primary_key=True)
+    # expense_id = models.IntegerField(primary_key=True)
     user = models.ForeignKey(User, related_name='expense', on_delete=models.CASCADE)
     amount = models.DecimalField(decimal_places=2, max_digits=20)
     transaction_date = models.DateField(default=timezone.now)

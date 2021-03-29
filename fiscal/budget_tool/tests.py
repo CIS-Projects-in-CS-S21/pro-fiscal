@@ -154,7 +154,7 @@ class DetailViewTest(TestCase):
         self.expected_data = {
             "expense_id": 1,
             "user": 1,
-            "amount": 250.00,
+            "amount": 100.50,
             "transaction_date": "2021-03-29",
             "description": "Fi$cal merch",
             "category": "Essential"
@@ -187,7 +187,7 @@ class DetailViewTest(TestCase):
         """exp = Expense.objects.create(**new_exp)"""
 
         # Get response and test against expected values
-        request = self.factory.get("expense/2")
+        request = self.factory.get("expense/1")
         request.user = self.user
 
         view = ExpenseDetail()
