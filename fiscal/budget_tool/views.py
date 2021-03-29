@@ -14,6 +14,7 @@ class ExpenseList(APIView):
     List all expenses, or create a new one
     """
     permission_classes = [permissions.IsAuthenticated]
+    
     def get(self, request):
         """
         Get the list of expenses

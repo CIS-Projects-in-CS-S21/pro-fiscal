@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type
+from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type, Balance_History
 
 
 class Security_TypeSerializer(serializers.ModelSerializer):
@@ -59,10 +59,12 @@ class PortfolioSerializer(serializers.ModelSerializer):
 
     Attributes:
         holdings (Serializer): Field for the reversely related holdings
+        balance_history (Serializer): Field for the reversely related balance history
         account_type (Serializer): Field for the reversely related account type
     """
 
-    holdings = serializers.PrimaryKeyRelatedField(many=True, queryset=Holding.objects.all(), allow_null=True)
+    holdings = serializers.PrimaryKeyRelatedField(many=True, read_only=True, allow_null=True)
+    balance_history = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     account_type = serializers.SlugRelatedField(slug_field='type', queryset=Account_Type.objects.all(), allow_null=True)
     class Meta:
         """
@@ -71,7 +73,17 @@ class PortfolioSerializer(serializers.ModelSerializer):
             fields (list): A list of the fields in the Portfolio model
         """
         model = Portfolio
-        fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'holdings']
+        fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'date', 'balance_history', 'holdings']
+
+
+class BalanceHistorySerializer(serializers.ModelSerializer):
+    """
+        A class to serialize and deserialize Balance_History instances to and from JSON data
+    """
+
+    class Meta:
+        model = Balance_History
+        fields = ['id', 'portfolio', 'balance', 'date']
 
 
 class UserSerializer(serializers.ModelSerializer):

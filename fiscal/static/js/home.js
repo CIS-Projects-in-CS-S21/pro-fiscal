@@ -6,6 +6,5 @@ function home () {
     let elem = document.createElement("div");
     elem.innerHTML = content;
 
-    console.log("Home");
     return elem;
 }
