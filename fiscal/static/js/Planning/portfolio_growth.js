@@ -128,12 +128,21 @@ function render_portfolio_growth() {
         for(let i = 0; i < balanceData.length; i++){
             chartBalanceData.push([]);
             let index = 0;
-            for(let j = 0; j < dates.length; j++){
-                if (parseDate(dateData[i][index]) >= dates[j] || index + 1 >= balanceData[i].length) {
+            let j = 0;
+            // Zero out the inital array
+            chartBalanceData[i].fill(0, dates.length);
+            let curr_date = parseDate(dateData[i][index]);
+            // Skip the values before the inception date
+            for(; dates[j] < curr_date; j++){
+                continue;
+            }
+            for(; j < dates.length; j++){
+                if (curr_date >= dates[j] || index + 1 >= balanceData[i].length) {
                     chartBalanceData[i][j] = balanceData[i][index];
                 } else {
                     chartBalanceData[i][j] = balanceData[i][index];
                     index++;
+                    curr_date = parseDate(dateData[i][index]);
                 }
 
             }
