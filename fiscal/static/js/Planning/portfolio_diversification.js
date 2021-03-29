@@ -47,65 +47,28 @@ function render_portfolio_diversification() {
         });
     }
 
-    const reduceDataset = (dataset) => {
-        const currentVal = [];
-
-        dataset.forEach((newVal) => {
-            const foundIndex =
-                currentVal &&
-                currentVal.findIndex((a) => a.security_type === newVal.security_type);
-
-            if (foundIndex > -1) {
-                currentVal[foundIndex].price += newVal.price;
-                currentVal[foundIndex].shares += newVal.shares;
-                currentVal[foundIndex].total += newVal.total ||
-                    newVal.price * newVal.shares;
-            } else {
-                currentVal.push({
-                    security_type: newVal.security_type,
-                    price: newVal.price,
-                    shares: newVal.shares,
-                    total: newVal.price * newVal.shares,
-                });
-            }
-        });
-
-        return currentVal;
-    };
-
     const createDataset = (dataset) => {
-        const combinedDataset = [];
+        const combinedDataset = {};
 
         dataset.forEach((account) => {
             if(account.holdings.length > 0) {
-                combinedDataset.push(...reduceDataset(account.holdings));
+                let current = account.holdings;
+                for(let i = 0; i < current.length; i++){
+                    if(combinedDataset[current[i].security_type]){
+                        combinedDataset[current[i].security_type] += current[i].price * current[i].shares
+                    }
+                    else{
+                        combinedDataset[current[i].security_type] = current[i].price * current[i].shares
+                    }
+                }
             }
             else{
                 error.innerHTML += "Could not add " + account.name + "<br>";
             }
         });
 
-        const finalDataset = reduceDataset(combinedDataset);
-
-        const labels = finalDataset.reduce((labels, currentVal) => {
-            if (!labels) {
-                labels = [];
-            }
-            labels.push(currentVal.security_type);
-
-            return labels;
-        }, []);
-        const values = finalDataset.reduce((labels, currentVal) => {
-            if (!labels) {
-                labels = [];
-            }
-            labels.push(currentVal.total);
-
-            return labels;
-        }, []);
-
-        return {labels, values, finalDataset};
-    };
+        return {"labels": Object.keys(combinedDataset), "values": Object.values(combinedDataset)}
+    }
 
     function createPieChart(dataSet) {
         var ctx = document.getElementById("myChart").getContext("2d");
