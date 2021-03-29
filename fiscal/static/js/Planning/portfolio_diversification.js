@@ -1,4 +1,12 @@
 function render_portfolio_diversification() {
+    var contents = document.createElement("div");
+    let header = document.createElement("h3");
+    header.innerText = "Your Portfolios - Diversification"; // Username here
+    let error = document.createElement("p");
+    contents.style.textAlign = "center";
+    contents.appendChild(header);
+    contents.appendChild(error);
+
     const COLOR_OPTIONS = [
         "rgb(0, 63, 92)",
         "rgb(188, 80, 144)",
@@ -11,21 +19,46 @@ function render_portfolio_diversification() {
         "rgb(133, 85, 237)",
         "rgb(133, 237, 85)",
     ];
+
+    const getDiversificationData = () => {
+        var url = "/planning/portfolio/"
+        var init = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json",
+                'Authorization': "token " + localStorage.getItem("key")
+            }
+        }
+
+        fetch(url, init)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                // console.log(data);
+                const dataSet = createDataset(data);
+                createPieChart(dataSet);
+            }).catch((msg) => {
+                error.innerText += msg + '<br>';
+        });
+    }
+
     const reduceDataset = (dataset) => {
-        const currerntVal = [];
+        const currentVal = [];
 
         dataset.forEach((newVal) => {
             const foundIndex =
-                currerntVal &&
-                currerntVal.findIndex((a) => a.security_type === newVal.security_type);
+                currentVal &&
+                currentVal.findIndex((a) => a.security_type === newVal.security_type);
 
             if (foundIndex > -1) {
-                currerntVal[foundIndex].price += newVal.price;
-                currerntVal[foundIndex].shares += newVal.shares;
-                currerntVal[foundIndex].total += newVal.total ||
+                currentVal[foundIndex].price += newVal.price;
+                currentVal[foundIndex].shares += newVal.shares;
+                currentVal[foundIndex].total += newVal.total ||
                     newVal.price * newVal.shares;
             } else {
-                currerntVal.push({
+                currentVal.push({
                     security_type: newVal.security_type,
                     price: newVal.price,
                     shares: newVal.shares,
@@ -34,14 +67,19 @@ function render_portfolio_diversification() {
             }
         });
 
-        return currerntVal;
+        return currentVal;
     };
 
     const createDataset = (dataset) => {
         const combinedDataset = [];
 
         dataset.forEach((account) => {
-            combinedDataset.push(...reduceDataset(account.holdings));
+            if(account.holdings.length > 0) {
+                combinedDataset.push(...reduceDataset(account.holdings));
+            }
+            else{
+                error.innerHTML += "Could not add " + account.name + "<br>";
+            }
         });
 
         const finalDataset = reduceDataset(combinedDataset);
@@ -66,53 +104,49 @@ function render_portfolio_diversification() {
         return {labels, values, finalDataset};
     };
 
-    function createPieChart() {
+    function createPieChart(dataSet) {
         var ctx = document.getElementById("myChart").getContext("2d");
 
-        return fetch("/static/json/portfolio_test.json")
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                const dataSet = createDataset(data.portfolio_accounts);
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
 
-                var chart = new Chart(ctx, {
-                    // The type of chart we want to create
+            // The data for our dataset
 
-                    // The data for our dataset
+            type: "doughnut",
+            data: {
+                labels: dataSet.labels,
+                datasets: [{data: dataSet.values, backgroundColor: COLOR_OPTIONS}],
 
-                    type: "doughnut",
-                    data: {
-                        labels: dataSet.labels,
-                        datasets: [{data: dataSet.values, backgroundColor: COLOR_OPTIONS}],
-
-                    },
-                    options: {
-                        animate: true,
-                        tooltips: {
-                            callbacks: {
-                                label: (val, data) =>
-                                    (`$${data.datasets[val.datasetIndex].data[val.index].toLocaleString()}`)
-
-                            }
-                        }
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'top',
+                    labels: {
+                        fontSize: 18
                     }
-                })
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (val, data) =>
+                            (`$${data.datasets[val.datasetIndex].data[val.index].toLocaleString()}`)
 
-                // Used to remove the Chart when we exit out of the Portfolio Growth Page
-                function removeChart() {
-                    chart.destroy();
+                    }
                 }
+            }
 
-                window.addEventListener("hashchange", removeChart);
-            });
+        })
+
+        // Used to remove the Chart when we exit out of the Portfolio Growth Page
+        function removeChart() {
+            chart.destroy();
+        }
+
+        window.addEventListener("hashchange", removeChart);
     }
 
-    let contents = document.createElement("h3");
-    contents.innerText = "Your Portfolios - Diversification"; // Username here
-
-    createPieChart();
+    getDiversificationData();
 
     return contents;
 }
