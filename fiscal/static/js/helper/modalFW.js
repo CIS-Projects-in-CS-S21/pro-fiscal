@@ -36,14 +36,14 @@
         messageArea.appendChild(messageText);
         messageText.innerText = message;
 
-        var exitButton = document.createElement("button");        
+        var exitButton = document.createElement("button");
         exitButton.innerText = "OK";
         exitButton.onclick = function(){
             hide(modal);
         };
 
         messageArea.appendChild(exitButton);
-        modal.appendChild(messageArea);        
+        modal.appendChild(messageArea);
 
         show(modal);
 
@@ -88,7 +88,7 @@
             text: "Yes",
             onclickhandler: clickOK
         });
-        
+
         okButton.classList.add("mr-2");
 
         let cancelButton = createButton({
@@ -106,7 +106,7 @@
         buttonDiv.appendChild(buttonGroupCancel);
 
         messageArea.appendChild(buttonDiv);
-        
+
         show(modal);
     };
 
@@ -147,7 +147,7 @@
         messageArea.classList.add('modalMsgArea');
         messageArea.appendChild(element);
 
-        modal.appendChild(messageArea);        
+        modal.appendChild(messageArea);
 
         show(modal);
     }
@@ -167,7 +167,7 @@
         messageArea.classList.add('modalMsgArea');
         messageArea.appendChild(element);
 
-        var exitButton = document.createElement("button");        
+        var exitButton = document.createElement("button");
         exitButton.innerHTML = "OK";
         exitButton.onclick = function(){
             hide(modal);
@@ -175,11 +175,11 @@
 
 
         messageArea.appendChild(exitButton);
-        modal.appendChild(messageArea);        
+        modal.appendChild(messageArea);
 
         show(modal);
 
     };
 
-    return modal;    
-} 
+    return modal;
+}

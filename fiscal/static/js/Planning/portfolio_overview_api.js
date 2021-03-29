@@ -83,9 +83,11 @@ portfolio_api.create_portfolio = function (data, successHandler, error_elem) {
 
     fetch("/planning/portfolio/", init)
         .then((response) => {
+
             if (!response.ok) {
                 throw new Error("" + response.statusText)
             }
+            
             status = true
             return response.json();
         }).then((data) => {
@@ -194,11 +196,13 @@ portfolio_api.add_holding = function (data, successHandler, error_elem) {
 
     fetch("/planning/holding/", init)
         .then((response) => {
+            /*
             if (!response.ok) {
                 console.log(response);
                 throw new Error("" + response.statusText)
             }
-            status = true
+            */
+            status = true;
             return response.json();
         }).then((data) => {
             successHandler(data);
@@ -285,3 +289,57 @@ portfolio_api.delete_holding = function (holding_id, successHandler, error_elem)
 
     return status;
 };
+
+portfolio_api.get_account_types = function (successHandler, error_elem) {
+    let status = false;
+    let init = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json"
+        }
+    }
+    fetch("/planning/account-types/", init)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("" + response.statusText)
+            }
+            status = true;
+            return response.json();
+        }).then(data => {
+            successHandler(data);
+        }).catch(error => {
+            status = false;
+            console.error(error);
+            error_elem.innerText = error;
+        })
+
+    return status;
+}
+
+portfolio_api.get_security_types = function (successHandler, error_elem) {
+    let status = false;
+    let init = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json"
+        }
+    }
+    fetch("/planning/security-types/", init)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("" + response.statusText)
+            }
+            status = true;
+            return response.json();
+        }).then(data => {
+            successHandler(data);
+        }).catch(error => {
+            status = false;
+            console.error(error);
+            error_elem.innerText = error;
+        })
+
+    return status;
+}

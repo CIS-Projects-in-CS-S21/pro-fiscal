@@ -73,7 +73,7 @@ class PortfolioSerializer(serializers.ModelSerializer):
             fields (list): A list of the fields in the Portfolio model
         """
         model = Portfolio
-        fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'balance_history', 'holdings']
+        fields = ['id', 'user', 'account_type', 'name', 'description', 'balance', 'date', 'balance_history', 'holdings']
 
 
 class BalanceHistorySerializer(serializers.ModelSerializer):

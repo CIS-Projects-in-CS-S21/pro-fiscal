@@ -46,8 +46,7 @@ class Monte_carlo:
         """
         self.__iterations = 1000
         self.__sim_results = {}
-        self.__historical_returns = []
-        self.__prices = []
+        self.__weekly_vols = []
         self.__last_prices = []
         self.__start_year = start_year
         self.__end_year = end_year
@@ -61,40 +60,45 @@ class Monte_carlo:
         """
         Run the Monte_carlo simulation for the user
         """
-
-        # iterate through each different ticker
-        for pos in range(len(self.__asset_names)):
             
-            # create pandas DataFrame for results
-            results = pd.DataFrame()
+        # create pandas DataFrame for results
+        results = pd.DataFrame()
+        
+        #sim loop
+        for x in range(self.__iterations):
+            count = 0
+            
+            prices_weighted = []
 
-            #sim loop
-            for x in range(self.__iterations):
-                count = 0
-                #find yearly volatility
-                weekly_vol = self.__historical_returns[pos].std()
-                price_series = []
-                prices_weighted = []
-                # create and add first simulated price
-                price = self.__last_prices[pos]*(1+np.random.normal(0, weekly_vol))
-                # apply weight and shares held to price
-                price_series.append(price[0])
-                prices_weighted.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
+            prev_prices = []
+            # create and add first simulated price
+            for i in range(len(self.__weekly_vols)):
+                prev_prices.append(self.__last_prices[i]*(1+np.random.normal(0, self.__weekly_vols[i])))
+            # apply weight and shares held to price
+            prices_weighted.append(self.__get_total_val(prev_prices))
+            
+            #loop through each financial week in a year (252 days rounds to 50 weeks)
+            for i in range(self.__total_years*50):
+                if count == (self.__total_years*50) - 1:
+                    break
+                prices = []
+                # create and add next simulated price
+                for j in range(len(self.__weekly_vols)):
+                    prices.append(prev_prices[j]*(1+np.random.normal(0, self.__weekly_vols[j])))
+                #apply weight and shares held to price
+                prices_weighted.append(self.__get_total_val(prices))
+                prev_prices = prices
+                count += 1
+            
+            results[x] = prices_weighted
 
-                #loop through each financial week in a year (252 days rounds to 50 weeks)
-                for i in range(self.__total_years*50):
-                    if count == (self.__total_years*50) - 1:
-                        break
-                    # create and add next simulated price
-                    price = price_series[count]*(1+np.random.normal(0, weekly_vol))
-                    #apply weight and shares held to price
-                    price_series.append(price[0])
-                    prices_weighted.append(price[0] * self.__shares_held[pos] * self.__weights[pos])
-                    count +=1
-                
-                results[x] = prices_weighted
+        self.__sim_results = results
 
-            self.__sim_results[self.__asset_names[pos]] = results
+    def __get_total_val(self, prices):
+        out = 0
+        for i in range(len(prices)):
+            out += prices[i] * self.__shares_held[i] * self.__weights[i]
+        return out
 
     def get_results(self):
         """
@@ -112,36 +116,38 @@ class Monte_carlo:
         """
         #iterate through 
         count = 0
+
+        price_dict = {}
+
         for entry in self.__asset_names:
-            start = self.__start_year
 
             avgs = []
 
             # iterate through each year
-            for i in range(self.__total_years):
-                # fetch price data for the year
-                prices = web.DataReader(self.__asset_names[count], 'yahoo', dt.datetime(start, 1, 1), dt.datetime(start, 12, 31))['Adj Close']
-                # find yearly average and append to avgs
-                pos = 0
-                #add average weekly price
-                for j in range(50):
-                    #append average of 5 day slice to avgs
-                    avgs.append(np.average(prices[pos:(pos+5)]))
-                    pos += 5
-                    #add last price to array
-                    if (i == self.__total_years-1) and (j == 49):
-                        self.__last_prices.append(np.average(prices[pos:(pos+5)]))
-                
-                start += 1
+
+            # fetch price data for the year
+            prices = web.DataReader(self.__asset_names[count], 'yahoo', dt.datetime(self.__start_year, 1, 1), 
+                dt.datetime(self.__end_year, 12, 31))['Adj Close']
+            # find yearly average and append to avgs
+            pos = 0
+            #add average weekly price
+            for i in range(50 * self.__total_years):
+                #append average of 5 day slice to avgs
+                avgs.append(np.average(prices[pos:(pos+5)]))
+                pos += 5
+                #add last price to array
+                if (i == self.__total_years*50 - 1):
+                    self.__last_prices.append(np.average(prices[pos:(pos+5)]))
 
             count += 1
 
-            # get prices of first stock element from yahoo
-            pricesDf = pd.DataFrame(avgs, index=range(self.__total_years*50), columns=['Weekly avg'])
+            price_dict[entry] = avgs
 
-            self.__prices.append(pricesDf)
-
-            self.__historical_returns.append(pricesDf.pct_change())
+        pricesDf = pd.DataFrame(price_dict)
+        historical_returns = pricesDf.pct_change()
+        #find yearly volatility
+        self.__weekly_vols = historical_returns.std()
+        
 
     def set_iterations(self, iterations):
         # setter for iterations

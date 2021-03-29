@@ -1,23 +1,22 @@
-import decimal, datetime
+import decimal
+import datetime
 
-from planning_tool.models import Holding, Balance_History
-from planning_tool.models import Portfolio
-from planning_tool.serializers import PortfolioSerializer, HoldingSerializer, BalanceHistorySerializer
+from planning_tool.serializers import *
 
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
 
 
 
 def fetch_balance_history(portfolio_data):
     """
     A function to query data from the balance history table and build a dictionary of the values
-    
+
     Arguments:
         portfolio_data (dict): Portfolio data
-        
+
     Returns:
         A dict with all the balance history values associated with this portfolio
     """
@@ -35,7 +34,7 @@ def fetch_balance_history(portfolio_data):
 def fetch_holdings(portfolio_data):
     """
     A function to query data from the holdings table
-    
+
     Arguments:
         portfolio_data (dict): Portfolio data
 
@@ -51,7 +50,7 @@ def fetch_holdings(portfolio_data):
         holding["shares"] = decimal.Decimal(holding["shares"])
         if holding["cost_basis"]:
             holding["cost_basis"] = decimal.Decimal(holding["cost_basis"])
-        
+
     return holding_serializer.data
 
 
@@ -82,12 +81,12 @@ class PortfolioList(APIView):
         for portfolio in portfolio_serializer.data:
             portfolio["balance"] = decimal.Decimal(portfolio["balance"])
 
-            portfolio["holdings"] = fetch_holdings(portfolio)            
+            portfolio["holdings"] = fetch_holdings(portfolio)
             portfolio["balance_history"] = fetch_balance_history(portfolio)
 
         return Response(portfolio_serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, format='application/json'):
         """
         Add a new account
 
@@ -120,7 +119,7 @@ class PortfolioDetail(APIView):
         except Portfolio.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, format='application/json'):
         """
         Get the specified portfolio account
 
@@ -137,14 +136,14 @@ class PortfolioDetail(APIView):
         ps_data = portfolio_serializer.data
 
         # return from model is a string, must be converted
-        ps_data["balance"] = decimal.Decimal(ps_data["balance"])        
+        ps_data["balance"] = decimal.Decimal(ps_data["balance"])
 
         ps_data["holdings"] = fetch_holdings(ps_data)
         ps_data["balance_history"] = fetch_balance_history(ps_data)
 
         return Response(ps_data)
 
-    def put(self, request, pk, format=None):
+    def put(self, request, pk, format='application/json'):
         """
         Update the specified portfolio account
 
@@ -156,10 +155,12 @@ class PortfolioDetail(APIView):
             Response: JSON formatted data and HTTP status
         """
         old_data = self.get_object(pk)
-        new_history = Balance_History(portfolio=old_data, balance=old_data.balance)
+        date = datetime.date.today()
+        new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
         new_history.save()
 
         request.data["user"] = request.user.pk
+        request.data["date"] = date
         portfolio_serializer = PortfolioSerializer(old_data, data=request.data)
         if portfolio_serializer.is_valid():
             portfolio_serializer.save()
@@ -211,13 +212,13 @@ class HoldingDetail(APIView):
     """
 
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def get_object(self, key):
         try:
             return Holding.objects.get(pk=key)
         except Holding.DoesNotExist:
             raise Http404
-    
+
     def get(self, request, pk):
         holding = self.get_object(pk)
         holding_serializer = HoldingSerializer(holding)
@@ -228,7 +229,7 @@ class HoldingDetail(APIView):
         h_data["cost_basis"] = decimal.Decimal(h_data["cost_basis"])
 
         return Response(h_data)
-    
+
     def put(self, request, pk):
         holding_serializer = HoldingSerializer(data=request.data)
         if holding_serializer.is_valid():
@@ -240,8 +241,24 @@ class HoldingDetail(APIView):
                 holding_serializer.errors.update({"purchase_date": "Date may not be in the future"})
                 return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def delete(self, request, pk):
         holding = self.get_object(pk)
         holding.delete()
         return Response(status=status.HTTP_204_NO_CONTENT);
+
+
+class AccountTypeList(generics.ListAPIView):
+    """
+    Provides a read-only list of account types in the database
+    """
+    queryset = Account_Type.objects.all()
+    serializer_class = Account_TypeSerializer
+
+
+class SecurityTypeList(generics.ListAPIView):
+    """
+    Provides a read-only list of security types in the database
+    """
+    queryset = Security_Type.objects.all()
+    serializer_class = Security_TypeSerializer

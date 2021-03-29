@@ -144,8 +144,10 @@
             <div id="insert-data-here">
 
             </div>
+            <div id="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
 
-            <canvas id="myChart"></canvas>
 
         </div>
     </div>
@@ -162,11 +164,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"
         integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
         crossorigin="anonymous"></script>
-    <!-- CDN for D3, a Chart Library -->
-    <script src="https://d3js.org/d3.v6.min.js"></script>
     <!-- CDN for Chart.js, a Chart Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <!-- jQuery Custom Scroller CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.js"
+        integrity="sha512-zO8oeHCxetPn1Hd9PdDleg5Tw1bAaP0YmNvPY8CwcRyUk7d7/+nyElmFrB6f7vg4f7Fv4sui1mcep8RIEShczg=="
+        crossorigin="anonymous"></script>
+        <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 
@@ -179,6 +181,8 @@
     <script src="{% static 'js/helper/createTable.js' %}"></script>
     <script src="{% static 'js/helper/days_after_update.js' %}"></script>
     <script src="{% static 'js/helper/formMaxDate.js' %}"></script>
+    <script src="{% static 'js/currencyValidation.js' %}"></script>
+
 
     <script src="{% static 'js/Planning/portfolio_overview_api.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
