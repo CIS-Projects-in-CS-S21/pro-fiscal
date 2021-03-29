@@ -138,14 +138,6 @@ function createTable(params) {
             let colHead = appendToRow("th", tableHeadRow, iconProp, alignment(obj[prop]));
 
             colHead.sortPropName = prop;
-            colHead.reverse = false; /* Determines which order items should be sorted */
-
-            colHead.onclick = function () {
-                createTableBody(itemTable, list, this.sortPropName, this.reverse);
-                sortingOrder[tableIndex] = this.sortPropName;
-                reverseSorting[tableIndex] = this.reverse;
-                this.reverse = !this.reverse;
-            };
         }
     }
 
@@ -177,23 +169,8 @@ function createTable(params) {
 
     var reverseProperty = params.reverse || false;
 
-    var tableIndex = params.index || 0;
-
-    // Not sure if needed, but keep it so that when a different component that requires the table calls the function, you update these fields accordingly
-    sortingOrder = [];
-    reverseSorting = [];
-
-    sortingOrder.push(sortOrderPropName);
-    reverseSorting.push(reverseProperty);
-
-    console.log(sortOrderPropName);
-    console.log(reverseProperty);
-
     createTableHead(itemTable, params.objList);
     createTableBody(itemTable, params.objList, sortOrderPropName, reverseProperty);
 
     return returnDiv;
 }
-
-let sortingOrder = [];
-let reverseSorting = [];

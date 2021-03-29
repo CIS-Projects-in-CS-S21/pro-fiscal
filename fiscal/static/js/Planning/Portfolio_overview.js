@@ -1,289 +1,4 @@
 /**
- * @param {function} successHandler callback function to handle the data
- * @param {Node} error_elem the element to add a useful error message to
- * @returns {boolean} confirmation status
- * @throws {InvalidArgumentException} if the user enters invalid id or account name.
- */
-function get_all_portfolios(successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        }
-    }
-    fetch("/planning/portfolio/", init)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("" + response.statusText)
-            }
-            status = true;
-            return response.json();
-        }).then(data => {
-            successHandler(data);
-        }).catch(error => {
-            status = false;
-            console.error(error);
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-/**
- * Function that return user a single portfolio.
- * @param {int} portfolio_id the user identification number
- * @throws {InvalidArgumentException} when the user enter no value id.
- * @returns {Array} arrays of portfolios
- */
-function get_portfolio(portfolio_id) {
-    let init = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-    }
-
-    fetch("/planning/portfolio/" + portfolio_id, init)
-        .then(response => {
-            console.log(response);
-            return response.json();
-        }).catch((error) => {
-            console.error(error);
-        });
-
-    return portfolio;
-}
-
-/**
- * Function that creates user portfolio account.
- * @param {Object} data the data sent to the creation API
- * @param {function} successHandler callback function to handle the data
- * @param {Node} error_elem the element to add a useful error message to
- * @returns {boolean} confirmation status
- * @throws {InvalidArgumentException} if the user enters invalid data.
- */
-function create_portfolio(data, successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-        body: JSON.stringify(data)
-    }
-
-    fetch("/planning/portfolio/", init)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("" + response.statusText)
-            }
-            status = true
-            return response.json();
-        }).then((data) => {
-            successHandler(data);
-        }
-        ).catch(error => {
-            status = false
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-/**
- * Function that updates the user portfolio.
- * @param {Object} data the data sent to the creation API
- * @param {function} successHandler callback function to handle the data
- * @param {Node} error_elem the element to add a useful error message to
- * @throws {InvalidArgumentException} if the user enters invalid data.
- */
-function update_portfolio(data, successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-        body: JSON.stringify(data)
-    }
-
-    fetch("/planning/portfolio/" + data["id"], init)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("" + response.statusText)
-            }
-            status = true
-            return response.json();
-        }).then((data) => {
-            successHandler(data);
-        }
-        ).catch(error => {
-            status = false
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-/**
- * Function that deletes the user portfolio.
- * @param {int} portfolio_id the portfolio identification number.
- * @param {Node} error_elem the element to add a useful errror message to.
- * @returns {boolean} Returns confirmation status.
- * @throws {InvalidArgumentException} if the user enters no value id.
- */
-function delete_portfolio(portfolio_id, successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-    }
-
-    fetch("/planning/portfolio/" + portfolio_id, init)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("" + response.statusText)
-            }
-            status = true;
-        }).then(() => {
-            successHandler()
-        }
-        ).catch(error => {
-            status = false;
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-/**
- * Function that adds the value to the user portfolio account.
- * @param {Object} data the data sent to the creation API
- * @param {function} successHandler callback function to handle the data
- * @param {Node} error_elem the element to add a useful error message to
- * @returns {boolean} Returns confirmation status.
- * @throws {InvalidArgumentException} if the user add no value or -ve value.
- */
-function add_holding(data, successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-        body: JSON.stringify(data)
-    }
-
-    fetch("/planning/holding/", init)
-        .then((response) => {
-            if (!response.ok) {
-                console.log(response);
-                throw new Error("" + response.statusText)
-            }
-            status = true
-            return response.json();
-        }).then((data) => {
-            successHandler(data);
-        }
-        ).catch(error => {
-            status = false
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-/**
- * Function that updates the holding data
- * @param {Object} data the data sent to the update API
- * @param {function} successHandler callback function to handle the data
- * @param {Node} error_elem the element to add a useful error message to
- * @returns {boolean} Returns confirmation status.
- * @throws {InvalidArgumentException} if the user enters wrong portfolio id.
- */
-function update_holding(data, successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-        body: JSON.stringify(data)
-    }
-
-    fetch("/planning/holding/" + data["id"], init)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("" + response.statusText)
-            }
-            status = true
-            return response.json();
-        }).then((data) => {
-            successHandler(data);
-        }
-        ).catch(error => {
-            status = false
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-
-/**
- * Function that deletes the holding
- * @param {int} the primary key of the holding to delete
- * @param {function} successHandler callback function to handle the data
- * @param {Node} error_elem the element to add a useful error message to
- * @returns {boolean} Returns confirmation status.
- * @throws {InvalidArgumentException} if portfolio is invalid.
- */
-function delete_holding(holding_id, successHandler, error_elem) {
-    let status = false;
-    let init = {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            "Accept": "application/json",
-            'Authorization': "token " + localStorage.getItem("key")
-        },
-    }
-
-    fetch("/planning/holding/" + holding_id, init)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("" + response.statusText)
-            }
-            status = true;
-        }).then(() => {
-            successHandler()
-        }
-        ).catch(error => {
-            status = false;
-            error_elem.innerText = error;
-        })
-
-    return status;
-}
-
-/**
  * Function that retrieval of user's answers data.
  * @param {int} user_id the user identification number.
  * @returns {Array} Return arrays of user answers.
@@ -332,6 +47,7 @@ function dud_function() {
  */
 function render_portfolio_overview() {
     let all_portfolios = [];
+
     let error = document.createElement("div");
     error.classList.add("error");
 
@@ -362,24 +78,6 @@ function render_portfolio_overview() {
         return list;
     }
 
-    // const handlePortfolioButtons = () => {
-    //     let buttonGroup = document.createElement("div");
-    //     let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", dud_function);
-    //     let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function (){
-    //             elem = deletePortfolio.parentElement.parentElement;
-    //             let to_delete = portfolios[elem.list_id];
-    //             console.log(portfolios);
-    //             console.log(elem.list_id);
-    //             console.log("deleting" + to_delete["id"]);
-    //             // delete_portfolio(to_delete["id"], error);
-    //     });
-    //
-    //     buttonGroup.appendChild(updatePortfolio);
-    //     buttonGroup.appendChild(deletePortfolio);
-    //
-    //     return buttonGroup;
-    // }
-
     const handleHoldings = (holding) => {
         let holding_elem = document.createElement("div");
         holding_elem.classList.add("holding-data");
@@ -409,26 +107,15 @@ function render_portfolio_overview() {
             cleaner_holdings[i]["Shares"] = holdingItem["shares"];
             cleaner_holdings[i]["Purchase Date"] = holdingItem["purchase_date"];
             cleaner_holdings[i]["Cost Basis"] = holdingItem["cost_basis"];
-            // cleaner_holdings[i]["Update"] = `<button type='button' class='btn btn-secondary' onclick= 'dud_function(this)'>Update</button>`;
-            /*
-            let update_button = document.createElement("button");
-            update_button.classList.add("btn", "btn-secondary");
-            update_button.innerText = "Update";
-            */
 
             let update_button = createButton({
                 type: "btn-secondary",
                 text: "Update"
             });
+
             update_button["holding_id"] = holdingItem["id"];
             update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
-
-            /*
-            let delete_button = document.createElement("button");
-            delete_button.classList.add("btn", "btn-danger");
-            delete_button.innerText = "Delete";
-            */
 
             let delete_button = createButton({
                 type: "btn-danger",
@@ -437,10 +124,6 @@ function render_portfolio_overview() {
             delete_button["holding_id"] = holdingItem["id"];
             delete_button.addEventListener("click", function () { handleHoldingDelete(this, this["holding_id"]); })
             cleaner_holdings[i]["Delete"] = delete_button;
-
-
-            // "` + CRUD_icons.update + `" onclick= "window.location.hash = '#/bookUpdate/` + cleanerResults[i].id + `'">
-            // cleaner_holdings[i]["Delete"] = `<button type='button' class='btn btn-danger' onclick= 'dud_function(this)'>Delete</button>`;
         }
 
         let holdingTable = createTable({
@@ -457,29 +140,87 @@ function render_portfolio_overview() {
         let table_body = portfolio_container.getElementsByTagName("tbody")[0];
         let form = renderHoldingForm(function () {
             let data = {};
+            let errors = [];
+
+            let input_date = '';
+            let input_cost_basis = 0;
+
+            // Everything but Ticker and Cost Basis
+
             data["security_type"] = form.security_type.value;
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
-            if (form.purchase_date.value)
+
+            if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
-            if (form.cost_basis.value)
+                input_date = new Date(form.purchase_date.value);
+                // Get Midnight of the current date
+                let d = new Date();
+                d.setHours(0, 0, 0, 0);
+
+                if (days_after_update(d, input_date) < 0) {
+                    let errorMsg = "You cannot pick a date from the future.";
+                    errors.push(errorMsg);
+                }
+            }
+
+            if (form.cost_basis.value) {
                 data["cost_basis"] = form.cost_basis.value;
+                input_cost_basis = form.cost_basis.value;
+                if (currencyValidation(input_cost_basis) === null) {
+                    let errorMsg = "Your entered cost basis has too many decimal places, or your cost basis is a negative number.";
+                    errors.push(errorMsg);
+                }
+            }
+
             data["portfolio"] = all_portfolios[list_id]["id"];
 
-            add_holding(data,
-                (new_data) => {
-                    all_portfolios[list_id]["holdings"].push(new_data);
-                    let holdings = table_body.parentElement.parentElement;
-                    holdings.remove();
-                    holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
-                    portfolio_container.appendChild(holdings);
-                },
-                error)
+            if (form.ticker.value.length > 5) {
+                let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
+                errors.push(errorMsg);
+            }
 
+            if (form.price.value === undefined || form.price.value === '' || isNaN(form.price.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.price.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value)) {
+                let errorMsg = "Your entered number of shares is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.shares.value) === null) {
+                let errorMsg = "Your entered number of shares has too many decimal places, or your number of shares is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (input_date === '') {
+                let errorMsg = "You have to add a Purchase Date for your Holding.";
+                errors.push(errorMsg);
+            }
+
+            if (errors.length === 0) {
+                portfolio_api.add_holding(data,
+                    (new_data) => {
+                        all_portfolios[list_id]["holdings"].push(new_data);
+                        let holdings = table_body.parentElement.parentElement;
+                        holdings.remove();
+                        holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
+                        portfolio_container.appendChild(holdings);
+                    },
+                    error);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             form.container.remove();
         });
+
+        formMaxDate("no_future_inputs");
+
         table_body.appendChild(form.container);
 
     }
@@ -501,31 +242,82 @@ function render_portfolio_overview() {
 
         let form = renderHoldingForm(function () {
             let data = {};
+            let errors = [];
+            
             data["security_type"] = form.security_type.value;
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
-            if (form.purchase_date.value)
+            if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
-            if (form.cost_basis.value)
+                input_date = new Date(form.purchase_date.value);
+                // Get Midnight of the current date
+                let d = new Date();
+                d.setHours(0, 0, 0, 0);
+
+                if (days_after_update(d, input_date) < 0) {
+                    let errorMsg = "You cannot pick a date from the future.";
+                    errors.push(errorMsg);
+                }
+            }
+
+            if (form.cost_basis.value) {
                 data["cost_basis"] = form.cost_basis.value;
+                input_cost_basis = form.cost_basis.value;
+                if (currencyValidation(input_cost_basis) === null) {
+                    let errorMsg = "Your entered cost basis has too many decimal places, or your cost basis is a negative number.";
+                    errors.push(errorMsg);
+                }
+            }
+
             data["portfolio"] = all_portfolios[list_id]["id"];
 
-            add_holding(data,
-                (new_data) => {
-                    holdings[i] = new_data;
-                    holdings_div.remove();
-                    holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
-                    elem.appendChild(holdings_div);
-                },
-                error)
+            if (form.ticker.value.length > 5) {
+                let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
+                errors.push(errorMsg);
+            }
 
+            if (form.price.value === undefined || form.price.value === '' || isNaN(form.price.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.price.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value)) {
+                let errorMsg = "Your entered number of shares is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.shares.value) === null) {
+                let errorMsg = "Your entered number of shares has too many decimal places, or your number of shares is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (input_date === '') {
+                let errorMsg = "You have to add a Purchase Date for your Holding.";
+                errors.push(errorMsg);
+            }
+
+            if (errors.length === 0) {
+                portfolio_api.add_holding(data,
+                    (new_data) => {
+                        holdings[i] = new_data;
+                        holdings_div.remove();
+                        holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
+                        elem.appendChild(holdings_div);
+                    },
+                    error);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             holdings_div.remove();
             holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
             elem.appendChild(holdings_div);
-        }
-        );
+        });
+
+        formMaxDate("no_future_inputs");
+
         form.security_type.value = holding["security_type"];
         form.ticker.value = holding["ticker"];
         form.price.value = holding["price"];
@@ -538,8 +330,14 @@ function render_portfolio_overview() {
     }
 
     const handleHoldingDelete = (parent_elem, holding_id) => {
+        function toDeleteHolding() {
+            portfolio_api.delete_holding(holding_id, () => {
+                row.remove();
+            }, error)
+        }
+
         let row = parent_elem.parentElement.parentElement;
-        delete_holding(holding_id, () => { row.remove(); }, error);
+        modal.confirm("Are you sure you want to delete this holding?", toDeleteHolding);
     }
 
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
@@ -564,7 +362,26 @@ function render_portfolio_overview() {
                 data["account_type"] = form.account_type.value;
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
-                update_portfolio(data, successFunc, error);
+
+                let errors = [];
+                if (form.name.value === undefined || form.name.value === '') {
+                    let errorMsg = "You need to add a Name to your Portfolio.";
+                    errors.push(errorMsg);
+                }
+
+                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
+                    let errorMsg = "Your entered balance is either empty or not a number.";
+                    errors.push(errorMsg);
+                } else if (currencyValidation(form.balance.value) === null) {
+                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
+                    errors.push(errorMsg);
+                }
+
+                if (errors.length === 0) {
+                    portfolio_api.update_portfolio(data, successFunc, error);
+                } else {
+                    modal.renderErrorMessages(errors);
+                }
             },
             () => {
                 let contents = renderPortfolioContents(portfolio, list_id);
@@ -575,7 +392,7 @@ function render_portfolio_overview() {
 
 
         elem.appendChild(form.container);
-        
+
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
         form.balance.value = portfolio["balance"];
@@ -599,7 +416,26 @@ function render_portfolio_overview() {
                 data["account_type"] = form.account_type.value;
                 data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
-                create_portfolio(data, successFunc, error);
+
+                let errors = [];
+                if (form.name.value === undefined || form.name.value === '') {
+                    let errorMsg = "You need to add a Name to your Portfolio";
+                    errors.push(errorMsg);
+                }
+
+                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
+                    let errorMsg = "Your entered balance is either empty or not a number";
+                    errors.push(errorMsg);
+                } else if (currencyValidation(form.balance.value) === null) {
+                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
+                    errors.push(errorMsg);
+                }
+
+                if (errors.length === 0) {
+                    portfolio_api.create_portfolio(data, successFunc, error);
+                } else {
+                    modal.renderErrorMessages(errors);
+                }
             },
             function () {
                 portfolio_listing.insertBefore(renderCreateButton(), form.container);
@@ -641,16 +477,22 @@ function render_portfolio_overview() {
 
             let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function () {
                 let portfolio = all_portfolios[elem["list_id"]];
-                delete_portfolio(portfolio["id"],
-                    () => {
-                        // remove button
-                        elem.previousSibling.remove();
-                        // remove div
-                        elem.remove();
-                    },
-                    error);
-                numPortfolios--;
+
+                function toDeletePortfolio() {
+                    portfolio_api.delete_portfolio(portfolio["id"],
+                        () => {
+                            // remove button
+                            elem.previousSibling.remove();
+                            // remove div
+                            elem.remove();
+                        },
+                        error);
+                    numPortfolios--;
+                }
+
+                modal.confirm("Are you sure you want to delete this portfolio?", toDeletePortfolio);
             });
+
             deletePortfolio.classList.add("mr-2");
 
             let portfolioButtons = document.createElement("div");
@@ -662,7 +504,6 @@ function render_portfolio_overview() {
             let createHolding = makeButton("btn-success", "Create Holding", function () {
                 handleHoldingCreate(elem, elem["list_id"]);
             });
-
 
             portfolio_data.appendChild(account_type);
             portfolio_data.appendChild(description);
@@ -689,7 +530,6 @@ function render_portfolio_overview() {
         all_portfolios = [];
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
-
         }
     }
 
@@ -719,13 +559,25 @@ function render_portfolio_overview() {
         });
     }
 
+    const handleAccountTypes = (types) => {
+        types.forEach(element => {
+            account_types.push(element["type"]);
+        });
+    }
+
+    const handleSecurityTypes = (types) => {
+        types.forEach(element => {
+            security_types.push(element["type"]);
+        });
+    }
+
     const renderHoldingForm = (saveFunc, cancelFunc) => {
         let form = {};
 
         form.container = document.createElement("tr");
         form.container.classList.add("scrollable");
 
-        let options = ["Stock", "Bond", "Cash"]; // TODO: replace with list fetched from DB
+        let options = security_types; // TODO: replace with list fetched from DB
         form.security_type = makePickList(options);
 
         let sec_cell = document.createElement("td");
@@ -742,7 +594,9 @@ function render_portfolio_overview() {
         form.container.appendChild(ticker_cell);
 
         form.price = document.createElement("input");
-        form.price.type = "text";
+        form.price.type = "number";
+        form.price.min = "0.01";
+        form.price.step = "0.01";
         form.price.style.textAlign = "right";
 
         let price_cell = document.createElement("td");
@@ -751,7 +605,9 @@ function render_portfolio_overview() {
         form.container.appendChild(price_cell);
 
         form.shares = document.createElement("input");
-        form.shares.type = "text";
+        form.shares.type = "number";
+        form.shares.min = "0.01";
+        form.shares.step = "0.01";
         form.shares.style.textAlign = "right";
 
         let shares_cell = document.createElement("td");
@@ -761,6 +617,7 @@ function render_portfolio_overview() {
 
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
+        form.purchase_date.classList.add("no_future_inputs");
 
         let date_cell = document.createElement("td");
         date_cell.style.textAlign = "right";
@@ -768,7 +625,9 @@ function render_portfolio_overview() {
         form.container.appendChild(date_cell);
 
         form.cost_basis = document.createElement("input");
-        form.cost_basis.type = "text";
+        form.cost_basis.type = "number";
+        form.cost_basis.min = "0.01";
+        form.cost_basis.step = "0.01";
         form.cost_basis.style.textAlign = "right";
 
         let cost_basis_cell = document.createElement("td");
@@ -794,7 +653,7 @@ function render_portfolio_overview() {
     const renderPortfolioForm = (saveFunc, cancelFunc) => {
         let form = {};
 
-        let type_options = ["IRA", "401K", "Savings"]; // TODO: replace with list fetched from DB
+        let type_options = account_types; // TODO: replace with list fetched from DB
         form.container = document.createElement("div");
         form.container.classList.add("portfolio-creation");
 
@@ -810,7 +669,9 @@ function render_portfolio_overview() {
         let balance_label = document.createElement("label");
         balance_label.innerText = "Balance";
         form.balance = document.createElement("input");
-        form.balance.type = "text";
+        form.balance.type = "number";
+        form.balance.min = "0.01";
+        form.balance.step = "0.01";
 
         let description_label = document.createElement("label");
         description_label.innerText = "Description";
@@ -823,13 +684,13 @@ function render_portfolio_overview() {
         let buttonGroupCancel = document.createElement("div");
         buttonGroupCancel.classList.add("btn-group");
 
-        form.submit = makeButton("btn-secondary", "Submit", saveFunc);
+        form.submit = makeButton("btn-success", "Submit", saveFunc);
         form.submit.classList.add("mr-2");
         let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
         cancel.classList.add("mr-2");
 
         let title = document.createElement("h2");
-        title.innerText = "Add a Portfolio Here";
+        title.innerText = "Manage Portfolio";
 
         form.container.appendChild(title);
         form.container.appendChild(name_label);
@@ -867,12 +728,19 @@ function render_portfolio_overview() {
         all_portfolios = [];
         numPortfolios = 0;
 
+        account_types = [];
+        security_types = [];
+
         portfolio_listing.appendChild(error);
+        portfolio_listing.appendChild(modal);
         portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));
 
-        get_all_portfolios(handleUserPortfolios, error);
+        portfolio_api.get_account_types(handleAccountTypes, error);
+        portfolio_api.get_security_types(handleSecurityTypes, error);
+
+        portfolio_api.get_all_portfolios(handleUserPortfolios, error);
     };
 
     render();

@@ -67,7 +67,7 @@ class Holding(models.Model):
     ticker = models.CharField(max_length=5, null=True, blank=True)
     price = models.DecimalField(decimal_places=2, max_digits=15)
     shares = models.DecimalField(decimal_places=2, max_digits=15)
-    purchase_date = models.DateField(null=True, blank=True)
+    purchase_date = models.DateField()
     cost_basis = models.DecimalField(decimal_places=2, max_digits=15, null=True, blank=True)
 
     def __str__(self):

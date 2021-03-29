@@ -91,6 +91,7 @@ function render_budget_overview() {
         /* Purchase Date for Expense Items */
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
+        form.purchase_date.classList.add("purchase_date");
 
         let dateCell = document.createElement("td");
         dateCell.style.textAlign = "right";
@@ -179,6 +180,8 @@ function render_budget_overview() {
             form.container.remove();
         }, true);
 
+        formMaxDate("purchase_date");
+
         tableBody.appendChild(form.container);
     };
 
@@ -198,7 +201,7 @@ function render_budget_overview() {
 
         let form = renderBudgetForm(function () {
             let data = {};
-
+            
             data["purchase_date"] = form.purchase_date.value;
             data["transaction"] = form.details.value;
             data["cost"] = parseFloat(form.cost.value);
@@ -216,7 +219,9 @@ function render_budget_overview() {
             elem.appendChild(expense_container);
         }, false);
 
-        form.purchase_date.value = expenseItem["purchase_date"];
+        formMaxDate("purchase_date");
+
+        form.purchase_date.value = Date.parse(expenseItem["purchase_date"]);
         form.details.value = expenseItem["transaction"];
         form.cost.value = expenseItem["cost"];
         form.categories.value = expenseItem["category"];
@@ -282,8 +287,8 @@ function render_budget_overview() {
 
         let expenseTable = createTable({
             objList: cleaner_expenses,
-            sortOrderPropName: sortingOrder[0],
-            reverse: reverseSorting[0]
+            sortOrderPropName: "Purchase Date",
+            reverse: true
         });
 
         expense_container.appendChild(expenseTable);
