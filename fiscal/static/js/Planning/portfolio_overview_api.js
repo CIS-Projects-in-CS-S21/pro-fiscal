@@ -128,6 +128,7 @@ portfolio_api.update_portfolio = function (data, successHandler, error_elem) {
             status = true
             return response.json();
         }).then((data) => {
+            console.log(data);
             successHandler(data);
         }
         ).catch(error => {

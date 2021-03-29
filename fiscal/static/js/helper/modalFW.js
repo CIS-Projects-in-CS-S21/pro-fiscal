@@ -4,21 +4,21 @@
  * @param {Params} params The parameter object containing optional class names to be applied
  * @returns {HTMLDivElement}
  */
-function modalFW(params) {
+ function modalFW(params) {
     var className = params.className || "modal";
     var hideClass = params.hideClass || "modal-hide";
     var showClass = params.showClass || "modal-show";
-    
+
     function hide(elem){
         elem.classList.add(hideClass);
         elem.style.display = "none";
     }
-    
+
     function show(elem){
         elem.classList.remove(hideClass);
         elem.style.display = "block";
     }
-    
+
     var modal = document.createElement("div");
     modal.classList.add(className);
     hide(modal);
@@ -29,24 +29,24 @@ function modalFW(params) {
      */
     modal.alert = function(message){
         modal.innerHTML = "";
-        
+
         var messageArea = document.createElement("div");
-        
+
         var messageText = document.createElement("p");
         messageArea.appendChild(messageText);
         messageText.innerText = message;
-        
-        var exitButton = document.createElement("button");        
+
+        var exitButton = document.createElement("button");
         exitButton.innerText = "OK";
         exitButton.onclick = function(){
             hide(modal);
         };
-                
+
         messageArea.appendChild(exitButton);
-        modal.appendChild(messageArea);        
-        
+        modal.appendChild(messageArea);
+
         show(modal);
-        
+
     };
 
     /**
@@ -56,37 +56,63 @@ function modalFW(params) {
      */
     modal.confirm = function(message, callBack){
         modal.innerHTML = "";
-        
+
         var messageArea = document.createElement("div");
+        messageArea.classList.add("text-center");
         modal.appendChild(messageArea);
-        
+
         var messageText = document.createElement("p");
         messageArea.appendChild(messageText);
         messageText.innerHTML = message;
-        
-        var okButton = document.createElement("INPUT");
-        okButton.setAttribute("type", "button");
-        okButton.setAttribute("value", "OK");
-        okButton.onclick = function(){
+
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
+
+        let buttonGroupConfirm = document.createElement("div");
+        buttonGroupConfirm.classList.add("btn-group", "mr-auto");
+
+        let buttonGroupCancel = document.createElement("div");
+        buttonGroupCancel.classList.add("btn-group", "ml-auto");
+
+        let clickOK = function () {
             hide(modal);
             callBack();
-        };
-        messageArea.appendChild(okButton);
-        
-        var cancelButton = document.createElement("INPUT");
-        cancelButton.setAttribute("type", "button");
-        cancelButton.setAttribute("value", "Cancel");
-        cancelButton.onclick = function(){
+        }
+
+        let clickCancel = function () {
             hide(modal);
-        };
-        
-        messageArea.appendChild(cancelButton);        
+        }
+
+        let okButton = createButton({
+            type: "btn-success",
+            text: "Yes",
+            onclickhandler: clickOK
+        });
+
+        okButton.classList.add("mr-2");
+
+        let cancelButton = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: clickCancel
+        });
+
+        cancelButton.classList.add("mr-2");
+
+        buttonGroupConfirm.appendChild(okButton);
+        buttonGroupCancel.appendChild(cancelButton);
+
+        buttonDiv.appendChild(buttonGroupConfirm);
+        buttonDiv.appendChild(buttonGroupCancel);
+
+        messageArea.appendChild(buttonDiv);
+
         show(modal);
     };
 
     modal.renderErrorMessages = function (elements) {
         modal.innerHTML = "";
-        
+
         var messageArea = document.createElement("div");
         messageArea.classList.add("text-center");
         modal.appendChild(messageArea);
@@ -108,10 +134,26 @@ function modalFW(params) {
         closeBtn.onclick = function(){
             hide(modal);
         };
-        
+
         messageArea.appendChild(closeBtn);
 
         show(modal);
+    }
+
+    modal.renderForm = function (element) {
+        modal.innerHTML = "";
+
+        var messageArea = document.createElement("div");
+        messageArea.classList.add('modalMsgArea');
+        messageArea.appendChild(element);
+
+        modal.appendChild(messageArea);
+
+        show(modal);
+    }
+
+    modal.hideModal = function () {
+        hide(modal);
     }
 
     /**
@@ -120,23 +162,24 @@ function modalFW(params) {
      */
     modal.displayElement = function(element){
         modal.innerHTML = "";
-        
+
         var messageArea = document.createElement("div");
+        messageArea.classList.add('modalMsgArea');
         messageArea.appendChild(element);
-        
-        var exitButton = document.createElement("button");        
+
+        var exitButton = document.createElement("button");
         exitButton.innerHTML = "OK";
         exitButton.onclick = function(){
             hide(modal);
         };
-        
-                
+
+
         messageArea.appendChild(exitButton);
-        modal.appendChild(messageArea);        
-        
+        modal.appendChild(messageArea);
+
         show(modal);
-        
+
     };
-    
-    return modal;    
+
+    return modal;
 }

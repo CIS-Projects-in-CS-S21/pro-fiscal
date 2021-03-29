@@ -52,31 +52,13 @@ function render_portfolio_overview() {
     error.classList.add("error");
 
     let numPortfolios = 0;
+    let portfolioBalanceSum = 0;
+
+    let portfolioDashboard = document.createElement("div");
+    portfolioDashboard.classList.add("dashboard");
 
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
-
-    const makeButton = (buttonType, buttonText, handlerFunction) => {
-        let button = createButton({
-            type: buttonType,
-            text: buttonText
-        });
-
-        button.addEventListener("click", handlerFunction);
-
-        return button;
-    };
-
-    const makePickList = (optionList) => {
-        let list = document.createElement("select");
-        for (item in optionList) {
-            let option = document.createElement("option");
-            option.value = optionList[item];
-            option.innerText = optionList[item];
-            list.appendChild(option);
-        }
-        return list;
-    }
 
     const handleHoldings = (holding) => {
         let holding_elem = document.createElement("div");
@@ -243,7 +225,7 @@ function render_portfolio_overview() {
         let form = renderHoldingForm(function () {
             let data = {};
             let errors = [];
-            
+
             data["security_type"] = form.security_type.value;
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
@@ -333,7 +315,7 @@ function render_portfolio_overview() {
         function toDeleteHolding() {
             portfolio_api.delete_holding(holding_id, () => {
                 row.remove();
-            }, error)
+            }, error);
         }
 
         let row = parent_elem.parentElement.parentElement;
@@ -341,18 +323,25 @@ function render_portfolio_overview() {
     }
 
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
-        elem.innerHTML = "";
         const successFunc = (portfolio_item) => {
+            modal.hideModal();
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
+            portfolioBalanceSum -= parseFloat(oldBalance);
+            renderPortfolioDashboard();
             // add the updated data to the collapsible button
             elem.previousSibling.innerText = portfolio_item["name"];
             elem.parentElement.insertBefore(new_contents, elem);
+
             elem.remove();
         };
 
+        /* Function starts here */
+        elem.innerHTML = "";
+
         /* Render the form for the Portfolio */
         let form = renderPortfolioForm(
+            "Update " + portfolio["name"],
             () => {
 
                 // TODO: add validation and errors
@@ -384,14 +373,15 @@ function render_portfolio_overview() {
                 }
             },
             () => {
+                modal.hideModal();
+
                 let contents = renderPortfolioContents(portfolio, list_id);
                 elem.parentElement.insertBefore(contents, elem);
                 elem.remove();
             }
         );
 
-
-        elem.appendChild(form.container);
+        modal.renderForm(form.container);
 
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
@@ -399,16 +389,21 @@ function render_portfolio_overview() {
         form.description.value = portfolio["description"];
     }
 
-    const handlePortfolioCreate = (parent_elem) => {
+    const handlePortfolioCreate = () => {
         let form = renderPortfolioForm(
+            "Create Portfolio",
             function () {
 
                 // TODO: add validation and errors
 
                 const successFunc = (data) => {
+                    modal.hideModal();
                     handleSinglePortfolio(data);
+                    renderPortfolioDashboard();
+                    /*
                     portfolio_listing.insertBefore(renderCreateButton(), form.container);
                     form.container.remove();
+                    */
                 }
 
                 let data = {};
@@ -438,12 +433,23 @@ function render_portfolio_overview() {
                 }
             },
             function () {
+                modal.hideModal();
+                /*
                 portfolio_listing.insertBefore(renderCreateButton(), form.container);
                 form.container.remove();
+                $('.portfolio-list').append(detached);
+                */
             }
-        )
+        );
+
+
+        modal.renderForm(form.container);
+
+        /*
         portfolio_listing.insertBefore(form.container, parent_elem);
-        portfolio_listing.removeChild(parent_elem)
+        portfolio_listing.removeChild(parent_elem);
+        let detached = $('.collapsible-container').detach();
+        */
     }
 
     const renderPortfolioContents = (portfolio_item, list_id) => {
@@ -466,17 +472,19 @@ function render_portfolio_overview() {
 
             let balance = document.createElement("p");
             balance.classList.add("padded_paragraph");
-            balance.innerText = "Balance: $" + portfolio_item["balance"];
+            balance.innerText = "Balance: $" + parseFloat(portfolio_item["balance"]).toFixed(2);
+            portfolioBalanceSum += parseFloat(portfolio_item["balance"]);
 
-            // let portfolioButtons = handlePortfolioButtons();
-            let updatePortfolio = makeButton("btn-secondary", "Update Portfolio", function () {
+            // On click functions for updates and deletions
+            const updatePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
+                oldBalance = parseFloat(portfolio_item["balance"]);
                 handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
-            });
-            updatePortfolio.classList.add("mr-2");
+            }
 
-            let deletePortfolio = makeButton("btn-danger", "Delete Portfolio", function () {
+            const deletePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
+                let oldBalance = portfolio["balance"];
 
                 function toDeletePortfolio() {
                     portfolio_api.delete_portfolio(portfolio["id"],
@@ -487,10 +495,26 @@ function render_portfolio_overview() {
                             elem.remove();
                         },
                         error);
+                    portfolioBalanceSum -= oldBalance;
+                    renderPortfolioDashboard();
                     numPortfolios--;
                 }
 
                 modal.confirm("Are you sure you want to delete this portfolio?", toDeletePortfolio);
+            }
+
+            let updatePortfolio = createButton({
+                type: "btn-secondary",
+                text: "Update Portfolio",
+                onclickhandler: updatePortfolioHandler
+            });
+
+            updatePortfolio.classList.add("mr-2");
+
+            let deletePortfolio = createButton({
+                type: "btn-danger",
+                text: "Delete Portfolio",
+                onclickhandler: deletePortfolioHandler
             });
 
             deletePortfolio.classList.add("mr-2");
@@ -499,10 +523,18 @@ function render_portfolio_overview() {
             portfolioButtons.appendChild(updatePortfolio);
             portfolioButtons.appendChild(deletePortfolio);
 
+            // console.log(portfolio_item["holdings"]);
+
             let holdings = handleHoldings(portfolio_item["holdings"]);
 
-            let createHolding = makeButton("btn-success", "Create Holding", function () {
+            const createHoldingHandler = () => {
                 handleHoldingCreate(elem, elem["list_id"]);
+            }
+
+            let createHolding = createButton({
+                type: "btn-success",
+                text: "Create Holding",
+                onclickhandler: createHoldingHandler
             });
 
             portfolio_data.appendChild(account_type);
@@ -528,14 +560,20 @@ function render_portfolio_overview() {
     const handleUserPortfolios = (portfolios) => {
         // called when all the portfolios are being rendered, clear the list
         all_portfolios = [];
+        portfolioBalanceSum = 0;
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
         }
+        renderPortfolioDashboard();
+        portfolio_listing.prepend(portfolioDashboard);
     }
 
     const handleSinglePortfolio = (portfolio_item) => {
         // Only call this when a new account is being added
         all_portfolios.push(portfolio_item);
+
+        let menuContainer = document.createElement("div");
+        menuContainer.classList.add("collapsible-container");
 
         let portfolio_button = document.createElement("button");
         portfolio_button.type = "button";
@@ -545,8 +583,9 @@ function render_portfolio_overview() {
 
         let portfolio_contents = renderPortfolioContents(portfolio_item, numPortfolios++);
 
-        portfolio_listing.appendChild(portfolio_button);
-        portfolio_listing.appendChild(portfolio_contents);
+        menuContainer.appendChild(portfolio_button);
+        menuContainer.appendChild(portfolio_contents);
+        portfolio_listing.appendChild(menuContainer);
 
         portfolio_button.addEventListener("click", function () {
             this.classList.toggle("active");
@@ -557,6 +596,19 @@ function render_portfolio_overview() {
                 content.style.display = "block";
             }
         });
+    }
+
+    const renderPortfolioDashboard = () => {
+        portfolioDashboard.innerHTML = "";
+
+        let title = document.createElement("h3");
+        title.innerHTML = "<strong>Overview of your Portfolios and Holdings</strong>";
+
+        let netWorth = document.createElement("div");
+        netWorth.innerHTML = `Portfolio Net Worth: $` + parseFloat(portfolioBalanceSum).toFixed(2);
+
+        portfolioDashboard.appendChild(title);
+        portfolioDashboard.appendChild(netWorth);
     }
 
     const handleAccountTypes = (types) => {
@@ -575,10 +627,10 @@ function render_portfolio_overview() {
         let form = {};
 
         form.container = document.createElement("tr");
-        form.container.classList.add("scrollable");
 
         let options = security_types; // TODO: replace with list fetched from DB
         form.security_type = makePickList(options);
+        form.security_type.classList.add("form-control");
 
         let sec_cell = document.createElement("td");
         sec_cell.style.textAlign = "left";
@@ -587,6 +639,7 @@ function render_portfolio_overview() {
 
         form.ticker = document.createElement("input");
         form.ticker.type = "text";
+        form.ticker.classList.add("form-control");
 
         let ticker_cell = document.createElement("td");
         ticker_cell.style.textAlign = "left";
@@ -598,6 +651,7 @@ function render_portfolio_overview() {
         form.price.min = "0.01";
         form.price.step = "0.01";
         form.price.style.textAlign = "right";
+        form.price.classList.add("form-control");
 
         let price_cell = document.createElement("td");
         price_cell.style.textAlign = "right";
@@ -609,6 +663,7 @@ function render_portfolio_overview() {
         form.shares.min = "0.01";
         form.shares.step = "0.01";
         form.shares.style.textAlign = "right";
+        form.shares.classList.add("form-control");
 
         let shares_cell = document.createElement("td");
         shares_cell.style.textAlign = "right";
@@ -618,6 +673,7 @@ function render_portfolio_overview() {
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
         form.purchase_date.classList.add("no_future_inputs");
+        form.purchase_date.classList.add("form-control");
 
         let date_cell = document.createElement("td");
         date_cell.style.textAlign = "right";
@@ -629,19 +685,30 @@ function render_portfolio_overview() {
         form.cost_basis.min = "0.01";
         form.cost_basis.step = "0.01";
         form.cost_basis.style.textAlign = "right";
+        form.cost_basis.classList.add("form-control");
 
         let cost_basis_cell = document.createElement("td");
         cost_basis_cell.style.textAlign = "right";
         cost_basis_cell.appendChild(form.cost_basis);
         form.container.appendChild(cost_basis_cell);
 
-        form.save = makeButton("btn-success", "Save", saveFunc);
+        form.save = createButton({
+            type: "btn-success",
+            text: "Save",
+            onclickhandler: saveFunc
+        });
+
         let save_cell = document.createElement("td");
         save_cell.style.textAlign = "center";
         save_cell.appendChild(form.save);
         form.container.appendChild(save_cell);
 
-        form.cancel = makeButton("btn-danger", "Cancel", cancelFunc);
+        form.cancel = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: cancelFunc
+        });
+
         let cancel_cell = document.createElement("td");
         cancel_cell.style.textAlign = "center";
         cancel_cell.appendChild(form.cancel);
@@ -650,7 +717,7 @@ function render_portfolio_overview() {
         return form;
     }
 
-    const renderPortfolioForm = (saveFunc, cancelFunc) => {
+    const renderPortfolioForm = (formTitle, saveFunc, cancelFunc) => {
         let form = {};
 
         let type_options = account_types; // TODO: replace with list fetched from DB
@@ -661,10 +728,12 @@ function render_portfolio_overview() {
         name_label.innerText = "Name";
         form.name = document.createElement("input");
         form.name.type = "text";
+        form.name.classList.add("form-control");
 
         let account_type_label = document.createElement("label");
         account_type_label.innerText = "Account Type";
         form.account_type = makePickList(type_options);
+        form.account_type.classList.add("form-control");
 
         let balance_label = document.createElement("label");
         balance_label.innerText = "Balance";
@@ -672,25 +741,43 @@ function render_portfolio_overview() {
         form.balance.type = "number";
         form.balance.min = "0.01";
         form.balance.step = "0.01";
+        form.balance.classList.add("form-control");
 
         let description_label = document.createElement("label");
         description_label.innerText = "Description";
         form.description = document.createElement("textarea");
+        form.description.classList.add("form-control");
+        form.description.rows = "5";
         form.description.maxLength = 250;
 
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
+
         let buttonGroupSubmit = document.createElement("div");
-        buttonGroupSubmit.classList.add("btn-group");
+        buttonGroupSubmit.classList.add("btn-group", "mr-auto");
 
         let buttonGroupCancel = document.createElement("div");
-        buttonGroupCancel.classList.add("btn-group");
+        buttonGroupCancel.classList.add("btn-group", "ml-auto");
 
-        form.submit = makeButton("btn-success", "Submit", saveFunc);
+        form.submit = createButton({
+            type: "btn-success",
+            text: "Submit",
+            onclickhandler: saveFunc
+        });
+
         form.submit.classList.add("mr-2");
-        let cancel = makeButton("btn-danger", "Cancel", cancelFunc);
+
+        let cancel = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: cancelFunc
+        });
+
         cancel.classList.add("mr-2");
 
         let title = document.createElement("h2");
-        title.innerText = "Manage Portfolio";
+        title.innerText = formTitle;
+        title.classList.add("text-center");
 
         form.container.appendChild(title);
         form.container.appendChild(name_label);
@@ -706,20 +793,27 @@ function render_portfolio_overview() {
         buttonGroupSubmit.appendChild(form.submit);
         buttonGroupCancel.appendChild(cancel);
 
-        form.container.appendChild(buttonGroupSubmit);
-        form.container.appendChild(buttonGroupCancel);
+        buttonDiv.appendChild(buttonGroupSubmit);
+        buttonDiv.appendChild(buttonGroupCancel);
 
-        //form.container.appendChild(form.submit);
-        //form.container.appendChild(cancel);
+        form.container.appendChild(buttonDiv);
 
         return form;
-
     }
 
     const renderCreateButton = () => {
-        let createPortfolio = makeButton("btn-success", "Create Portfolio", () => {
+
+        let createPortfolio = createButton({
+            type: "btn-success",
+            text: "Create Portfolio"
+        });
+
+        createPortfolio.classList.add("portfolio-creator");
+
+        createPortfolio.addEventListener("click", () => {
             handlePortfolioCreate(createPortfolio);
         });
+
         return createPortfolio;
     }
 
@@ -733,6 +827,8 @@ function render_portfolio_overview() {
 
         portfolio_listing.appendChild(error);
         portfolio_listing.appendChild(modal);
+        portfolio_listing.appendChild(portfolioDashboard);
+
         portfolio_listing.appendChild(renderCreateButton());
 
         portfolio_listing.appendChild(document.createElement("p"));

@@ -17,13 +17,18 @@
     grid-template-rows: auto 40px;
     grid-template-columns: auto auto;
     grid-gap: 5px;
-    margin: 20% auto;
-    width: 50%;
+    margin: 10% auto;
     max-width: 480px;
-    padding: 20px;
-    border: 1px solid #888;
+    padding: 10px;
     background-color: #F5F9F1;
+}
+
+.modalMsgArea {
     box-shadow: 5px 5px 5px #4b4f4c;
+}
+
+.form_modal div {
+
 }
 
 .modal button {
@@ -34,13 +39,15 @@
     height: 90%;
 }
 
+/*
 .modal INPUT {
-    /*margin-left: 1ex;*/
+    margin-left: 1ex;
     grid-row: 2;
     margin: auto;
     width: 160px;
     height: 90%
 }
+*/
 
 .modal.modal-hide {
     opacity: 0;
