@@ -17,7 +17,7 @@ class ListViewTest(TestCase):
         self.factory = APIRequestFactory()
 
         self.success_data = {
-            "expense_id": 1,
+            "id": 1,
             "user": 1,
             "amount": 100.50,
             "transaction_date": "2021-03-29",
@@ -40,7 +40,7 @@ class ListViewTest(TestCase):
         # exp = ExpenseSerializer(data=self.success_data)
         # exp.is_valid()
         # exp.save()
-        Expense.objects.create(expense_id=1, user_id=1,amount= 100.50, transaction_date = "2021-03-29", description = "Fi$cal merch", category = "Essential"  )
+        Expense.objects.create(id=1, user_id=1,amount= 100.50, transaction_date = "2021-03-29", description = "Fi$cal merch", category = "Essential"  )
 
         request = self.factory.get("expense/")
         request.user = self.user
@@ -83,7 +83,7 @@ class ListViewTest(TestCase):
         # Add the data to the test DB
 
         new_exp = {
-            "expense_id": 1,
+            "id": 1,
             "user": self.user,
             "amount": 500.00,
             "transaction_date": "2021-03-30",
@@ -112,7 +112,7 @@ class ListViewTest(TestCase):
     def test_post_success(self):
 
         data = {
-            "expense_id": 1,
+            "id": 1,
             "user": 1,
             "amount": 100.50,
             "transaction_date": "2021-03-29",
@@ -140,7 +140,7 @@ class DetailViewTest(TestCase):
         self.factory = APIRequestFactory()
 
         self.success_data = {
-            "expense_id": 1,
+            "id": 1,
             "user": 1,
             "amount": 100.50,
             "transaction_date": "2021-03-29",
@@ -152,9 +152,9 @@ class DetailViewTest(TestCase):
         self.exp_1.save()
 
         self.expected_data = {
-            "expense_id": 1,
+            "id": 1,
             "user": 1,
-            "amount": 100.50,
+            "amount": 250.00,
             "transaction_date": "2021-03-29",
             "description": "Fi$cal merch",
             "category": "Essential"
@@ -165,6 +165,7 @@ class DetailViewTest(TestCase):
 
         view = ExpenseDetail()
         view.setup(request)
+
         resp = view.get(request, 1)
 
         self.assertEquals(resp.status_code, 200)
@@ -176,7 +177,7 @@ class DetailViewTest(TestCase):
 
         # Add the data to the test DB
         new_exp = {
-            "expense_id": 1,
+            "id": 1,
             "user": 1,
             "amount": 600.50,
             "transaction_date": "2021-03-30",
@@ -200,7 +201,7 @@ class DetailViewTest(TestCase):
 
     def test_put_portFolioDetail(self):
         data = {
-            "expense_id": 1,
+            "id": 1,
             "user": 1,
             "amount": 600.50,
             "transaction_date": "2021-03-29",

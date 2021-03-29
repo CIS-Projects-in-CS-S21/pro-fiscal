@@ -13,4 +13,4 @@ class ExpenseSerializer(serializers.ModelSerializer):
             fields (list): A list of the fields in the Expense model
         """
         model = Expense
-        fields = ['expense_id', 'user', 'amount', 'transaction_date', 'description', 'category']
+        fields = ['id', 'user', 'amount', 'transaction_date', 'description', 'category']
