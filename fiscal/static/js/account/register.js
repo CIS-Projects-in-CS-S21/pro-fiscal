@@ -54,4 +54,4 @@ function register () {
     return elem;
 }
 
-module.exports = verify_matching_passwords;
+// module.exports = verify_matching_passwords;

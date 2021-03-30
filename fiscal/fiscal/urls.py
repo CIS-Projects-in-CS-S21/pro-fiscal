@@ -16,11 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import TemplateView
+from utils.views import Monte_carlo_API
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name="fiscal/base.html")),
     path('register/', TemplateView.as_view(template_name="fiscal/registration.html"), name="register"),
+    path('planning/',include('planning_tool.urls')),
+    path('expense/',include('budget_tool.urls')),
     path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth/registration/', include('rest_auth.registration.urls'))
+    path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    path('monte-carlo/', Monte_carlo_API.as_view(), name="monte_carlo")
 ]
