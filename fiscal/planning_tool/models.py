@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 class Account_Type(models.Model):
     """
@@ -39,6 +40,7 @@ class Portfolio(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     balance = models.DecimalField(decimal_places=2, max_digits=15)
+    date = models.DateField(auto_now=True)
 
     def __repr__(self):
         return f"id:{self.id}\nuser:{self.user}\ntype:{self.account_type}\nname:{self.name}\nbalance:{self.balance}\ndescription:{self.description}"
@@ -65,7 +67,7 @@ class Holding(models.Model):
     ticker = models.CharField(max_length=5, null=True, blank=True)
     price = models.DecimalField(decimal_places=2, max_digits=15)
     shares = models.DecimalField(decimal_places=2, max_digits=15)
-    purchase_date = models.DateField(null=True, blank=True)
+    purchase_date = models.DateField()
     cost_basis = models.DecimalField(decimal_places=2, max_digits=15, null=True, blank=True)
 
     def __str__(self):
@@ -86,6 +88,6 @@ class Balance_History(models.Model):
 
     portfolio = models.ForeignKey(Portfolio, related_name="balance_history", on_delete=models.CASCADE)
     balance = models.DecimalField(decimal_places=2, max_digits=15)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=datetime.date.today)
 
 

@@ -8,7 +8,7 @@ from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type
 from planning_tool.views import PortfolioList
 
 
-class ListViewTest(TestCase):
+class PortfolioListViewTest(TestCase):
 
     def setUp(self):
         self.acct_type = Account_Type(type='IRA')
@@ -167,7 +167,7 @@ class ListViewTest(TestCase):
 
 
 
-class DetailViewTest(TestCase):
+class PortfolioDetailViewTest(TestCase):
 
     def setUp(self):
         self.acct_type = Account_Type(type='IRA')
@@ -266,6 +266,17 @@ class DetailViewTest(TestCase):
             self.assertEquals(ret_holdings[field], expected_holdings[field], f"Unexpected value in holding for {field}")
 
     def test_put_portFolioDetail(self):
+        new_hold = {
+            "portfolio_id": 1,
+            "security_type": self.sec_type,
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": datetime.datetime(2020, 12, 20)
+        }
+        hold = Holding.objects.create(**new_hold)
+
         data = {
             'user': 1,
             'account_type': "IRA",
@@ -284,7 +295,8 @@ class DetailViewTest(TestCase):
         view.setup(request)
         resp = view.put(request, 1)
 
-        self.assertEquals(resp.status_code, 201, resp.data)
+        self.assertEquals(resp.status_code, 200, resp.data)
+        self.assertTrue(resp.data["holdings"])
 
     def test_delete_portFolioDetail(self):
         request = self.factory.delete("portfolio/1")
@@ -309,3 +321,145 @@ class DetailViewTest(TestCase):
         resp = view.get(request, 1)
 
         self.assertTrue(resp.data["balance_history"], "Balance History should not be empty")
+
+class HoldingListViewTest(TestCase):
+    def setUp(self):
+        self.acct_type = Account_Type(type='IRA')
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type='Bond')
+        self.sec_type.save()
+
+        self.user = User(username="Test", password="fiscaltest")
+        self.user.save()
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name="My IRA", balance=100.00)
+        self.port_1.save()
+
+        self.factory = APIRequestFactory()
+
+    def test_post_holding_bad_date(self):
+        data = {
+            "portfolio": 1,
+            "security_type": "Bond",
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": "2022-10-31"
+        }
+
+        request = self.factory.post("holding/")
+        request.user = self.user
+        request.data = data
+
+        view = HoldingList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400, resp.data)
+
+    def test_post_holding_success(self):
+        data = {
+            "portfolio": 1,
+            "security_type": "Bond",
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": "2020-10-31"
+        }
+
+        request = self.factory.post("holding/")
+        request.user = self.user
+        request.data = data
+
+        view = HoldingList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201, resp.data)
+
+class HoldingDetailViewTest(TestCase):
+    def setUp(self):
+        self.acct_type = Account_Type(type='IRA')
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type='Bond')
+        self.sec_type.save()
+
+        self.user = User(username="Test", password="fiscaltest")
+        self.user.save()
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name="My IRA", balance=100.00)
+        self.port_1.save()
+
+        self.factory = APIRequestFactory()
+
+    def test_put_holding_bad_date(self):
+        # add the holding to be updated
+        holding_data = {
+            "portfolio": self.port_1,
+            "security_type": self.sec_type,
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": datetime.datetime(2020, 12, 20)
+        }
+
+        Holding.objects.create(**holding_data)
+
+        data = {
+            "portfolio": 1,
+            "security_type": "Bond",
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": "2022-10-31"
+        }
+
+        request = self.factory.put("holding/1")
+        request.user = self.user
+        request.data = data
+
+        view = HoldingDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 400, resp.data)
+
+    def test_put_holding_success(self):
+        # add the holding to be updated
+        holding_data = {
+            "portfolio": self.port_1,
+            "security_type": self.sec_type,
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": datetime.datetime(2020, 12, 20)
+        }
+
+        Holding.objects.create(**holding_data)
+
+        data = {
+            "portfolio": 1,
+            "security_type": "Bond",
+            "ticker": "GNMA",
+            "price": 50.0,
+            "shares": 2,
+            "cost_basis": 40.0,
+            "purchase_date": "2020-10-31"
+        }
+
+        request = self.factory.put("holding/1")
+        request.user = self.user
+        request.data = data
+
+        view = HoldingDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 200, resp.data)

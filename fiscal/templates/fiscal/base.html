@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html>
 
@@ -20,6 +21,7 @@
     <link rel="stylesheet" href="{% static 'css/planning/overview.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modalStyle.css' %}">
 
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
@@ -55,7 +57,10 @@
                             <a href="#/portfolio-overview">Portfolio Overview</a>
                         </li>
                         <li>
-                            <a href="#">Manage Portfolios</a>
+                            <a href="#/portfolio-diversification">Portfolio Diversification</a>
+                        </li>
+                        <li>
+                            <a href="#/portfolio-growth">Portfolio Growth</a>
                         </li>
                         <li>
                             <a href="#">Monte Carlo</a>
@@ -74,10 +79,10 @@
                         class="dropdown-toggle">Budgeting</a>
                     <ul class="collapse list-unstyled" id="budgetSubmenu">
                         <li>
-                            <a href="#">Spending Overview</a>
+                            <a href="#/budget-overview">Spending Overview</a>
                         </li>
                         <li>
-                            <a href="#">Manage Spending</a>
+                            <a href="#">Spending Visualization</a>
                         </li>
                     </ul>
                 </li>
@@ -136,10 +141,14 @@
                 </div>
             </nav>
 
-
             <div id="insert-data-here">
 
             </div>
+            <div id="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+
+
         </div>
     </div>
 
@@ -155,17 +164,33 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"
         integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
         crossorigin="anonymous"></script>
-    <!-- jQuery Custom Scroller CDN -->
+    <!-- CDN for Chart.js, a Chart Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.js"
+        integrity="sha512-zO8oeHCxetPn1Hd9PdDleg5Tw1bAaP0YmNvPY8CwcRyUk7d7/+nyElmFrB6f7vg4f7Fv4sui1mcep8RIEShczg=="
+        crossorigin="anonymous"></script>
+        <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
 
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
-    <script src="{% static 'js/createButton.js' %}"></script>
-    <script src="{% static 'js/createTable.js' %}"></script>
+    <script src="{% static 'js/helper/createButton.js' %}"></script>
+    <script src="{% static 'js/helper/makePickList.js' %}"></script>
+    <script src="{% static 'js/helper/createTable.js' %}"></script>
+    <script src="{% static 'js/helper/days_after_update.js' %}"></script>
+    <script src="{% static 'js/helper/formMaxDate.js' %}"></script>
+    <script src="{% static 'js/currencyValidation.js' %}"></script>
+
+
+    <script src="{% static 'js/Planning/portfolio_overview_api.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
-    <script src="{% static 'js/routeFW.js' %}"></script>
+    <script src="{% static 'js/Planning/portfolio_diversification.js' %}"></script>
+    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
+    <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
+    <script src="{% static 'js/helper/routeFW.js' %}"></script>
+    <script src="{% static 'js/helper/modalFW.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -184,11 +209,16 @@
     <script>
         "use strict";
 
+        let modal = modalFW({});
+
         var myRoutes = [];
 
-        myRoutes['#/home'] = home;        
+        myRoutes['#/home'] = home;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
+        myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
+        myRoutes['#/budget-overview'] = render_budget_overview;
+        myRoutes['#/portfolio-growth'] = render_portfolio_growth;
 
         //Check if key exists
         const key = localStorage.getItem("key");

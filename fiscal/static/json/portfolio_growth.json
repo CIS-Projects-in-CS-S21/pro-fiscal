@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "portfolio_id": 1,
+        "account_type": "IRA",
+        "portfolio_name": "MyTestAccount",
+        "portfolio_description": "Just a Test",
+        "latest_balance": {
+            "id": 1,
+            "balance": 107.21,
+            "date": "03-01-2021"
+        },
+        "balances": [
+            100.00, 101.21, 103.42, 102.53, 104.68
+        ],
+        "dates": [
+            "02-20-2021", "02-22-2021", "02-24-2021", "02-26-2021", "02-28-2021"
+        ]
+    },
+    {
+        "id": 2,
+        "portfolio_id": 2,
+        "account_type": "IRA",
+        "portfolio_name": "MyTestAccount2 - Electric Boogaloo",
+        "portfolio_description": "Repeat",
+        "latest_balance": {
+            "id": 2,
+            "balance": 109.82,
+            "date": "03-08-2021"
+        },
+        "balances": [
+            100.00, 102.43, 104.62, 103.68, 106.71, 107.98, 110.85
+        ],
+        "dates": [
+            "02-20-2021", "02-23-2021", "02-25-2021", "02-27-2021", "03-02-2021", "03-04-2021", "03-06-2021"
+        ]
+    }
+]

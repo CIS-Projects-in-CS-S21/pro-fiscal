@@ -1,0 +1,54 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 4;
+    overflow: auto;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 1;
+    transition: opacity 1.25s, top 0.75s;
+}
+
+.modal div {
+    /* display: grid; */
+    grid-template-rows: auto 40px;
+    grid-template-columns: auto auto;
+    grid-gap: 5px;
+    margin: 10% auto;
+    max-width: 480px;
+    padding: 10px;
+    background-color: #F5F9F1;
+}
+
+.modalMsgArea {
+    box-shadow: 5px 5px 5px #4b4f4c;
+}
+
+.form_modal div {
+
+}
+
+.modal button {
+    grid-column: 1/ 3;
+    grid-row: 2;
+    margin: auto;
+    width: 160px;
+    height: 90%;
+}
+
+/*
+.modal INPUT {
+    margin-left: 1ex;
+    grid-row: 2;
+    margin: auto;
+    width: 160px;
+    height: 90%
+}
+*/
+
+.modal.modal-hide {
+    opacity: 0;
+}
