@@ -253,6 +253,7 @@ function render_portfolio_overview() {
             }
 
             data["portfolio"] = all_portfolios[list_id]["id"];
+            data["id"] = holdings[i]["id"];
 
             if (form.ticker.value.length > 5) {
                 let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
@@ -281,7 +282,7 @@ function render_portfolio_overview() {
             }
 
             if (errors.length === 0) {
-                portfolio_api.add_holding(data,
+                portfolio_api.update_holding(data,
                     (new_data) => {
                         holdings[i] = new_data;
                         holdings_div.remove();
