@@ -82,7 +82,7 @@
                             <a href="#/budget-overview">Spending Overview</a>
                         </li>
                         <li>
-                            <a href="#">Spending Visualization</a>
+                            <a href="#/spending-category">Spending Visualization</a>
                         </li>
                     </ul>
                 </li>
@@ -183,12 +183,13 @@
     <script src="{% static 'js/helper/formMaxDate.js' %}"></script>
     <script src="{% static 'js/currencyValidation.js' %}"></script>
 
-
     <script src="{% static 'js/Planning/portfolio_overview_api.js' %}"></script>
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_diversification.js' %}"></script>
-    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
+
+    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
+    <script src="{% static 'js/budget/Visualization.js' %}"></script>
     <script src="{% static 'js/helper/routeFW.js' %}"></script>
     <script src="{% static 'js/helper/modalFW.js' %}"></script>
 
@@ -219,6 +220,7 @@
         myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
         myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
+        myRoutes['#/spending-category'] = render_budget_visualization;
 
         //Check if key exists
         const key = localStorage.getItem("key");
