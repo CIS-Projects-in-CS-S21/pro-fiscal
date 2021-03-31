@@ -15,7 +15,8 @@ function render_budget_visualization() {
                 let expenseItems = data["expense_items"];
 
                 // console.log(expenseItems);
-                map_by_category(expenseItems);
+                let sumsCategory = map_by_category(expenseItems);
+                render_categorical_spending(sumsCategory);
             }).catch(error => {
                 status = false;
                 console.log(error);
@@ -25,12 +26,69 @@ function render_budget_visualization() {
 
     /**
      * Function that given an Array of expense items, render the visualization of the spending by category.
-     * @param {Array} expense_items Array of Expense Items associated with the user.
+     * @param {Array} sumsCategory Array of sums of different categories.
      * @throws {InvalidArgumentException} If expense is not an array, contains no items, null, etc.
      * @throws Will throw an error if null or an empty expense object is inputted.
      */
-    const render_categorical_spending = (expense_items) => {
+    const render_categorical_spending = (sumsCategory) => {
+        var ctx = document.getElementById('myChart').getContext('2d');
 
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'pie',
+
+            // The data for our dataset
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: "Categorical Spending",
+                    backgroundColor: COLOR_OPTIONS,
+                    data: sumsCategory
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: true,
+                    text: 'Your Expenses by Category'
+                },
+                legend: {
+                    display: true,
+                    position: 'right'
+                },
+                tooltips: {
+                    callbacks: {
+                        title: function (tooltipItem, data) {
+                            return data['labels'][tooltipItem[0]['index']];
+                        },
+                        label: function (tooltipItem, data) {
+                            return '$' + data['datasets'][0]['data'][tooltipItem['index']];
+                        },
+                        afterLabel: function (tooltipItem, data) {
+                            var dataset = data['datasets'][0];
+                            var percent = (dataset['data'][tooltipItem['index']] / dataset["_meta"][0]['total']) * 100;
+                            percent = percent.toFixed(2);
+                            return '(' + percent + '%)';
+                        }
+                    }
+                },
+                plugins: {
+                    datalabels: {
+                        display: false,
+                    },
+                }
+            }
+        });
+
+        // Used to remove the Chart when we exit out of the Portfolio Growth Page
+        function removeChart() {
+            chart.destroy();
+        }
+
+        window.addEventListener('hashchange', removeChart);
     }
 
     /**
@@ -61,7 +119,7 @@ function render_budget_visualization() {
             }
         }
 
-        console.log(summedData);
+        return summedData;
     }
 
     const categories = ["Housing", "Transportation", "Debt", "Insurance",
