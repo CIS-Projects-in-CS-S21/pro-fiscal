@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from modules.monte_carlo.Stock_Sim import Monte_carlo
+# from modules.monte_carlo.stock_sim import Monte_carlo
 from planning_tool.serializers import *
 
 class Classifier_API(APIView):
@@ -143,10 +143,10 @@ class Monte_carlo_API(APIView):
             try:
                 start = request.data["start"]
                 end = request.data["end"]
-                self.sim = Monte_carlo(start, end, data["tickers"], data["shares"])
-                self.sim.run_sim()
-                results = self.sim.get_results()
-                return Response(results, status.HTTP_200_OK)
+                # self.sim = Monte_carlo(start, end, data["tickers"], data["shares"])
+                # self.sim.run_sim()
+                # results = self.sim.get_results()
+                # return Response(results, status.HTTP_200_OK)
             except KeyError:
                 return Response({"Error": "Required parameter not provided"}, status.HTTP_400_BAD_REQUEST)
         else:
