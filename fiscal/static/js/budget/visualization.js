@@ -2,7 +2,6 @@ function render_budget_visualization() {
 
     const renderExpenses = (expenseItems) => {
         let sumsCategory = map_by_category(expenseItems);
-        console.log(sumsCategory);
         render_categorical_spending(sumsCategory);
     }
 
@@ -37,13 +36,12 @@ function render_budget_visualization() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                title: {
-                    display: true,
-                    text: 'Your Expenses by Category'
-                },
                 legend: {
                     display: true,
-                    position: 'right'
+                    position: 'right',
+                    labels: {
+                        fontSize: 16
+                    }
                 },
                 tooltips: {
                     callbacks: {
@@ -132,7 +130,8 @@ function render_budget_visualization() {
     let content = document.createElement("div");
 
     let title = document.createElement("h3");
-    title.innerText = "Your Expenses by Category";
+    title.innerText = "Your Spending by Expense Category";
+    title.classList.add('text-center');
 
     let errorDOM = document.createElement("div");
     errorDOM.classList.add("error");
