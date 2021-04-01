@@ -1,8 +1,12 @@
 function render_budget_visualization() {
 
     const renderExpenses = (expenseItems) => {
-        let sumsCategory = map_by_category(expenseItems);
-        render_categorical_spending(sumsCategory);
+        if (expenseItems.length > 0) {
+            let sumsCategory = map_by_category(expenseItems);
+            render_categorical_spending(sumsCategory);
+        } else {
+            errorDOM.innerText = "You have no Expense Items added. Please add one in the Spending Overview";
+        }
     }
 
     const obtainExpenses = () => {
