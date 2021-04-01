@@ -1,5 +1,5 @@
 import unittest
-from monte_carlo import Monte_carlo
+from Stock_Sim import Monte_carlo
 
 class Monte_carlo_test(unittest.TestCase):
     """
