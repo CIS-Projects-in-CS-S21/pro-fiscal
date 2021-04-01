@@ -41,7 +41,8 @@ class Portfolio_Sim:
 
     """
 
-    def __init__(self, retire_year, end_year, portfolio_allocation, portfolio_values, monthly_withdrawal, inflation, iterations=1000):
+    def __init__(self, retire_year, end_year, portfolio_allocation, portfolio_values,
+                 contribution, monthly_withdrawal, inflation, iterations=1000, history_length=20):
         """
         Initializes the Monte_carlo object
 
@@ -50,22 +51,26 @@ class Portfolio_Sim:
             end_year (int): The final time state of the simulation
             portfolio_allocation (dict): Percentage weights of different portfolio categories
             portfolio_values (dict): Current value of different portfolio categories
-            monthly_withdrawal (int): The amount withdrawn monthly from the portfolio
+            contribution (int): The amount contributed monthly before retirement
+            monthly_withdrawal (int): The amount withdrawn monthly from the portfolio after retirement
             inflation (float): An inflation assumption
             iterations (int): The number of iterations the simulation will run for
         """
         self.__iterations = iterations
-        self.__sim_results = {}
+        self.__sim_results = []
         self.__last_prices = []
         self.__start = dt.date.today()
-        self.__retire_ = dt.date(retire_year, 1, 1)
+        self.__retire = dt.date(retire_year, 1, 1)
         self.__end = dt.date(end_year, 12, 31)
         self.__total_years = end_year - self.__start.year
         self.__portfolio_allocation = portfolio_allocation
         self.__portfolio_values = portfolio_values
         self.__inflation = inflation
+        self.__contribution = contribution
         self.__monthly_withdrawal = monthly_withdrawal
         self.__index_trackers = {"Stocks": "^GSPC", "Bonds": "AGG"}
+        self.__history_length = history_length
+
         self.__stats = self.__get_historical_data()
 
     def run_sim(self):
@@ -73,17 +78,33 @@ class Portfolio_Sim:
         Run the Monte_carlo simulation for the user
         """
 
-        rng = pd.date_range(start=self.__start, end=self.__end, freq='W')
+        before_retirement = pd.date_range(start=self.__start, end=self.__retire, freq='M')
+        after_retirement = pd.date_range(start=self.__retire, end=self.__end, freq='M')
 
-        values = pd.Series(self.__portfolio_values, dtype='Float64')
-        allocations = pd.Series(self.__portfolio_allocation, dtype='Float64')
+        for i in range(self.__iterations):
+            # Reset to initial values for the iteration
+            values = pd.Series(self.__portfolio_values, dtype='Float64')
+            allocations = pd.Series(self.__portfolio_allocation, dtype='Float64')
 
-        portfolio_net = np.zeros(len(rng), np.int64)
-        for j, date in enumerate(rng):
-            for k in range(len(self.__stats)):
-                portfolio_net[j] += values[k] * (1 + np.random.normal(self.__stats["mean"][k], self.__stats["std"][k]))
-                # portfolio_net[j] += (values[k] / allocations[k])
-        self.__sim_results = {"portfolio_values": list(portfolio_net)}
+
+            for j in range(len(before_retirement)):
+                for k in range(len(self.__stats)):
+                    # Geometric Brownian Motion: S_i+1 = S_i(mu*dt + sigma * normal * sqrt(dt) + S_i
+                    values[k] += values[k] * (self.__stats["mean"][k] + np.random.normal(0, 1) * self.__stats["std"][k])
+
+                    # add monthly contribution
+                    values[k] += self.__contribution * allocations[k]
+
+
+            for j in range(len(after_retirement)):
+                for k in range(len(self.__stats)):
+                    # Geometric Brownian Motion: S_i+1 = S_i(mu*dt + sigma * normal * sqrt(dt) + S_i
+                    values[k] += values[k] * (self.__stats["mean"][k] + np.random.normal(0, 1) * self.__stats["std"][k])
+
+                    # TODO: This is a naive monthly withdrawal implementation that pulls from both stocks and bonds
+                    values[k] -= self.__monthly_withdrawal * allocations[k]
+
+            self.__sim_results.append(values.sum())
 
 
     def get_results(self):
@@ -103,13 +124,13 @@ class Portfolio_Sim:
 
         histDf = pd.DataFrame()
         for key,value in self.__index_trackers.items():
-            prices = web.DataReader(value, 'yahoo', dt.date.today() - dt.timedelta(days=20*365),
+            prices = web.DataReader(value, 'yahoo', dt.date.today() - dt.timedelta(days=self.__history_length*365),
                                     dt.date.today())['Adj Close']
             histDf[key] = pd.Series(prices)
 
         # print(histDf)
         # Resample the price series to be weekly
-        histDf = histDf.resample('W', label='left').first()
+        histDf = histDf.resample('M', label='left').first()
         # print(histDf)
         historical_returns = histDf.pct_change(fill_method='ffill')
         # print(historical_returns)
@@ -136,7 +157,9 @@ class Portfolio_Sim:
 
 if __name__ == "__main__":
     # function to test if the class works if run as main
-    monte = Portfolio_Sim(2022, 2030, {"Stocks": 0.6, "Bond": 0.4}, {"Stocks": 600, "Bonds": 400}, None, 0.02)
+    monte = Portfolio_Sim(2022, 2030, {"Stocks": 0.6, "Bond": 0.4}, {"Stocks": 600, "Bonds": 400}, 50, 5, 0.02)
     monte.run_sim()
     results = monte.get_results()
-    print(results["portfolio_values"][-1])
+    plt.hist(results, 50)
+    plt.show()
+    # print(results)
