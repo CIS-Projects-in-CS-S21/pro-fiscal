@@ -1,27 +1,13 @@
 function render_budget_visualization() {
 
+    const renderExpenses = (expenseItems) => {
+        let sumsCategory = map_by_category(expenseItems);
+        console.log(sumsCategory);
+        render_categorical_spending(sumsCategory);
+    }
+
     const obtainExpenses = () => {
-        let status = false;
-
-        fetch("/static/json/expense_test.json")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
-                status = !status;
-                return response.json();
-            })
-            .then((data) => {
-                let expenseItems = data["expense_items"];
-
-                // console.log(expenseItems);
-                let sumsCategory = map_by_category(expenseItems);
-                render_categorical_spending(sumsCategory);
-            }).catch(error => {
-                status = false;
-                console.log(error);
-                errorDOM.innerText = error;
-            })
+        budget_api.getAllExpenseItems(renderExpenses, errorDOM);
     };
 
     /**
@@ -107,13 +93,13 @@ function render_budget_visualization() {
 
             if (itemsByCategory.length > 1) {
                 let sum = itemsByCategory.reduce((a, b) => ({
-                    sum: a["cost"] + b["cost"]
+                    sum: a["amount"] + b["amount"]
                 }));
 
                 summedData.push(sum.sum);
             } else if (itemsByCategory.length === 1) {
                 let item = itemsByCategory[0];
-                summedData.push(item["cost"]);
+                summedData.push(item["amount"]);
             } else {
                 summedData.push(0);
             }
@@ -148,9 +134,13 @@ function render_budget_visualization() {
     let title = document.createElement("h3");
     title.innerText = "Your Expenses by Category";
 
+    let errorDOM = document.createElement("div");
+    errorDOM.classList.add("error");
+
     obtainExpenses();
 
     content.appendChild(title);
+    content.appendChild(errorDOM);
 
     return content;
 }
