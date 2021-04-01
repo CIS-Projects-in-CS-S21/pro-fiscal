@@ -1,33 +1,4 @@
 /**
- * Function that fetches expense items from the database based on the provided user id.
- * @param {int} user_id ID of the user.
- * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
- * @returns {Array} Collection of budget items associated with the user.
- */
-const getExpenseData = (appendDOM, successHandler, errorDOM) => {
-    let status = false;
-
-    fetch("/static/json/expense_test.json")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-            status = !status;
-            return response.json();
-        })
-        .then((data) => {
-            let expenseItems = data["expense_items"];
-
-            let table = successHandler(expenseItems);
-            appendDOM.appendChild(table);
-        }).catch(error => {
-            status = false;
-            console.log(error);
-            errorDOM.innerText = error;
-        })
-};
-
-/**
  * Function that creates and renders the form for adding an item.
  * @returns {Form} Returns an expense item form for the user to input.
  */
@@ -201,7 +172,7 @@ function render_budget_overview() {
 
         let form = renderBudgetForm(function () {
             let data = {};
-            
+
             data["purchase_date"] = form.purchase_date.value;
             data["transaction"] = form.details.value;
             data["cost"] = parseFloat(form.cost.value);
@@ -251,7 +222,7 @@ function render_budget_overview() {
         }
 
         all_expenses = expenses;
-        
+
         for (let i = 0; i < expenses.length; i++) {
             let element = expenses[i];
 
@@ -276,9 +247,9 @@ function render_budget_overview() {
             });
 
             cleaner_expenses.push({
-                "Purchase Date": element["purchase_date"],
-                "Transaction Detail": element["transaction"],
-                "Cost": element["cost"],
+                "Purchase Date": element["transaction_date"],
+                "Transaction Detail": element["description"],
+                "Cost": element["amount"],
                 "Category": element["category"],
                 "Update": update_button,
                 "Delete": delete_button
@@ -296,6 +267,11 @@ function render_budget_overview() {
         return expense_container;
     }
 
+    function prepareExpenses(expenseItems) {
+        let table = handleUserExpenses(expenseItems);
+        expense_view.appendChild(table);
+    }
+
     function render() {
         expense_view.innerHTML = "";
         all_expenses = [];
@@ -306,7 +282,7 @@ function render_budget_overview() {
             text: "Add Expense"
         });
 
-        sortingOrder = "Purchase Date"
+        sortingOrder = "Purchase Date";
 
         createExpenseButton.addEventListener("click", function () {
             handleCreateExpense(expense_view);
@@ -316,7 +292,9 @@ function render_budget_overview() {
         expense_view.appendChild(createExpenseButton);
         expense_view.appendChild(document.createElement("p"));
 
-        getExpenseData(expense_view, handleUserExpenses, errorDOM);
+        budget_api.getAllExpenseItems(prepareExpenses, errorDOM);
+
+        // getExpenseData(expense_view, handleUserExpenses, errorDOM);
     }
 
     /* Main starts here */
