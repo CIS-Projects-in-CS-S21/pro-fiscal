@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from modules.monte_carlo.portfolio_sim import PortfolioSim
 from planning_tool.serializers import *
+from utils.serializers import *
 
 import threading
 
@@ -134,7 +135,12 @@ class Monte_carlo_API(APIView):
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
-        return Response(data="A-OK", status=status.HTTP_200_OK)
+        try:
+            results = MonteResults.objects.get(user_id=request.user.pk)
+            monte_serializer = MonteResultsSerializer(results)
+            return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
+        except MonteResults.DoesNotExist:
+            return Response(data={"Error": "No Monte Carlo results for this account found"}, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         """
@@ -213,7 +219,6 @@ class Monte_carlo_API(APIView):
 
 
 def initiate_sim(valid_data):
-    print(valid_data)
     retire_year = valid_data["retire_year"]
     end_year = valid_data["end_year"]
     inflation = valid_data["inflation"]
@@ -227,8 +232,11 @@ def initiate_sim(valid_data):
         retirement_allocation = None
 
     sim = PortfolioSim(retire_year, end_year, port_values, contribution, withdrawal, inflation,
-                       port_allocations, retirement_allocation)
+                       port_allocations, retirement_allocation, iterations=10)
     sim.run_sim()
     results = sim.get_results()
-    print(results)
+    # print(results)
     # Store in DB
+    obj, created = MonteResults.objects.update_or_create(
+        user=valid_data["user"], defaults={"user": valid_data["user"], "results": {"future_values": results}})
+    return created
