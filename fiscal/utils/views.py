@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-# from modules.monte_carlo.stock_sim import Monte_carlo
+from modules.monte_carlo.portfolio_sim import PortfolioSim
 from planning_tool.serializers import *
+
 
 class Classifier_API(APIView):
     """
@@ -46,6 +47,7 @@ class Classifier_API(APIView):
             boolean: confirmation if the update to the category was successful
         """
         pass
+
 
 class Cluster_API(APIView):
     """
@@ -108,6 +110,7 @@ class Cluster_API(APIView):
         """
         pass
 
+
 class Monte_carlo_API(APIView):
     """
     Facilitates data transfer from the Monte_carlo class
@@ -119,12 +122,6 @@ class Monte_carlo_API(APIView):
             simulation (value)
     """
     permission_classes = [permissions.IsAuthenticated]
-
-    # def __init__(self):
-    #     """
-    #     Initializes the Monte_carlo_API object
-    #     """
-    #     pass
 
     def get(self, request):
         """
@@ -138,20 +135,24 @@ class Monte_carlo_API(APIView):
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
-        if request.user.is_authenticated:
-            data = self.__aggregate_data(request.user)
-            try:
-                start = request.data["start"]
-                end = request.data["end"]
-                # self.sim = Monte_carlo(start, end, data["tickers"], data["shares"])
-                # self.sim.run_sim()
-                # results = self.sim.get_results()
-                # return Response(results, status.HTTP_200_OK)
-            except KeyError:
-                return Response({"Error": "Required parameter not provided"}, status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"Error": "User is not logged in"}, status.HTTP_401_UNAUTHORIZED)
-
+        data = self.__aggregate_data(request.user)
+        try:
+            retirement = request.data["retirement_date"]
+            end_year = request.data["end_year"]
+            inflation = request.data["inflation"]
+            contribution = request.data["contribution"]
+            withdrawal = request.data["monthly_withdrawal"]
+            if request.data["retirement_allocation"]:
+                retirement_allocation = request.data["retirement_allocation"]
+            else:
+                retirement_allocation = None
+            sim = PortfolioSim(retirement, end_year, data["values"], contribution, withdrawal, inflation,
+                               data["allocations"], retirement_allocation)
+            sim.run_sim()
+            results = sim.get_results()
+            return Response(results, status.HTTP_200_OK)
+        except KeyError as e:
+            return Response({"Error": "Required parameter not provided - " + e}, status.HTTP_400_BAD_REQUEST)
 
     def __aggregate_data(self, user):
         """
@@ -167,12 +168,19 @@ class Monte_carlo_API(APIView):
         """
         portfolios = Portfolio.objects.filter(user=user)
         port_serializer = PortfolioSerializer(portfolios, many=True)
-        tickers = []
-        shares = []
+        values = {"Stocks": 0, "Bonds": 0}
+        total = 0
         for portfolio in port_serializer.data:
             holdings = Holding.objects.filter(pk__in=portfolio["holdings"])
             hold_serializer = HoldingSerializer(holdings, many=True)
             for holding in hold_serializer.data:
-                tickers.append(holding["ticker"])
-                shares.append(holding["shares"])
-        return {"tickers": tickers, "shares": shares}
+                if holding.security_type == "Equities":
+                    value = holding.price * holding.shares
+                    values["Stocks"] += value
+                    total += value
+                elif holding.security_type == "Fixed Income Securities":
+                    value = holding.price * holding.shares
+                    values["Bonds"] += value
+                    total += value
+        allocations = {"Stocks": values["Stocks"] / total, "Bonds": values["Bonds"] / total}
+        return {"values": values, "allocations": allocations}
