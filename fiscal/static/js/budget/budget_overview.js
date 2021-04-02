@@ -97,12 +97,11 @@ function render_budget_overview() {
             "Utilities", "Medical/Healthcare", "Savings", "Retirement", "Education",
             "Groceries/Household", "Entertainment", "Essentials", "Non-Essentials", "Other"];
 
+        form.categories = makePickList(categories);
+
         if (disablePickList) {
-            form.categories = makePickList(["Automatically Created"]);
             form.categories.disabled = true;
-            form.categories.value = "Automatically Created";
-        } else {
-            form.categories = makePickList(categories);
+            form.categories.value = "Other";
         }
 
         form.categories.classList.add("form-control");
@@ -152,13 +151,53 @@ function render_budget_overview() {
             data["amount"] = parseFloat(form.amount.value);
             data["category"] = form.categories.value;
 
-            input_item(data, (new_data) => {
-                all_expenses.push(new_data);
-                let expenses = tableBody.parentElement.parentElement;
-                expenses.remove();
-                expenses = handleUserExpenses(all_expenses);
-                container.appendChild(expenses);
-            }, errorDOM);
+            /*
+            if (form.categories.value !== "Automatically Created") {
+                let errorMsg = "I don't know how you managed this, but your Category should be predetermined by the Budget Classifier, not manually selected.";
+                errors.push(errorMsg);
+            }
+            */
+
+            /* Error Handling takes place here */
+            if (form.description.value === undefined || form.description.value === '') {
+                let errorMsg = "Please add a description for your Expense Item!";
+                errors.push(errorMsg);
+            }
+
+            if (form.transaction_date.value === '') {
+                let errorMsg = "You have to add a Purchase Date for your Expense Item.";
+                errors.push(errorMsg);
+            }
+
+            input_date = new Date(form.transaction_date.value);
+            let d = new Date().setHours(0, 0, 0, 0);
+
+            if (days_after_update(d, input_date) < 0) {
+                let errorMsg = "You cannot pick a date from the future.";
+                errors.push(errorMsg);
+            }
+
+            if (form.amount.value === undefined || form.amount.value === '' || isNaN(form.amount.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.amount.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            console.log(data);
+
+            if (errors.length === 0) {
+                budget_api.createExpenseItem(data, (new_data) => {
+                    all_expenses.push(new_data);
+                    let expenses = tableBody.parentElement.parentElement;
+                    expenses.remove();
+                    expenses = handleUserExpenses(all_expenses);
+                    container.appendChild(expenses);
+                }, errorDOM);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             form.container.remove();
         }, true);

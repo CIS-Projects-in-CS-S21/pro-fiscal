@@ -19,7 +19,7 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
     fetch("/expense/expense/", init)
         .then((response) => {
             if (!response.ok) {
-                throw new Error("" + response.statusText)
+                response.text().then(text => { throw Error(text) });
             }
             status = true;
             return response.json();
@@ -55,11 +55,9 @@ budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
     fetch("/expense/expense/", init)
         .then((response) => {
 
-            /*
             if (!response.ok) {
-                throw new Error("" + response.statusText)
+                response.text().then(text => { throw Error(text) });
             }
-            */
 
             status = true;
             return response.json();
@@ -89,11 +87,11 @@ budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
 
     fetch("/expense/expense/" + data["id"], init)
         .then((response) => {
-            /*
+
             if (!response.ok) {
-                throw new Error("" + response.statusText)
+                response.text().then(text => { throw Error(text) });
             }
-            */
+
             status = true;
             return response.json();
         }).then((data) => {
@@ -120,12 +118,12 @@ budget_api.deleteExpenseItem = function (expense_id, successHandler, errorDOM) {
 
     fetch("/expense/expense/" + expense_id, init)
         .then((response) => {
-            
+
             if (!response.ok) {
                 response.text().then(text => { throw Error(text) });
                 // throw new Error("" + response.statusText)
             }
-            
+
             status = true;
         }).then(() => {
             successHandler();
