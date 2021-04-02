@@ -104,6 +104,10 @@ class PortfolioSim:
                 withdrawal += withdrawal * (self.__inflation / 12)
 
             self.__sim_results.append(round(values.sum(), 2))
+        self.__store_results()
+
+    def __store_results(self):
+        pass
 
     def get_results(self):
         """

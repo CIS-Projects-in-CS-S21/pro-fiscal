@@ -1,9 +1,10 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from modules.monte_carlo.portfolio_sim import PortfolioSim
 from planning_tool.serializers import *
+
+import threading
 
 
 class Classifier_API(APIView):
@@ -121,38 +122,59 @@ class Monte_carlo_API(APIView):
             of the users' names (key) and the results of their monte_carlo
             simulation (value)
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]        
 
     def get(self, request):
         """
-         Gets the results of the monte_carlo simulation
+        Gets the results of the monte_carlo simulation
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (string): The name of the user who's monte_carlo sim results
-                are to be fetched
 
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
-        data = self.__aggregate_data(request.user)
-        try:
-            retirement = request.data["retirement_date"]
-            end_year = request.data["end_year"]
-            inflation = request.data["inflation"]
-            contribution = request.data["contribution"]
-            withdrawal = request.data["monthly_withdrawal"]
-            if request.data["retirement_allocation"]:
-                retirement_allocation = request.data["retirement_allocation"]
-            else:
-                retirement_allocation = None
-            sim = PortfolioSim(retirement, end_year, data["values"], contribution, withdrawal, inflation,
-                               data["allocations"], retirement_allocation)
-            sim.run_sim()
-            results = sim.get_results()
-            return Response(results, status.HTTP_200_OK)
-        except KeyError as e:
-            return Response({"Error": "Required parameter not provided - " + e}, status.HTTP_400_BAD_REQUEST)
+        return Response(data="A-OK", status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """
+        Gets the results of the monte_carlo simulation
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: results of the monte_carlo simulation in JSON format
+        """
+        user_data = self.__aggregate_data(request.user)
+        valid, data = self.__is_valid(request.data)
+        # print(data)
+        if valid:
+            data.update(user_data)
+            data.update({"user": request.user})
+            sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+            sim_thread.start()
+            return Response(data="Simulation Initiated", status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+    def __is_valid(self, request_data):
+        valid_data = {"retire_year": None,
+                      "end_year": None,
+                      "contribution": None,
+                      "monthly_withdrawal": None,
+                      "inflation": None,
+                      "retirement_allocation": None
+                      }
+        resp = {}
+        valid = True
+        for key in valid_data:
+            try:
+                resp[key] = request_data[key]
+            except KeyError:
+                resp.update({key: str(key) + " is a required field"})
+                valid = False
+        return valid, resp
 
     def __aggregate_data(self, user):
         """
@@ -174,13 +196,39 @@ class Monte_carlo_API(APIView):
             holdings = Holding.objects.filter(pk__in=portfolio["holdings"])
             hold_serializer = HoldingSerializer(holdings, many=True)
             for holding in hold_serializer.data:
-                if holding.security_type == "Equities":
-                    value = holding.price * holding.shares
+                # print(holding)
+                if holding["security_type"] == "Equity":
+                    value = eval(holding["price"]) * eval(holding["shares"])
                     values["Stocks"] += value
                     total += value
-                elif holding.security_type == "Fixed Income Securities":
-                    value = holding.price * holding.shares
+                elif holding["security_type"] == "Fixed Income Securities":
+                    value = eval(holding["price"]) * eval(holding["shares"])
                     values["Bonds"] += value
                     total += value
-        allocations = {"Stocks": values["Stocks"] / total, "Bonds": values["Bonds"] / total}
+        if total > 0:
+            allocations = {"Stocks": values["Stocks"] / total, "Bonds": values["Bonds"] / total}
+        else:
+            allocations = {"Stocks": 0, "Bonds": 0}
         return {"values": values, "allocations": allocations}
+
+
+def initiate_sim(valid_data):
+    print(valid_data)
+    retire_year = valid_data["retire_year"]
+    end_year = valid_data["end_year"]
+    inflation = valid_data["inflation"]
+    contribution = valid_data["contribution"]
+    withdrawal = valid_data["monthly_withdrawal"]
+    port_values = valid_data["values"]
+    port_allocations = valid_data["allocations"]
+    if valid_data["retirement_allocation"]:
+        retirement_allocation = valid_data["retirement_allocation"]
+    else:
+        retirement_allocation = None
+
+    sim = PortfolioSim(retire_year, end_year, port_values, contribution, withdrawal, inflation,
+                       port_allocations, retirement_allocation)
+    sim.run_sim()
+    results = sim.get_results()
+    print(results)
+    # Store in DB
