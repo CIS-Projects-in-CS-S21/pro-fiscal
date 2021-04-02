@@ -35,7 +35,7 @@ portfolio_api.get_all_portfolios = function (successHandler, error_elem) {
 }
 
 /**
- * Function that return user a single portfolio.
+ * Function that return a single portfolio to the user.
  * @param {int} portfolio_id the user identification number
  * @throws {InvalidArgumentException} when the user enter no value id.
  * @returns {Array} arrays of portfolios
