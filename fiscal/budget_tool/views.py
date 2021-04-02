@@ -92,7 +92,12 @@ class ExpenseDetail(APIView):
             Response: JSON formatted data and HTTP status
         """
         # request.data["expense_id"] = pk
-        expense_serializer = ExpenseSerializer(data=request.data)
+        request.data["user"] = request.user.pk
+
+        # expense_serializer = ExpenseSerializer(data=request.data)
+        expense = self.get_object(pk)
+        expense_serializer = ExpenseSerializer(expense, data=request.data)
+
         if expense_serializer.is_valid():
             expense_serializer.save()
             return Response(expense_serializer.data, status=status.HTTP_201_CREATED)

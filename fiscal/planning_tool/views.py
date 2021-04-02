@@ -234,7 +234,7 @@ class HoldingDetail(APIView):
         holding_serializer = HoldingSerializer(data=request.data)
         if holding_serializer.is_valid():
             input_date = holding_serializer.validated_data["purchase_date"]
-            if input_date < datetime.date.today():
+            if input_date <= datetime.date.today():
                 holding_serializer.save()
                 return Response(holding_serializer.data, status=status.HTTP_200_OK)
             else:
@@ -245,7 +245,7 @@ class HoldingDetail(APIView):
     def delete(self, request, pk):
         holding = self.get_object(pk)
         holding.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT);
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AccountTypeList(generics.ListAPIView):
