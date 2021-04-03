@@ -164,7 +164,7 @@ function render_portfolio_growth() {
             datasets.push({
                 label: item["name"],
                 backgroundColor: colors[i],
-                borderColor: colors[i],
+                borderColor: colors[i % colors.length],
                 data: chartBalanceData[i],
                 order: (i + 1)
             });

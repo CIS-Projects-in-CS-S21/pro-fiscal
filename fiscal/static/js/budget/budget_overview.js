@@ -1,6 +1,8 @@
 /**
  * Function that fetches expense items from the database based on the provided user id.
- * @param {int} user_id ID of the user.
+ * @param {DOMElement} appendDOM Element to render the component in.
+ * @param {Function} successHandler Function to execute when you successfully retrieve the Expense Data.
+ * @param {DOMElement} errorDOM Element to render error messages to the component.
  * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
  * @returns {Array} Collection of budget items associated with the user.
  */
