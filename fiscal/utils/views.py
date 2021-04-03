@@ -5,6 +5,7 @@ from modules.monte_carlo.portfolio_sim import PortfolioSim
 from planning_tool.serializers import *
 from utils.serializers import *
 from django.db import transaction
+from django.utils.timezone import now
 import threading
 import datetime
 
@@ -170,13 +171,13 @@ class Monte_carlo_API(APIView):
             elif not query.running:
                 entry = MonteResults.objects.select_for_update(nowait=True).filter(user=request.user)
                 with transaction.atomic():
-                    entry.update(running=True)
+                    entry.update(running=True, date=now())
                 sim_thread = threading.Thread(target=initiate_sim, args=(data,))
                 sim_thread.start()
                 return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
             elif query.running:
                 # Current simulation running status is invalid
-                if (datetime.datetime.utcnow() - query.date) > datetime.timedelta(minutes=15):
+                if (now() - query.date) > datetime.timedelta(minutes=15):
                     sim_thread = threading.Thread(target=initiate_sim, args=(data,))
                     sim_thread.start()
                     return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
