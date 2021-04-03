@@ -4,8 +4,9 @@ from rest_framework import status, permissions
 from modules.monte_carlo.portfolio_sim import PortfolioSim
 from planning_tool.serializers import *
 from utils.serializers import *
-
+from django.db import transaction
 import threading
+import datetime
 
 
 class Classifier_API(APIView):
@@ -137,8 +138,11 @@ class Monte_carlo_API(APIView):
         """
         try:
             results = MonteResults.objects.get(user_id=request.user.pk)
-            monte_serializer = MonteResultsSerializer(results)
-            return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
+            if results.running:
+                return Response(data={"detail": "Simulation in progress"}, status=status.HTTP_202_ACCEPTED)
+            else:
+                monte_serializer = MonteResultsSerializer(results)
+                return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
         except MonteResults.DoesNotExist:
             return Response(data={"Error": "No Monte Carlo results for this account found"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,9 +162,28 @@ class Monte_carlo_API(APIView):
         if valid:
             data.update(user_data)
             data.update({"user": request.user})
-            sim_thread = threading.Thread(target=initiate_sim, args=(data,))
-            sim_thread.start()
-            return Response(data="Simulation Initiated", status=status.HTTP_202_ACCEPTED)
+            query, created = MonteResults.objects.get_or_create(user=request.user, defaults={"running": True})
+            if created:
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
+            elif not query.running:
+                entry = MonteResults.objects.select_for_update(nowait=True).filter(user=request.user)
+                with transaction.atomic():
+                    entry.update(running=True)
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
+            elif query.running:
+                # Current simulation running status is invalid
+                if (datetime.datetime.utcnow() - query.date) > datetime.timedelta(minutes=15):
+                    sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                    sim_thread.start()
+                    return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(data={"detail": "Simulation in progress"}, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(data={"Error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
@@ -232,11 +255,12 @@ def initiate_sim(valid_data):
         retirement_allocation = None
 
     sim = PortfolioSim(retire_year, end_year, port_values, contribution, withdrawal, inflation,
-                       port_allocations, retirement_allocation, iterations=10)
+                       port_allocations, retirement_allocation, iterations=1000)
     sim.run_sim()
     results = sim.get_results()
     # print(results)
     # Store in DB
-    obj, created = MonteResults.objects.update_or_create(
-        user=valid_data["user"], defaults={"user": valid_data["user"], "results": {"future_values": results}})
-    return created
+    entry = MonteResults.objects.get(user=valid_data["user"])
+    entry.results = {"future_values": results}
+    entry.running = False
+    entry.save(update_fields=['results', 'running'])
