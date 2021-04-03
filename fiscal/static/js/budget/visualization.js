@@ -57,7 +57,7 @@ function render_budget_visualization() {
                         },
                         afterLabel: function (tooltipItem, data) {
                             var dataset = data['datasets'][0];
-                            var percent = (dataset['data'][tooltipItem['index']] / dataset["_meta"][0]['total']) * 100;
+                            var percent = (dataset['data'][tooltipItem['index']] / allExpenseSum) * 100;
                             percent = percent.toFixed(2);
                             return '(' + percent + '%)';
                         }
@@ -94,14 +94,19 @@ function render_budget_visualization() {
             });
 
             if (itemsByCategory.length > 1) {
-                let sum = itemsByCategory.reduce((a, b) => ({
-                    sum: a["amount"] + b["amount"]
-                }));
 
-                summedData.push(sum.sum);
+                let sum = 0;
+
+                for (let j = 0; j < itemsByCategory.length; j++) {
+                    sum += parseFloat(itemsByCategory[j]["amount"]);
+                }
+
+                summedData.push(sum);
+                allExpenseSum += sum;
             } else if (itemsByCategory.length === 1) {
                 let item = itemsByCategory[0];
-                summedData.push(item["amount"]);
+                summedData.push(parseFloat(item["amount"]));
+                allExpenseSum += parseFloat(item["amount"]);
             } else {
                 summedData.push(0);
             }
@@ -130,6 +135,8 @@ function render_budget_visualization() {
         "rgb(203, 0, 40)", /* Red Dark */
         "rgb(103, 76, 255)", /* Indigo Light */
     ];
+
+    let allExpenseSum = 0;
 
     let content = document.createElement("div");
 
