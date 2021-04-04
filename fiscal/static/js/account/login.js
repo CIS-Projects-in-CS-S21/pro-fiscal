@@ -58,6 +58,7 @@ function logoutInterface() {
         postLogout().then(resp => {
             console.log(resp)
             localStorage.removeItem("key")
+            localStorage.removeItem("username");
             window.location.replace("/")
         });
     }

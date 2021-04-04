@@ -153,6 +153,7 @@ function handleLoginSwitch() {
             const key = resp_data.key;
             //save the key
             localStorage.setItem("key", key);
+            localStorage.setItem("username", username);
             window.location.replace("/")
         }
         else{

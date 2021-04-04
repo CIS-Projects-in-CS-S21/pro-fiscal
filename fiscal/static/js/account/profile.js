@@ -4,8 +4,8 @@
  * @param {string} password The password the user wants to update for their account.
  * @returns {boolean} Verifies whether the inputted email is in the database.
  */
-function update_user_credentials (email, password) {
-    
+function update_user_credentials(email, password) {
+
 }
 
 /**
@@ -16,14 +16,120 @@ function update_user_credentials (email, password) {
  * @throws Will throw an error if either the questions or the answers arrays contain null, NaN, etc.
  * @throws If the length of the questions and the answers arrays are not matching.
  */
-function update_security_questions (questions, answers) {
-    
+function update_security_questions(questions, answers) {
+
 }
 
 /**
  * Function that toggles the advanced setting on and off.
  * @returns {boolean} Returns the status of the advanced setting.
  */
-function toggle_advanced_setting () {
-    
+function toggle_advanced_setting() {
+
+}
+
+function userProfile() {
+
+    function renderUpdatePasswordForm(saveFunc, cancelFunc) {
+        let form = {};
+
+        form.container = document.createElement("div");
+
+        let title = document.createElement("h2");
+        title.innerText = "Update Password";
+        title.classList.add("text-center");
+
+        let label_password1 = document.createElement("label");
+        label_password1.innerText = "Password";
+        form.new_password1 = document.createElement('input');
+        form.new_password1.type = 'text';
+        form.new_password1.classList.add("form-control");
+
+        let label_password2 = document.createElement("label");
+        label_password2.innerText = "Confirm Password";
+        form.new_password2 = document.createElement('input');
+        form.new_password2.type = 'text';
+        form.new_password2.classList.add("form-control");
+
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
+
+        let buttonGroupSubmit = document.createElement("div");
+        buttonGroupSubmit.classList.add("btn-group", "mr-auto");
+
+        let buttonGroupCancel = document.createElement("div");
+        buttonGroupCancel.classList.add("btn-group", "ml-auto");
+
+        form.submit = createButton({
+            type: "btn-success",
+            text: "Submit",
+            onclickhandler: saveFunc
+        });
+
+        form.submit.classList.add("mr-2");
+
+        let cancel = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: cancelFunc
+        });
+
+        cancel.classList.add("mr-2");
+
+        form.container.appendChild(title);
+        form.container.appendChild(label_password1);
+        form.container.appendChild(form.new_password1);
+        form.container.appendChild(label_password2);
+        form.container.appendChild(form.new_password2);
+        form.container.appendChild(document.createElement("br"));
+
+        buttonGroupSubmit.appendChild(form.submit);
+        buttonGroupCancel.appendChild(cancel);
+
+        buttonDiv.appendChild(buttonGroupSubmit);
+        buttonDiv.appendChild(buttonGroupCancel);
+
+        form.container.appendChild(buttonDiv);
+
+        return form;
+    }
+
+    let profileDiv = document.createElement("div");
+
+    let username = localStorage.getItem("username");
+
+    let header = document.createElement("h3");
+    header.innerHTML = "Profile for User <strong>" + username + "</strong>";
+
+    let dashboard = document.createElement("div");
+    dashboard.classList.add("dashboard");
+
+    let accountDateHolder = document.createElement("p");
+    accountDateHolder.innerText = "Created Account on (Date)";
+
+    let updateAccountButton = createButton({
+        type: "btn-info",
+        text: "Update your Password"
+    });
+
+    updateAccountButton.addEventListener("click", function () {
+        let form = renderUpdatePasswordForm(function () {
+            modal.hideModal();
+            console.log("Hello World");
+        }, function () {
+            modal.hideModal();
+        })
+
+        modal.renderForm(form.container);
+    });
+
+    dashboard.appendChild(header);
+    dashboard.appendChild(accountDateHolder);
+
+
+    profileDiv.appendChild(modal);
+    profileDiv.appendChild(dashboard);
+    profileDiv.appendChild(updateAccountButton);
+
+    return profileDiv;
 }

@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{% static 'css/planning/overview.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account/profile.css' %}">
     <link rel="stylesheet" href="{% static 'css/modalStyle.css' %}">
 
     <!-- Scrollbar Custom CSS -->
@@ -125,7 +126,7 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Profile</a>
+                                <a class="nav-link" href="#/profile">Profile</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Glossary</a>
@@ -177,6 +178,8 @@
     <script src="{% static 'js/home.js' %}"></script>
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
+    <script src="{% static 'js/account/profile.js' %}"></script>
+
     <script src="{% static 'js/helper/createButton.js' %}"></script>
     <script src="{% static 'js/helper/makePickList.js' %}"></script>
     <script src="{% static 'js/helper/createTable.js' %}"></script>
@@ -218,6 +221,7 @@
         var myRoutes = [];
 
         myRoutes['#/home'] = home;
+        myRoutes['#/profile'] = userProfile;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
         myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
