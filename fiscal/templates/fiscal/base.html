@@ -193,6 +193,7 @@
     <script src="{% static 'js/helper/routeFW.js' %}"></script>
     <script src="{% static 'js/helper/modalFW.js' %}"></script>
     <script src="{% static 'js/Planning/monte_carlo.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo_api.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -221,7 +222,7 @@
         myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
         myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
-        myRoutes['#/monte-carlo'] = render_future_value;
+        myRoutes['#/monte-carlo'] = render_monte_interface;
 
         //Check if key exists
         const key = localStorage.getItem("key");

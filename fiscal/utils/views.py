@@ -145,7 +145,8 @@ class Monte_carlo_API(APIView):
                 monte_serializer = MonteResultsSerializer(results)
                 return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
         except MonteResults.DoesNotExist:
-            return Response(data={"Error": "No Monte Carlo results for this account found"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"detail": "No Monte Carlo results for this account found"},
+                            status=status.HTTP_204_NO_CONTENT)
 
     def post(self, request):
         """
