@@ -57,18 +57,55 @@ def get_description(category):
     des_num = random.randint(0, len(cat_desciptions[category])-1)
     return cat_desciptions[category][des_num]
 
-def populate_cat_desc(cat_desc, purchase_list, name_list, total_to_add):
-    #adds total_to_add random descriptions to cat_desc consisting of ranomd
-    # combination of entires from purchase_list and name_list
-    for i in range(total_to_add):
-        purchase_pos = random.randint(0, len(purchase_list)-1)
-        name_pos = random.randint(0, len(name_list)-1)
-        cat_desc.append(purchase_list[purchase_pos]+name_list[name_pos])
+def populate_cat_desc(cat_desc, src_list, total_to_add):
+    """
+    If total_to_add is < -1: adds every item from the src_list to the cat_desc,
+        otherwise randomly adds items until total_to_add items are added
+    """
+    if total_to_add > -1:
+        for i in range(total_to_add):
+            pos = random.randint(0, len(src_list)-1)
+            cat_desc.append(src_list[pos])
+    else:
+        for item in src_list:
+            cat_desc.append(item)
+
 
 def add_desc_to_cats():
     #adds additional descriptions to the categories
-    #starts of grocery store entries to add
-    grocery_starts = ['Food from ', 'Groceries from ', 'Shopping at ']
+    #list of morgate lenders
+    mortgage_names = ['Quicken Loans', 'Wells Fargo', 'United Shore',
+        'Bank of America', 'JPMorgan Chase', 'loandepot.com', 'Caliber Home Loans',
+        'Fairway Independent Mortgage', 'US Bank National Association', 
+        'Guaranteed Rate', 'Freedom Mortgage Corporation', 'Flagstar Bank', 
+        'Guild Mortgage Company', 'CitiBank', 'Nationstar Mortgage', 
+        'Navy Federal Credit Union', 'Citizens Bank', 'Movement Mortgage', 
+        'USAA Federal Savings', 'Veterans United Home Loans', 'Homebridge Financial Services',
+        'Finance of America Mortgage', 'PNC Bank', 'Broker Solutions', ' PrimeLending',
+        'First Republic Bank', 'Crosscountry Mortgage', 'Pennymac Loan services',
+        'Home Point Financial', 'Provident Funding Associates', 'CMG Mortgage', 'Suntrust Banks',
+        'Newrez', 'Eagle Home Mortgage', 'Cardinal Financial Company', 'Branch Bannking and Trust',
+        'Academy mortgage', 'DHI Mortgage', 'The Huntington National Bank', 'Morgan Stanley', 
+        'American Pacific Mortgage', 'TD Bank', 'MUFG Union Bank', 'Everett Financial',
+        'Stearns Lending', 'Fifth Third Bank', 'Carrington Mortgage', 'American Financial Network',
+        'Paramount Residential Mortgage', 'Regions Bank', 'Cornerstone Home Lending', 
+        'Prosperity Home Mortgage', 'Primary Residential Mortgage', 'Keybank National',
+        'Sierra Pacific Mortgage', 'The Federal Savings bank', 'Synergy One Lending', 'NVR Mortgage',
+        'UMPQUA Bank', ' Cherry Creek Mortage', 'Pulte Mortgage', 'Bay Equiety',
+        'J.G. Wentworth Home Lending', 'Residential Mortgage Services', 'Amerisave Mortgage',
+        'Gateway Mortgage Group', 'UBS Bank', 'Lakeview Loan Servicing', 'TIAA', 'NBKC Bank',
+        'Union Home Mortgage', 'City National Bank', 'Barrington Bank & Trust Company',
+        'Ameris Bank', 'Summit Funding', 'IMPAC Mortgage Corp', 'American Financing Corporation',
+        'State Employee\'s Credit Union', 'Ark-La-Tex Financial SErvices', 'Plaza Home Mortgage']
+    #US public transport
+    public_transport_names = ['Amtrak', 'MTA Long Island', 'NJ Transit Rail', 'MTA Metro-North',
+        'SEPTA Regional Rail', 'MBTA Commuter Rail', 'Caltrain', 'Metrolink', 'Denver RTD',
+        'MARC Train', 'UTA FrontRunner', 'Sounder Commuter Rail', 'Virginia Railway Express',
+        'Tri-Rail', 'NICTD South Shore Line', 'eBART', 'Trinity Railway Express', 'Capitol Corridor',
+        'Keystone Service', 'SunRail', 'New York City Subway', 'Washington Metro', 'Chicago \"L\"',
+        'MBTA subway', 'Bay Area Raoud Transit', 'PATH', 'SEPTA', 'MARTA' 'Metro Rail', 'Metrorail',
+        'PATCO Speedline', 'Staten Island Railway', 'Baltimore Metro SubwayLink', 'RTA Rapid Transit',
+        'Tren Urbano', 'Greyhound Lines', 'Megabus']
     #list of population regional US grocery store names
     grocery_names = ['Safeway', 'Albertsons', 'Vons', 'Pavilions', 'Jewel-Osco',
         'Acme Markets', 'Shaw\'s', 'Andronico\'s', 'Carrs', 'Haggen', 'Lucky',
@@ -83,7 +120,9 @@ def add_desc_to_cats():
         'Food City', 'Harps Food Stores', 'Ingles Markets', 'Piggle Wiggly',
         'Publix', 'BI-LO', 'Harvey\'s', 'Winn-Dixie']
     #populates the grocery category descriptions
-    populate_cat_desc(cat_desciptions[9], grocery_starts, grocery_names, 50)
+    populate_cat_desc(cat_desciptions[0], mortgage_names, -2)
+    populate_cat_desc(cat_desciptions[1], public_transport_names, -2)
+    populate_cat_desc(cat_desciptions[9], grocery_names, -2)
 
 def gen_data(file_name, num_entries):
     #Outputs num_entries number of lines to the csv file file_name
