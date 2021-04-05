@@ -1,0 +1,63 @@
+.form-style {
+    font-size: 30px;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+
+}
+
+#simulation {
+    height: 318px;
+    width: 345px;
+    display: grid;
+    font-size: 18px;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 70px 70px 70px ;
+    grid-template-areas:
+    ". AnnualDeposit"
+    ". incomeToBeWithdrawn"
+    ". inflation"
+    ". Years"
+    "submitInfo submitInfo";
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#AnnualDeposit {
+margin-left:10px;
+    height: 30px;
+    width: 265px;
+}
+
+#incomeToBeWithdrawn {
+margin-left:10px;
+    height: 30px;
+    width: 265px;
+}
+#inflation {
+margin-left:10px;
+    height: 30px;
+    width: 265px;
+}
+
+#Years {
+margin-left:10px;
+    height: 30px;
+    width: 265px;
+}
+.stock-bond-select{
+margin-left: 10px;
+    height: 30px;
+    width: 265px;}
+
+#submitInfo {
+text-transform: uppercase;
+background: #4682B4;
+width: 80%;
+height: 40px;
+color: #F8F8FF;
+font-size: 15px;
+margin-top: 15% !important;
+}
