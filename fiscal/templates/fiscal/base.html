@@ -82,7 +82,7 @@
                             <a href="#/budget-overview">Spending Overview</a>
                         </li>
                         <li>
-                            <a href="#">Spending Visualization</a>
+                            <a href="#/spending-category">Spending Visualization</a>
                         </li>
                     </ul>
                 </li>
@@ -168,7 +168,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.js"
         integrity="sha512-zO8oeHCxetPn1Hd9PdDleg5Tw1bAaP0YmNvPY8CwcRyUk7d7/+nyElmFrB6f7vg4f7Fv4sui1mcep8RIEShczg=="
         crossorigin="anonymous"></script>
-        <!-- jQuery Custom Scroller CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+    <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 
@@ -183,13 +184,16 @@
     <script src="{% static 'js/helper/formMaxDate.js' %}"></script>
     <script src="{% static 'js/currencyValidation.js' %}"></script>
 
-
     <script src="{% static 'js/Planning/portfolio_overview_api.js' %}"></script>
+    <script src="{% static 'js/budget/budget_api.js' %}"></script>
+
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_diversification.js' %}"></script>
     <script src="{% static 'js/Planning/monte_carlo.js' %}"></script>
-    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
+
+    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
+    <script src="{% static 'js/budget/Visualization.js' %}"></script>
     <script src="{% static 'js/helper/routeFW.js' %}"></script>
     <script src="{% static 'js/helper/modalFW.js' %}"></script>
 
@@ -221,6 +225,7 @@
         myRoutes['#/monte-carlo'] = future_value_chart;
         myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
+        myRoutes['#/spending-category'] = render_budget_visualization;
 
         //Check if key exists
         const key = localStorage.getItem("key");
