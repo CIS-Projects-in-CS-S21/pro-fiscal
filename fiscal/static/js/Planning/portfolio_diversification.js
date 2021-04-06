@@ -95,8 +95,13 @@ function render_portfolio_diversification() {
                 },
                 tooltips: {
                     callbacks: {
-                        label: (val, data) =>
-                            (`$${data.datasets[val.datasetIndex].data[val.index].toLocaleString()}`)
+                        label: (val, data) => {
+                            let total = 0;
+                           data.datasets[val.datasetIndex].data.forEach(data => {
+                               total += data
+                           } )
+                            return (`${(data.datasets[val.datasetIndex].data[val.index].toLocaleString('en-US', { style: 'currency', currency: 'USD' }))} - ${Math.floor((data.datasets[val.datasetIndex].data[val.index]/total) * 100)}%`)
+                        }
 
                     }
                 }
