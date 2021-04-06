@@ -12,13 +12,13 @@
 2013-11-03,363.43,Sudden travel expense,Essentials
 2016-05-24,19162.79,PCP visit,Savings
 2012-09-22,453.87,Black friday sale,Non-Essentials
-2018-05-28,1664.48,electricity,Utilities
+2018-05-28,1664.48,Entergy,Utilities
 2019-02-27,18655.77,Medication refill,Savings
 2012-12-16,943.04,Vet bill,Essentials
 2020-05-06,14876.96,Eye exam,Savings
 2020-10-14,354.32,Meijer,Groceries/Household
 2017-04-03,1874.67,Eye exam,Savings
-2012-07-09,1227.75,electricity,Utilities
+2012-07-09,1227.75,PPL,Utilities
 2018-08-08,18160.3,Eye exam,Savings
 2020-10-05,280.59,Market Basket,Groceries/Household
 2011-03-17,2646.06,Rainy day fund,Medical/Healthcare
@@ -38,7 +38,7 @@
 2014-05-19,734.59,New TV,Non-Essentials
 2011-10-20,4248.55,RISLA,Debt
 2014-09-08,4060.14,Pet food,Education
-2017-11-13,1133.69,electricity,Utilities
+2017-11-13,1133.69,Ameren,Utilities
 2019-01-30,655.27,401k,Retirement
 2012-05-02,448.34,GME YOLO,Other
 2017-12-26,32.0,GME YOLO,Other
@@ -61,7 +61,7 @@
 2018-11-29,1252.5,AXA U.S.,Insurance
 2012-03-28,525.6,RTA Rapid Transit,Transportation
 2011-11-19,979.68,Black friday sale,Non-Essentials
-2017-05-17,88.2,electricity,Utilities
+2017-05-17,88.2,DTE Energy,Utilities
 2018-08-30,978.56,Vet bill,Essentials
 2018-04-11,958.04,Vet bill,Essentials
 2020-04-20,107.89,Sentry Insurance,Insurance
@@ -83,18 +83,17 @@
 2020-11-23,7889.36,College Ave,Debt
 2011-12-03,6300.93,MOHELA,Debt
 2013-09-11,3275.56,Rainy day fund,Medical/Healthcare
-2010-07-20,1135.06,Cable bill,Utilities
-2016-03-05,78.49,Black friday sale,Non-Essentials
-2019-05-08,6832.07,IRA,Retirement
-2010-07-02,395.41,King County Metro,Transportation
-2016-06-28,361.22,Ski tickets,Non-Essentials
-2016-04-14,157.84,Books,Entertainment
-2016-10-11,4722.91,Medication refill,Savings
-2013-01-21,2316.16,Medication refill,Savings
-2015-07-11,609.91,Oil payment,Utilities
-2015-08-13,221.62,Ascent,Debt
-2015-08-26,5630.29,LendKey,Debt
-2015-08-28,11805.46,Eye exam,Savings
+2010-07-20,1135.06,EOG Resources,Utilities
+2010-11-12,861.75,Black friday sale,Non-Essentials
+2018-07-10,168.37,GME YOLO,Other
+2015-02-10,2284.01,Union Home Mortgage,Housing
+2013-12-21,5705.42,American Express,Debt
+2017-12-22,4063.94,Splash Financial,Debt
+2018-03-17,307.4,MetLife Auto & Home,Insurance
+2011-04-02,2042.01,VISA,Debt
+2013-02-12,11608.7,Medication refill,Savings
+2015-06-22,1228.18,UBS Bank,Housing
+2014-06-27,18990.87,Eye exam,Savings
 2016-08-20,93.34,Hy-Vee,Groceries/Household
 2013-12-25,229.28,MARTAMetro Rail,Transportation
 2015-03-07,4736.08,Everett Financial,Housing
@@ -112,12 +111,12 @@
 2015-04-27,517.74,Progressive Insurance,Insurance
 2020-08-20,761.23,Vacation,Entertainment
 2014-11-18,510.92,Shelter Insurance,Insurance
-2019-12-07,964.67,Cable bill,Utilities
-2013-12-18,1329.62,EMC Insurance,Insurance
+2019-12-07,964.67,Public Service Elec & Gas,Utilities
+2019-03-02,16513.44,savings account,Medical/Healthcare
 2018-08-17,512.57,MTA Metro-North,Transportation
 2011-12-15,428.39,GME YOLO,Other
 2018-03-24,369.98,Virginia Railway Express,Transportation
-2018-03-22,100.22,Internet bill,Utilities
+2018-03-22,100.22,Florida Power & Light,Utilities
 2017-08-05,353.54,Museums,Entertainment
 2011-04-27,1391.84,AF Group,Insurance
 2011-01-22,2364.69,Online course,Education
@@ -141,7 +140,7 @@
 2013-11-13,4194.39,NVR Mortgage,Housing
 2015-04-27,9324.67,U.S. Bank,Debt
 2014-11-10,66.5,Movies,Entertainment
-2015-03-22,1724.37,Gas bill,Utilities
+2015-03-22,1724.37,Internet bill,Utilities
 2017-11-14,211.19,MBTA Commuter Rail,Transportation
 2011-02-06,3547.73,Movement Mortgage,Housing
 2018-08-14,2332.86,American Express,Debt
@@ -186,17 +185,16 @@
 2018-03-10,3061.97,UBS Bank,Housing
 2016-03-05,634.1,Vet bill,Essentials
 2010-07-27,2808.87,college fund,Medical/Healthcare
-2020-08-26,954.06,Internet bill,Utilities
+2020-08-26,954.06,Duke Energy Carolinas,Utilities
 2015-10-08,209.14,Price Chopper,Groceries/Household
 2011-12-03,1342.7,PartnerRe US,Insurance
 2017-03-27,1963.64,Homebridge Financial Services,Housing
-2017-05-06,329.69,Phone bill,Utilities
-2020-12-22,8745.42,savings account,Medical/Healthcare
-2014-12-08,141.06,Smart & Final,Groceries/Household
-2013-11-23,9223.9,Online course,Education
-2019-01-07,4635.95,Amerisave Mortgage,Housing
-2017-01-15,386.61,Movies,Entertainment
-2017-08-23,7604.21,savings account,Medical/Healthcare
+2017-05-06,329.69,DTE Energy,Utilities
+2017-12-29,12247.59,Medication refill,Savings
+2016-08-24,4250.15,School supplies,Education
+2020-06-17,16426.0,Rainy day fund,Medical/Healthcare
+2017-01-06,1833.36,Tuition,Education
+2014-01-27,498.43,Tri-Rail,Transportation
 2015-12-09,13018.19,Eye exam,Savings
 2018-03-23,9266.51,Online course,Education
 2013-04-25,9222.37,college fund,Medical/Healthcare
@@ -234,17 +232,19 @@
 2012-02-24,666.44,Ski tickets,Non-Essentials
 2019-03-24,2642.0,Morgan Stanley,Housing
 2016-12-02,122.45,Dining out,Entertainment
-2017-11-10,375.62,Cable bill,Utilities
-2012-07-31,700.97,Movies,Entertainment
-2017-08-09,1201.26,Old Republic,Insurance
-2019-06-25,117.68,Haggen,Groceries/Household
-2019-09-16,6161.34,401k,Retirement
+2017-11-10,375.62,Southern Company,Utilities
+2020-06-11,1355.32,Hanover Insurance Group,Insurance
+2015-11-23,371.62,Sudden travel expense,Essentials
+2017-11-01,748.97,GME YOLO,Other
+2019-04-08,1358.75,Georgia Power,Utilities
 2014-02-02,884.48,Ski tickets,Non-Essentials
 2016-10-19,1349.91,Nationwide,Insurance
-2019-07-10,731.27,Cable bill,Utilities
-2019-12-01,1442.83,MAPFRE North America,Insurance
-2020-02-29,1098.24,FM Global,Insurance
-2020-09-18,162.99,Weis,Groceries/Household
-2013-07-30,10859.26,Tuition,Education
-2011-08-08,949.55,GME YOLO,Other
-2011-04-18,886.03,Emergency,Essentials
+2019-07-10,731.27,Duke Energy Carolinas,Utilities
+2020-07-23,425.49,GME YOLO,Other
+2019-11-16,609.62,Vet bill,Essentials
+2015-12-01,1150.26,Public Service Elec & Gas,Utilities
+2012-07-21,115.48,BI-LO,Groceries/Household
+2015-02-26,288.24,Phillips 66,Utilities
+2011-07-18,358.06,RTC Transist,Transportation
+2011-11-02,216.04,Sam's Club,Groceries/Household
+2019-08-25,568.79,Mercury General,Insurance

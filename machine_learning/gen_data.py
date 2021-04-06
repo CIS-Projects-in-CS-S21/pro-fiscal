@@ -130,6 +130,14 @@ def add_desc_to_cats():
         'NJM Insurance', 'EMC Insurance', 'State Auto Insurance', 'Westfield Group', 'Shelter Insurance',
         'PartnerRe US', 'AF Group', 'Federated Mutual']
     #utilities 4
+    utility_names = ['Pacific Gas & Electric', 'Southern California Edison', 'Florida Power & Light',
+        'Consolidated Edison', 'Georgia Power', 'Dominion Energy', 'DTE Energy', 'Public Service Elec & Gas',
+        'Duke Energy Carolinas', 'Consumers Energy', 'Ameren', 'Pioneer Natural Resources', 'Williams',
+        'DTE Energy', 'PPL', 'Entergy', 'Edison International', 'FirstEnergy', 'PSEG', 'Eversource',
+        'Consolidated Edison', 'ONEOK', 'WEC Energy Group', 'Valero', 'Marathon Petroleum', 'Xcel Energy',
+        'Occidental Petroleum', 'Phillips 66', 'EOG Resources', 'Sempra Energy', 'Exelon', 'Kinder Morgan',
+        'American Electic Power', 'ConocoPhillips', 'Duke Energy', 'Dominion Energy', 'Southern Company',
+        'NextEra Energy', 'Chevron', 'ExxonMobil']
     #medical/healthcare 5
     #savings6
     #retirement7
@@ -152,6 +160,7 @@ def add_desc_to_cats():
     populate_cat_desc(cat_desciptions[1], public_transport_names, -2)
     populate_cat_desc(cat_desciptions[2], debt_names, -2)
     populate_cat_desc(cat_desciptions[3], insurance_names, -2)
+    populate_cat_desc(cat_desciptions[4], utility_names, -2)
     populate_cat_desc(cat_desciptions[9], grocery_names, -2)
 
 def gen_data(file_name, num_entries):
