@@ -13,6 +13,9 @@ List of entries for each category
 
 Format:
 date, detail, cost (xx.xx), category
+
+TODO:
+- Add preface 'words' for different bank payments?
 """
 cat_names = ['Housing', 'Transportation', 'Debt', 'Insurance',
                 'Utilities', 'Medical/Healthcare', 'Savings', 'Retirement',
@@ -70,6 +73,22 @@ def populate_cat_desc(cat_desc, src_list, total_to_add):
         for item in src_list:
             cat_desc.append(item)
 
+def combine_cat_desc(cat_desc, src_list1, src_list2, total_to_add):
+    """
+    If total_to_add is < -1: adds every item from the src_list to the cat_desc,
+        otherwise randomly adds items until total_to_add items are added
+    """
+    if total_to_add > -1:
+        for i in range(total_to_add):
+            pos1 = random.randint(0, len(src_list1)-1)
+            pos2 = random.randint(0, len(src_list2)-1)
+            cat_desc.append(src_list1[pos1] + src_list2[pos2])
+    else:
+        for item in src_list2:
+            pos = random.randint(0, len(src_list1)-1)
+            cat_desc.append(src_list1[pos] + item)
+
+
 
 def add_desc_to_cats():
     #adds additional descriptions to the categories
@@ -108,14 +127,26 @@ def add_desc_to_cats():
         'Tren Urbano', 'Greyhound Lines', 'Megabus', 'MTA', 'LACMTA', 'CTA', 'Muni', 'New Jersey Transit',
         'SEPTA', 'King County Metro', 'MBTA', 'WMATA', 'RTD', 'MTA Maryland', 'METRO', 'RTC Transist',
         'TriMet', 'Port Authority', 'AC Transit']
-    #List of common companies holding debt 2
-    debt_names = ['FedLoan Servicing', 'Granite State', 'Great Lakes Educational Loan Services',
-        'HESC', 'Edfinancial', 'MOHELA', 'Navient', 'Nelnet', 'OSLA Servicing', 'ECSI', 
-        'Maximus Federal Services', 'Earnest', 'Education Loan Finance', 'College Ave',
-        'Sallie Mae', 'Discover', 'Splash Financial', 'U-fi', 'Laurel Road', 'LendKey',
-        'PNC', 'RISLA', 'SoFi', 'Citizens Bank', 'EDvestinU', 'CommonBond', 'Ascent', 'VISA',
-        'Mastercard', 'CitiBank', 'Chase', 'American Express', 'Capital One', 'Bank of America',
-        'Synchrony', 'Wells Fargo', 'Barclay', 'U.S. Bank', 'USAA', 'Credit One', 'PNC Bank']
+    #List of banks names
+    bank_names = ['JPMorgan Chase', 'Bank of America', 'Citigroup', 'Wells Fargo', 'Goldman Sachs', 'Morgan Stanley',
+        'U.S. Bancorp', 'Truist Financial', 'TD Bank', 'PNC Financial Services', 'The Bank of New York Mellon',
+        'Capital One', 'Charles Schwab Corporation', 'HSBC Bank USA', 'Fifth Third Bank', 'USAA', 'American Express',
+        'State Farm', 'BMO Harris Bank', 'Ally Financial', 'Citizen Financial Group', 'KeyCorp', 'MUFG Union Bank',
+        'UBS', 'MUFG Union Bank', 'UBS', 'Ameriprise', 'Barclays', 'Northern Trust', 'Santander Bank', 'Regions Financial Corporation',
+        'RBC Bank', 'M&T Bank', 'BNP Paribas', 'Bank of the West', 'Credit Suisse', 'Discover Financial', 'Huntington Bancshares',
+        'Deutsche Bank', 'BBVA USA', 'Silicon Valley Bank', 'Synchrony Financial', 'Comerica', 'First Horizon National Corporation',
+        'E-Trade', 'Popular, Inc', 'CIT Group', 'People\'s United Financial', 'New York Community Bank', 'CIBC Bank USA',
+        'Synovus', 'East West Bank', 'First Citizens BancShares', 'Mizuho Financial Group', 'TCF Financial', 'Rymond James Financial',
+        'BOK Financial Corporation', 'Wintrust Financial', 'John Deere Capital Corporation', 'Valley National Bank', 'Frost Bank',
+        'Texas Captial Bank', 'South State Bank', 'FNB Corporation', 'BankUnited', 'Associated Banc-Corp', 'Pinnacle Financial Partners',
+        'Western Alliance Bank', 'Prosperity Bancshares', 'Hancock Whitney', 'Webster Bank', 'Commerce Bancshares', 'Sterling Bancorp',
+        'UMB Financial Corporation', 'Flagstar Bank', 'Umpqua Holdings Corporation', 'PacWest Bancorp', 'MidFirst Bank', 'Investors Bank',
+        'United Bank', 'Stifel', 'Fulton Financial Corporation', 'Sumitomo Mitsui Financial Group', 'First National of Nebraska',
+        'Arvest Bank', 'firstBank Holding Co', 'Arvest Bank', 'FirstBank Holding Co', 'Old National Bank', 'First Hawaiian Bank',
+        'Simmons Bank', 'First Midwest Bank', 'Bank of Hawaii', 'Atlantic Union Bank', 'Ameris Bancorp', 'Cathay Bank', 'Washington Federal',
+        'IberiaBank', 'Macy\'s', 'CenterState Bank', 'Mechanics Bank', 'City National Bank of Florida', 'Cadence Bank']
+    #debt 2
+    debt_names = ['Loan payment to ', 'Credit Card bill to ', 'Bill to ']
     #insurance 3
     insurance_names = ['State Farm', 'Berkshire Hathaway', 'Progressive Insurance', 'Allstate',
         'Liberty Mutual', 'Travelers', 'USAA', 'Chubb INA', 'Nationwide', 'American International Group',
@@ -150,10 +181,19 @@ def add_desc_to_cats():
         'Medical Mutual of Ohio', 'Health Care Service Corp', 'Providence Health', 'Independence Blue Cross', 
         'Neighborhood Health Plan of Rhode Island', 'Blue Cross Blue Shield of South Carolina', 'Wellmark Inc.',
         'Blue Cross Blue Shield of Tennessee', 'IHS Inc', 'Blue Cross Blue Shield of Vermont', 'Kaiser Foundation',
-        'Highmark', ]
+        'Highmark']
     #savings6
+    savings_names = ['Savings deposit to ', 'Deposit in savings at ']
     #retirement7
+    retirement_names = ['Retirement fund at ', 'Retirement account ']
     #education8
+    edu_debt_names = ['FedLoan Servicing', 'Granite State', 'Great Lakes Educational Loan Services',
+        'HESC', 'Edfinancial', 'MOHELA', 'Navient', 'Nelnet', 'OSLA Servicing', 'ECSI', 
+        'Maximus Federal Services', 'Earnest', 'Education Loan Finance', 'College Ave',
+        'Sallie Mae', 'Discover', 'Splash Financial', 'U-fi', 'Laurel Road', 'LendKey',
+        'PNC', 'RISLA', 'SoFi', 'Citizens Bank', 'EDvestinU', 'CommonBond', 'Ascent', 'VISA',
+        'Mastercard', 'CitiBank', 'Chase', 'American Express', 'Capital One', 'Bank of America',
+        'Synchrony', 'Wells Fargo', 'Barclay', 'U.S. Bank', 'USAA', 'Credit One', 'PNC Bank']
     #list of population regional US grocery store names 9
     grocery_names = ['Safeway', 'Albertsons', 'Vons', 'Pavilions', 'Jewel-Osco',
         'Acme Markets', 'Shaw\'s', 'Andronico\'s', 'Carrs', 'Haggen', 'Lucky',
@@ -167,13 +207,20 @@ def add_desc_to_cats():
         'Tops', 'Weis', 'Wegmans', 'Brookshire\'s', 'Brookshire Brothers',
         'Food City', 'Harps Food Stores', 'Ingles Markets', 'Piggle Wiggly',
         'Publix', 'BI-LO', 'Harvey\'s', 'Winn-Dixie']
+    #Entertainment 10
+    #Essentials 11
+    #Non-essentials 12
+    #Other
     #populates the category descriptions
     populate_cat_desc(cat_desciptions[0], mortgage_names, -2)
     populate_cat_desc(cat_desciptions[1], public_transport_names, -2)
-    populate_cat_desc(cat_desciptions[2], debt_names, -2)
+    combine_cat_desc(cat_desciptions[2], debt_names, bank_names, -2)
     populate_cat_desc(cat_desciptions[3], insurance_names, -2)
     populate_cat_desc(cat_desciptions[4], utility_names, -2)
     populate_cat_desc(cat_desciptions[5], healthcare_names, -2)
+    combine_cat_desc(cat_desciptions[6], savings_names, bank_names, -2)
+    combine_cat_desc(cat_desciptions[7], retirement_names, bank_names, -2)
+    populate_cat_desc(cat_desciptions[8], edu_debt_names, -2)
     populate_cat_desc(cat_desciptions[9], grocery_names, -2)
 
 def gen_data(file_name, num_entries):
