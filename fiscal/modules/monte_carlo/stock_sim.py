@@ -15,7 +15,7 @@ TODO:
 
 """
 
-class Monte_carlo:
+class StockSim:
     """
     Creates and runs the Monte_carlo simulation for the user
 
@@ -173,7 +173,7 @@ class Monte_carlo:
 
 if __name__ == "__main__":
     # function to test if the class works if run as main
-    monte = Monte_carlo(2019, 2020, ["AAPL", "MSFT"], [20, 20])
+    monte = StockSim(2019, 2020, ["AAPL", "MSFT"], [20, 20])
     monte.run_sim()
-    results = monte.get_results()
-    print(results)
+    # results = monte.get_results()
+    # print(results)
