@@ -96,7 +96,7 @@ def add_desc_to_cats():
         'Gateway Mortgage Group', 'UBS Bank', 'Lakeview Loan Servicing', 'TIAA', 'NBKC Bank',
         'Union Home Mortgage', 'City National Bank', 'Barrington Bank & Trust Company',
         'Ameris Bank', 'Summit Funding', 'IMPAC Mortgage Corp', 'American Financing Corporation',
-        'State Employee\'s Credit Union', 'Ark-La-Tex Financial SErvices', 'Plaza Home Mortgage']
+        'State Employee\'s Credit Union', 'Ark-La-Tex Financial Services', 'Plaza Home Mortgage']
     #US public transport 1
     public_transport_names = ['Amtrak', 'MTA Long Island', 'NJ Transit Rail', 'MTA Metro-North',
         'SEPTA Regional Rail', 'MBTA Commuter Rail', 'Caltrain', 'Metrolink', 'Denver RTD',
@@ -139,6 +139,18 @@ def add_desc_to_cats():
         'American Electic Power', 'ConocoPhillips', 'Duke Energy', 'Dominion Energy', 'Southern Company',
         'NextEra Energy', 'Chevron', 'ExxonMobil']
     #medical/healthcare 5
+    healthcare_names = ['UnitedHealthcare Group', 'Anthem', 'Aetna', 'Cigna', 'Humana',
+        'Blue Cross Blue Shield of Alabama', 'Premera Blue Cross', 'Centene Corp', 'Arkanas Blue Cross Blue Shield',
+        'Kaiser Foundation', 'Emblem Health', 'Highmark', 'Carefirst Inc', 'Guidewell Mutual Health', 
+        'Centene Corp', 'Hawaai Medical Service', 'Caresource', 'Wellmark', 'Blue Cross Blue Shield of Kansas',
+        'Anthem', 'Louisiana Medical Service', 'Maine Comm Health Options', 'Carefirst Inc', 'Tufts', 
+        'Blue Cross Blue Shield of Michigan', 'HealthPartners', 'Centene Corp', 'Cigna Health', 
+        'Montana Health Cooperative', 'Medica', 'UnitedHealth', 'Anthem Inc', 'Blue Cross Blue Shield of New Jersey',
+        'Molina Health Care', 'Mulberry Health', 'Blue Cross Bleu Shield of North Carolina', 'Noridian Mutual Insurance Co',
+        'Medical Mutual of Ohio', 'Health Care Service Corp', 'Providence Health', 'Independence Blue Cross', 
+        'Neighborhood Health Plan of Rhode Island', 'Blue Cross Blue Shield of South Carolina', 'Wellmark Inc.',
+        'Blue Cross Blue Shield of Tennessee', 'IHS Inc', 'Blue Cross Blue Shield of Vermont', 'Kaiser Foundation',
+        'Highmark', ]
     #savings6
     #retirement7
     #education8
@@ -161,6 +173,7 @@ def add_desc_to_cats():
     populate_cat_desc(cat_desciptions[2], debt_names, -2)
     populate_cat_desc(cat_desciptions[3], insurance_names, -2)
     populate_cat_desc(cat_desciptions[4], utility_names, -2)
+    populate_cat_desc(cat_desciptions[5], healthcare_names, -2)
     populate_cat_desc(cat_desciptions[9], grocery_names, -2)
 
 def gen_data(file_name, num_entries):
