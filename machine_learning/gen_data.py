@@ -73,7 +73,7 @@ def populate_cat_desc(cat_desc, src_list, total_to_add):
 
 def add_desc_to_cats():
     #adds additional descriptions to the categories
-    #list of morgate lenders
+    #list of morgate lenders 0
     mortgage_names = ['Quicken Loans', 'Wells Fargo', 'United Shore',
         'Bank of America', 'JPMorgan Chase', 'loandepot.com', 'Caliber Home Loans',
         'Fairway Independent Mortgage', 'US Bank National Association', 
@@ -97,16 +97,44 @@ def add_desc_to_cats():
         'Union Home Mortgage', 'City National Bank', 'Barrington Bank & Trust Company',
         'Ameris Bank', 'Summit Funding', 'IMPAC Mortgage Corp', 'American Financing Corporation',
         'State Employee\'s Credit Union', 'Ark-La-Tex Financial SErvices', 'Plaza Home Mortgage']
-    #US public transport
+    #US public transport 1
     public_transport_names = ['Amtrak', 'MTA Long Island', 'NJ Transit Rail', 'MTA Metro-North',
         'SEPTA Regional Rail', 'MBTA Commuter Rail', 'Caltrain', 'Metrolink', 'Denver RTD',
         'MARC Train', 'UTA FrontRunner', 'Sounder Commuter Rail', 'Virginia Railway Express',
         'Tri-Rail', 'NICTD South Shore Line', 'eBART', 'Trinity Railway Express', 'Capitol Corridor',
-        'Keystone Service', 'SunRail', 'New York City Subway', 'Washington Metro', 'Chicago \"L\"',
+        'Keystone Service', 'SunRail', 'New York City Subway', 'Washington Metro', 'Chicago L',
         'MBTA subway', 'Bay Area Raoud Transit', 'PATH', 'SEPTA', 'MARTA' 'Metro Rail', 'Metrorail',
         'PATCO Speedline', 'Staten Island Railway', 'Baltimore Metro SubwayLink', 'RTA Rapid Transit',
-        'Tren Urbano', 'Greyhound Lines', 'Megabus']
-    #list of population regional US grocery store names
+        'Tren Urbano', 'Greyhound Lines', 'Megabus', 'MTA', 'LACMTA', 'CTA', 'Muni', 'New Jersey Transit',
+        'SEPTA', 'King County Metro', 'MBTA', 'WMATA', 'RTD', 'MTA Maryland', 'METRO', 'RTC Transist',
+        'TriMet', 'Port Authority', 'AC Transit']
+    #List of common companies holding debt 2
+    debt_names = ['FedLoan Servicing', 'Granite State', 'Great Lakes Educational Loan Services',
+        'HESC', 'Edfinancial', 'MOHELA', 'Navient', 'Nelnet', 'OSLA Servicing', 'ECSI', 
+        'Maximus Federal Services', 'Earnest', 'Education Loan Finance', 'College Ave',
+        'Sallie Mae', 'Discover', 'Splash Financial', 'U-fi', 'Laurel Road', 'LendKey',
+        'PNC', 'RISLA', 'SoFi', 'Citizens Bank', 'EDvestinU', 'CommonBond', 'Ascent', 'VISA',
+        'Mastercard', 'CitiBank', 'Chase', 'American Express', 'Capital One', 'Bank of America',
+        'Synchrony', 'Wells Fargo', 'Barclay', 'U.S. Bank', 'USAA', 'Credit One', 'PNC Bank']
+    #insurance 3
+    insurance_names = ['State Farm', 'Berkshire Hathaway', 'Progressive Insurance', 'Allstate',
+        'Liberty Mutual', 'Travelers', 'USAA', 'Chubb INA', 'Nationwide', 'American International Group',
+        'Farmers Insurance', 'Hartford Insurance', 'American Family', 'Main Street', 'Auto-Owners',
+        'Swiss Reinsurance', 'Erie', 'Fairfax Financial', 'Munich-American', 'CNA', 'Tokio Marine',
+        'W.R. Berkley', 'Everest Re', 'Cincinnati', 'Alleghany Ins Holdings', 'Hanover Insurance Group',
+        'Great American', 'CSAA Insurance', 'Zurich Fincial services', 'Kemper PC', 'MetLife Auto & Home',
+        'FM Global', 'AXA U.S.', 'Mercury General', 'Assiramt P&C', 'Markel Corp', 'Arch insurance', 
+        'QBE Americas', 'Old Republic', 'Allianz of America', 'Selective insurance', 'AmTrust', 
+        'Auto Club Group', 'Country Financial PC', 'America Mutual Group', 'Sompo Holdings',
+        'Sentry Insurance', 'AXIS US', 'State Insurance Fund', 'MAPFRE North America', 'National General',
+        'NJM Insurance', 'EMC Insurance', 'State Auto Insurance', 'Westfield Group', 'Shelter Insurance',
+        'PartnerRe US', 'AF Group', 'Federated Mutual']
+    #utilities 4
+    #medical/healthcare 5
+    #savings6
+    #retirement7
+    #education8
+    #list of population regional US grocery store names 9
     grocery_names = ['Safeway', 'Albertsons', 'Vons', 'Pavilions', 'Jewel-Osco',
         'Acme Markets', 'Shaw\'s', 'Andronico\'s', 'Carrs', 'Haggen', 'Lucky',
         'Pavilions', 'Randalls', 'Star Market', 'Tom Thumb', 'United Supermarkets',
@@ -119,9 +147,11 @@ def add_desc_to_cats():
         'Tops', 'Weis', 'Wegmans', 'Brookshire\'s', 'Brookshire Brothers',
         'Food City', 'Harps Food Stores', 'Ingles Markets', 'Piggle Wiggly',
         'Publix', 'BI-LO', 'Harvey\'s', 'Winn-Dixie']
-    #populates the grocery category descriptions
+    #populates the category descriptions
     populate_cat_desc(cat_desciptions[0], mortgage_names, -2)
     populate_cat_desc(cat_desciptions[1], public_transport_names, -2)
+    populate_cat_desc(cat_desciptions[2], debt_names, -2)
+    populate_cat_desc(cat_desciptions[3], insurance_names, -2)
     populate_cat_desc(cat_desciptions[9], grocery_names, -2)
 
 def gen_data(file_name, num_entries):
