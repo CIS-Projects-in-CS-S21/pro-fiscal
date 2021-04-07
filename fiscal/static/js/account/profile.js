@@ -162,6 +162,8 @@ function userProfile() {
 
     let profileDiv = document.createElement("div");
 
+    let errorDOM = document.createElement("div");
+
     let username = localStorage.getItem("username");
 
     let header = document.createElement("h3");
@@ -201,14 +203,53 @@ function userProfile() {
     });
 
     updatePasswordButton.addEventListener("click", function () {
-        let form = renderUpdatePasswordForm(function () {
+        const successFunc = (portfolio_item) => {
             modal.hideModal();
-            console.log("Hello World");
+            all_portfolios[list_id] = portfolio_item;
+            let new_contents = renderPortfolioContents(portfolio_item, list_id);
+            portfolioBalanceSum -= parseFloat(oldBalance);
+            renderPortfolioDashboard();
+            // add the updated data to the collapsible button
+            elem.previousSibling.innerText = portfolio_item["name"];
+            elem.parentElement.insertBefore(new_contents, elem);
+
+            elem.remove();
+        };
+
+        let form = renderUpdatePasswordForm(function () {
+            let data = {};
+            let errors = [];
+
+            data["new_password1"] = form.new_password1.value;
+            data["new_password2"] = form.new_password2.value;
+
+            if (verify_matching_passwords(form.new_password1.value, form.new_password2.value)) {
+                let errorMsg = "The passwords do not match.";
+                errors.push(errorMsg);
+            } else {
+                if (form.new_password1.value.length < 8) {
+                    let errorMsg = "This password is too short. It must contain at least 8 characters.";
+                    errors.push(errorMsg);
+                }
+
+                if (!isNaN(form.new_password1.value)) {
+                    let errorMsg = "This password is entirely numeric.";
+                    errors.push(errorMsg);
+                }
+            }
+
+            if (errors.length === 0) {
+                account_api.changePassword(data, successFunc, errorDOM);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             modal.hideModal();
         });
 
         modal.renderForm(form.container);
+
+
     });
 
     buttonGroupUsername.classList.add("btn-group", "ml-auto", "mr-auto");
@@ -218,6 +259,7 @@ function userProfile() {
     dashboard.appendChild(accountDateHolder);
 
     profileDiv.appendChild(modal);
+    profileDiv.appendChild(errorDOM);
     profileDiv.appendChild(dashboard);
 
     buttonGroupUsername.appendChild(updateUsernameButton);

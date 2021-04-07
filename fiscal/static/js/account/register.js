@@ -12,16 +12,6 @@ function create_new_account (email, password, password_verify) {
 }
 
 /**
- * Function that verifies whether the inputted passwords match.
- * @param {string} password The password the user wants to use for their account.
- * @param {string} password_verify A password string that helps the user confirms their password choice.
- * @returns {boolean} Compares whether password and password_verify are equal.
- */
-function verify_matching_passwords (password, password_verify) {
-    return password === password_verify;
-}
-
-/**
  * Function that handles the creation of security questions associated with the registration.
  * @param {Array} questions A series of questions the user wants to use for their security questions.
  * @param {Array} answers A series of answers for the user's security questions.
