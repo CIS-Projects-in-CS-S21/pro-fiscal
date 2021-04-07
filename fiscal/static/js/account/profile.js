@@ -42,13 +42,13 @@ function userProfile() {
         let label_password1 = document.createElement("label");
         label_password1.innerText = "Password";
         form.new_password1 = document.createElement('input');
-        form.new_password1.type = 'text';
+        form.new_password1.type = 'password';
         form.new_password1.classList.add("form-control");
 
         let label_password2 = document.createElement("label");
         label_password2.innerText = "Confirm Password";
         form.new_password2 = document.createElement('input');
-        form.new_password2.type = 'text';
+        form.new_password2.type = 'password';
         form.new_password2.classList.add("form-control");
 
         let buttonDiv = document.createElement("div");
@@ -180,7 +180,7 @@ function userProfile() {
 
     let buttonGroupUsername = document.createElement("div");
     let buttonGroupPassword = document.createElement("div");
-    
+
     let updateUsernameButton = createButton({
         type: "btn-secondary",
         text: "Update your Username"
@@ -203,17 +203,9 @@ function userProfile() {
     });
 
     updatePasswordButton.addEventListener("click", function () {
-        const successFunc = (portfolio_item) => {
+        const successFunc = (confirm) => {
             modal.hideModal();
-            all_portfolios[list_id] = portfolio_item;
-            let new_contents = renderPortfolioContents(portfolio_item, list_id);
-            portfolioBalanceSum -= parseFloat(oldBalance);
-            renderPortfolioDashboard();
-            // add the updated data to the collapsible button
-            elem.previousSibling.innerText = portfolio_item["name"];
-            elem.parentElement.insertBefore(new_contents, elem);
-
-            elem.remove();
+            modal.alert("Your password has changed.");
         };
 
         let form = renderUpdatePasswordForm(function () {
@@ -223,18 +215,26 @@ function userProfile() {
             data["new_password1"] = form.new_password1.value;
             data["new_password2"] = form.new_password2.value;
 
-            if (verify_matching_passwords(form.new_password1.value, form.new_password2.value)) {
-                let errorMsg = "The passwords do not match.";
+            if (form.new_password1.value === undefined || form.new_password1.value.length === 0) {
+                let errorMsg = "Enter a password for Password 1";
+                errors.push(errorMsg);
+            } else if (form.new_password2.value === undefined || form.new_password2.value.length === 0) {
+                let errorMsg = "Enter a password for Password 2";
                 errors.push(errorMsg);
             } else {
-                if (form.new_password1.value.length < 8) {
-                    let errorMsg = "This password is too short. It must contain at least 8 characters.";
+                if (!verify_matching_passwords(form.new_password1.value, form.new_password2.value)) {
+                    let errorMsg = "The passwords do not match.";
                     errors.push(errorMsg);
-                }
+                } else {
+                    if (form.new_password1.value.length < 8) {
+                        let errorMsg = "This password is too short. It must contain at least 8 characters.";
+                        errors.push(errorMsg);
+                    }
 
-                if (!isNaN(form.new_password1.value)) {
-                    let errorMsg = "This password is entirely numeric.";
-                    errors.push(errorMsg);
+                    if (!isNaN(form.new_password1.value)) {
+                        let errorMsg = "This password is entirely numeric.";
+                        errors.push(errorMsg);
+                    }
                 }
             }
 
@@ -267,7 +267,7 @@ function userProfile() {
 
     buttonDiv.appendChild(buttonGroupUsername);
     buttonDiv.appendChild(buttonGroupPassword);
-    
+
     profileDiv.appendChild(buttonDiv);
 
     return profileDiv;
