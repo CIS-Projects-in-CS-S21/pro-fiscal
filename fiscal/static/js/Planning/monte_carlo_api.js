@@ -13,7 +13,8 @@ monte_api.start_sim = function(input_data){
             'Content-Type': 'application/json',
             "Accept": "application/json",
             'Authorization': "token " + localStorage.getItem("key")
-        }
+        },
+        body: JSON.stringify(input_data)
     }
 
     // Return the response rather than response.json()

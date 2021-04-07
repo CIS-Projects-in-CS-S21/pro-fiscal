@@ -6,51 +6,67 @@
 
 }
 
+.user-inputs p{
+    display: block;
+    margin: auto;
+    text-align: center;
+    width: 40%;
+}
+
 #simulation {
-    height: 318px;
-    width: 345px;
+    /*height: 318px;*/
+    /*width: 345px;*/
     display: grid;
+    width: 40%;
     font-size: 18px;
     align-items: center;
     justify-content: center;
-    grid-template-columns: 300px 1fr;
-    grid-template-rows: 70px 70px 70px ;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: repeat(6, 14%) 16%;
     grid-template-areas:
+    ". stock-bond-select"
     ". AnnualDeposit"
     ". incomeToBeWithdrawn"
     ". inflation"
+    ". retire-year"
     ". Years"
     "submitInfo submitInfo";
     margin: 0 auto;
     padding: 20px;
 }
 
-#AnnualDeposit {
-margin-left:10px;
-    height: 30px;
-    width: 265px;
-}
+/*#AnnualDeposit {*/
+/*margin-left:10px;*/
+/*    height: 30px;*/
+/*    width: 265px;*/
+/*}*/
 
-#incomeToBeWithdrawn {
-margin-left:10px;
-    height: 30px;
-    width: 265px;
-}
-#inflation {
-margin-left:10px;
-    height: 30px;
-    width: 265px;
-}
+/*#incomeToBeWithdrawn {*/
+/*margin-left:10px;*/
+/*    height: 30px;*/
+/*    width: 265px;*/
+/*}*/
+/*#inflation {*/
+/*margin-left:10px;*/
+/*    height: 30px;*/
+/*    width: 265px;*/
+/*}*/
 
-#Years {
-margin-left:10px;
-    height: 30px;
-    width: 265px;
-}
-.stock-bond-select{
-margin-left: 10px;
-    height: 30px;
-    width: 265px;}
+/*#retire-year {*/
+/*margin-left:10px;*/
+/*    height: 30px;*/
+/*    width: 265px;*/
+/*}*/
+
+/*#Years {*/
+/*margin-left:10px;*/
+/*    height: 30px;*/
+/*    width: 265px;*/
+/*}*/
+/*#stock-bond-select{*/
+/*margin-left: 10px;*/
+/*    height: 30px;*/
+/*    width: 265px;}*/
 
 #submitInfo {
 text-transform: uppercase;

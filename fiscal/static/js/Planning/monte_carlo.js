@@ -10,85 +10,104 @@ function render_monte_interface(){
     function render_monte_form() {
 
         const submitFunction = () => {
+            form_error.innerHTML = "";
             // example input object with null values as a placeholder
-            let input_data = {
-                retire_year: null,
-                end_year: null,
-                contribution: null,
-                monthly_withdrawal: null,
-                inflation: null,
-                retirement_allocation: null
-            }
-
+            let input_data = {};
+            let valid = true;
             // TODO: Get input from the form
             // Validate inputs
 
-        const depositValue = document.getElementById("AnnualDeposit").value
-        const withdrawValue = document.getElementById("incomeToBeWithdrawn").value
-        const inflationRate = document.getElementById("inflation").value
-        const yearsPeriod = document.getElementById("Years").value
-        const stockBondValue = document.getElementById("stock-bond-select").value
-           const num = /^\d{8}$/;
-         if(depositValue.match(num)){
-                  return true;}
-            else{
-                 message.innerText = "Please enter valid number"
-                 }
-          if(withdrawValue.match(num)){
-                 return true;}
-            else{
-                 message.innerText = "Please enter valid number"
-                  }
-          if(inflationRate.match(num)){
-                 return true;}
-            else{
-                  message.innerText = "Please enter valid number"
-                  }
-           if(yearsPeriod.match(num)){
-                 return true;}
-            else{
-                  message.innerText = "Please enter valid number"
-                }
+            const depositValue = parseFloat(document.getElementById("AnnualDeposit").value);
+            const withdrawValue = parseFloat(document.getElementById("incomeToBeWithdrawn").value);
+            const inflationRate = parseFloat(document.getElementById("inflation").value);
+            const retire_year = document.getElementById("retire-year").value;
+            const yearsPeriod = document.getElementById("Years").value;
+            const stockBondValue = document.getElementById("stock-bond-select").value;
+
+            // const num = /^\d{8}$/;
+            if (currencyValidation(depositValue)) {
+                input_data["contribution"] = depositValue;
+            } else {
+                valid = false;
+                form_error.innerHTML += "Please enter valid currency amount for saving <br>";
+            }
+            if (currencyValidation(withdrawValue)) {
+                input_data["monthly_withdrawal"] = withdrawValue;
+            } else {
+                valid = false;
+                form_error.innerHTML += "Please enter valid currency amount for withdrawal <br>";
+            }
+            if (!isNaN(inflationRate)) {
+                input_data["inflation"] = inflationRate;
+            } else {
+                valid = false;
+                form_error.innerHTML += "Please enter valid decimal for inflation rate <br>";
+            }
+            if (retire_year.match(/^\d{4}$/)) {
+                input_data["retire_year"] = parseInt(retire_year);
+            } else {
+                valid = false;
+                form_error.innerHTML += "Please enter valid number for retirement year <br>";
+            }
+            if (yearsPeriod.match(/^\d{4}$/)) {
+                input_data["end_year"] = parseInt(yearsPeriod);
+            } else {
+                valid = false;
+                form_error.innerHTML += "Please enter valid number for simulation end year <br>";
+            }
+            input_data["retirement_allocation"] = stockBondValues[stockBondValue];
 
             // Call API
-            let status_code;
-            monte_api.start_sim(input_data)
-                .then((response) => {
-                    status_code = response.status;
-                    return response.json();
-                }).then((data) => {
+            if(valid) {
+                let status_code;
+                monte_api.start_sim(input_data)
+                    .then((response) => {
+                        status_code = response.status;
+                        return response.json();
+                    }).then((data) => {
                     if (status_code === 202) {
                         message.innerText = "A simulation initiated by this account is already in progress";
-                    }
-                    else if (status_code === 201) {
+                    } else if (status_code === 201) {
                         message.innerText = "Simulation initiated. Please wait."
-                    }
-                    else if (status_code === 400) {
+                    } else if (status_code === 400) {
                         message.innerHTML = "";
                         for (let prop in data)
                             message.innerHTML += data[prop] + '<br>';
-                    }
-                    else{
+                    } else {
                         throw Error("" + status_code)
                     }
                 })
-                .catch((error) => {
-                    message.innerText = error;
-                });
+                    .catch((error) => {
+                        message.innerText = error;
+                    });
+            }
         }
 
         const inputNames = [
-            {inputText: "Enter the amount that you need to withdrawn in each month: ", inputId: "AnnualDeposit"},
+            {inputText: "Enter the amount that you will save each month before retirement: ", inputId: "AnnualDeposit"},
             {
-                inputText: "Enter the amount that you need to add to saving until retirement: ",
+                inputText: "Enter the amount that you need to withdraw in each month during retirement: ",
                 inputId: "incomeToBeWithdrawn"
             },
-            {inputText: "Enter you assumption for the future value of inflation rate: ", inputId: "inflation"},
-            {inputText: "Enter the number of years that you left for the retirement: ", inputId: "Years"}
+            {inputText: "Enter your assumption for the future value of inflation rate: ", inputId: "inflation"},
+            {inputText: "Enter the year you plan to retire: ", inputId: "retire-year"},
+            {inputText: "Enter the year you would like to project future values for: ", inputId: "Years"}
         ]
 
-        const stockBondOption = ["30% Bonds, 70% Stocks", "40% Bonds, 60% Stocks", "50% Bonds, 50%Stocks", "60% Bonds, 40% Stocks", "70% Bonds, 30% Stocks"];
+        // value is the index into stockBondValues
+        const stockBondOption = [
+            {label: "30% Bonds, 70% Stocks", value: 0},
+            {label: "40% Bonds, 60% Stocks", value: 1},
+            {label: "50% Bonds, 50% Stocks", value: 2},
+            {label: "60% Bonds, 40% Stocks", value: 3},
+            {label: "70% Bonds, 30% Stocks", value: 4}];
 
+        const stockBondValues = [
+            {Bonds: .30, Stocks: .70},
+            {Bonds: .40, Stocks: .60},
+            {Bonds: .50, Stocks: .50},
+            {Bonds: .60, Stocks: .40},
+            {Bonds: .70, Stocks: .30}]
 
         let elem = document.createElement("div");
         let formParagraph = document.createElement("p");
@@ -103,14 +122,14 @@ function render_monte_interface(){
 
         const stockBondLabel = document.createTextNode("Choose the percentage of stocks and bonds that your allocation will be: ")
         const selectStockBond = document.createElement("select");
-        selectStockBond.classList.add("stock-bond-select")
+        selectStockBond.id = "stock-bond-select";
         const emptyOption = document.createElement("option");
         emptyOption.disabled = true;
         selectStockBond.appendChild(emptyOption);
         stockBondOption.forEach(stockBond => {
             const option = document.createElement("option");
-            option.value = stockBond;
-            option.innerHTML = stockBond;
+            option.value = stockBond.value;
+            option.innerHTML = stockBond.label;
             selectStockBond.appendChild(option);
         })
         selectStockBond.selectedIndex = 0;
@@ -132,7 +151,10 @@ function render_monte_interface(){
         submitButton.addEventListener("click", submitFunction);
         simulationDiv.appendChild(submitButton);
 
+        let form_error = document.createElement("p");
+        userData.appendChild(form_error);
         userData.appendChild(simulationDiv);
+
 
         elem.appendChild(userData);
         return elem;
