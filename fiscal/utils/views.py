@@ -158,7 +158,11 @@ class Monte_carlo_API(APIView):
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
+
         user_data = self.__aggregate_data(request.user)
+        if not user_data:
+            return Response(data={"Error": "You must create Portfolio accounts and add holdings before running a simulation"},
+                            status=status.HTTP_400_BAD_REQUEST)
         valid, data = self.__is_valid(request.data)
         # print(data)
         if valid:
@@ -220,6 +224,8 @@ class Monte_carlo_API(APIView):
             dict: A dictionary container the key value pair of the aggregated data
         """
         portfolios = Portfolio.objects.filter(user=user)
+        if len(portfolios) == 0:
+            return None
         port_serializer = PortfolioSerializer(portfolios, many=True)
         values = {"Stocks": 0, "Bonds": 0}
         total = 0
