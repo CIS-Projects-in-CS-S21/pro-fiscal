@@ -18,3 +18,6 @@ fiscal/node_modules
 env/
 fiscal/db.sqlite3
 fiscal/fiscal/.env
+
+# ML
+/machine_learning/.ipynb_checkpoints/
