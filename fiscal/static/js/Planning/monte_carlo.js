@@ -23,6 +23,33 @@ function render_monte_interface(){
             // TODO: Get input from the form
             // Validate inputs
 
+        const depositValue = document.getElementById("AnnualDeposit").value
+        const withdrawValue = document.getElementById("incomeToBeWithdrawn").value
+        const inflationRate = document.getElementById("inflation").value
+        const yearsPeriod = document.getElementById("Years").value
+        const stockBondValue = document.getElementById("stock-bond-select").value
+           const num = /^\d{8}$/;
+         if(depositValue.match(num)){
+                  return true;}
+            else{
+                 message.innerText = "Please enter valid number"
+                 }
+          if(withdrawValue.match(num)){
+                 return true;}
+            else{
+                 message.innerText = "Please enter valid number"
+                  }
+          if(inflationRate.match(num)){
+                 return true;}
+            else{
+                  message.innerText = "Please enter valid number"
+                  }
+           if(yearsPeriod.match(num)){
+                 return true;}
+            else{
+                  message.innerText = "Please enter valid number"
+                }
+
             // Call API
             let status_code;
             monte_api.start_sim(input_data)
