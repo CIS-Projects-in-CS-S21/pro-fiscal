@@ -113,6 +113,16 @@ monte_vis.future_value_chart = function (array) {
             maintainAspectRatio: false,
             legend: {
                 display: false
+            },
+            scales: {
+                xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Future Value (in Dollars)',
+                            fontSize: 16
+                        }
+                }]
             }
         }
     })

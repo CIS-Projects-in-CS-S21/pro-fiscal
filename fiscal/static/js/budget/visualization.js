@@ -63,11 +63,6 @@ function render_budget_visualization() {
                         }
                     }
                 },
-                plugins: {
-                    datalabels: {
-                        display: false,
-                    },
-                }
             }
         });
 
