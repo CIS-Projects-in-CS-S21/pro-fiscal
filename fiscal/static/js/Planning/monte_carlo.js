@@ -5,11 +5,9 @@ function render_monte_interface(){
 
         const submitFunction = () => {
             form_error.innerHTML = "";
-            // example input object with null values as a placeholder
+
             let input_data = {};
             let valid = true;
-            // TODO: Get input from the form
-            // Validate inputs
 
             const depositValue = parseFloat(document.getElementById("AnnualDeposit").value);
             const withdrawValue = parseFloat(document.getElementById("incomeToBeWithdrawn").value);
@@ -18,7 +16,6 @@ function render_monte_interface(){
             const yearsPeriod = document.getElementById("Years").value;
             const stockBondValue = document.getElementById("stock-bond-select").value;
 
-            // const num = /^\d{8}$/;
             if (currencyValidation(depositValue)) {
                 input_data["contribution"] = depositValue;
             } else {

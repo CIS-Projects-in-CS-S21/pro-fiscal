@@ -84,34 +84,39 @@ monte_vis.future_value_chart = function (array) {
         return obj
     }
 
-    Array.prototype.bellCurve = function () {
-        return this.sort((a, b) => a.val % 2 - b.val % 2 || (a.val % 2 ? b.val - a.val : a.val - b.val))
-    }
-
     const histo = array.createHistogram(20)
 
 
     var labels = histo.map(function (e) {
-        return e.label;
+        return '$' + e.label;
     });
 
     var data = histo.map(function (e) {
         return e.val;
     });
 
+    // console.log(labels);
+    // console.log(data);
+
     var ctx = document.getElementById("myChart");
     monte_vis.chart = new Chart(ctx, {
         type: 'bar',
-        responsive: true,
         data: {
             labels: labels,
             datasets: [{
-                label: 'Jason',
-                fill: false,
+                // backgroundColor: 'rgb(0, 63, 92)',
                 data: data,
             }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: false
+            }
         }
     })
+    // console.log(monte_vis.chart)
 
     // Used to remove chart from page when user navigates away
     function removeChart() {
