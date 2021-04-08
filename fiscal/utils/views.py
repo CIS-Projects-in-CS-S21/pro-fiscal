@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from modules.monte_carlo.monte_carlo import Monte_carlo
 from planning_tool.serializers import *
+from utils.serializers import CurrentUserSerializer
+
+import datetime
 
 class Classifier_API(APIView):
     """
@@ -176,3 +179,26 @@ class Monte_carlo_API(APIView):
                 tickers.append(holding["ticker"])
                 shares.append(holding["shares"])
         return {"tickers": tickers, "shares": shares}
+
+
+class UserInfo(APIView):
+    """
+    A custom view to return the information of the user in the session
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """
+        Retrieve the user's info
+
+        Arguments:
+            request (Request): The http request object
+
+        Returns:
+            Response: An http response with JSON data and a status code
+        """
+        current_user_ser = CurrentUserSerializer(request.user)
+        data = current_user_ser.data
+        data["date_joined"] = request.user.date_joined.strftime('%Y-%m-%d')
+        return Response(data)
