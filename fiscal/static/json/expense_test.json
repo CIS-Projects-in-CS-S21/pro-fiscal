@@ -78,6 +78,13 @@
             "transaction": "Cengage Unlimited",
             "cost": 129.59,
             "category": "Education"
+        },
+        {
+            "id": 12,
+            "purchase_date": "03-26-2021",
+            "transaction": "Video Games",
+            "cost": 75.59,
+            "category": "Entertainment"
         }
     ]
 }
