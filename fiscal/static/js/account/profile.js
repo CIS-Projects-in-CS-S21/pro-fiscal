@@ -160,17 +160,15 @@ function userProfile() {
         return form;
     }
 
-    function createDashboard () {
+    function createDashboard() {
         let dashboard = document.createElement("div");
         dashboard.classList.add("dashboard");
-
-        let username = localStorage.getItem("username");
 
         let header = document.createElement("h3");
         header.innerHTML = "Profile for User <strong>" + username + "</strong>";
 
         let accountDateHolder = document.createElement("p");
-        accountDateHolder.innerText = "Created Account on (Date)";
+        accountDateHolder.innerText = "Created Account on " + accountCreationDate;
 
         dashboard.appendChild(header);
         dashboard.appendChild(accountDateHolder);
@@ -179,8 +177,6 @@ function userProfile() {
     }
 
     function render() {
-        let errorDOM = document.createElement("div");
-
         let dashboard = createDashboard();
 
         /* Button Components */
@@ -209,7 +205,7 @@ function userProfile() {
                 localStorage.setItem("username", reference);
                 modal.alert("Your username has been changed.");
                 profileDiv.innerHTML = '';
-                render();
+                account_api.getUserInfo(handleProfileInfo, errorDOM);
             };
 
             let form = renderUpdateUsernameForm(function () {
@@ -314,9 +310,19 @@ function userProfile() {
         profileDiv.appendChild(buttonDiv);
     }
 
-    let profileDiv = document.createElement("div");
+    const handleProfileInfo = (data) => {
+        username = data['username'];
+        accountCreationDate = moment(data['date_joined']).format('MMMM Do, YYYY');
+        render();
+    };
 
-    render();
+    let profileDiv = document.createElement("div");
+    let errorDOM = document.createElement("div");
+
+    account_api.getUserInfo(handleProfileInfo, errorDOM);
+
+    let username = '';
+    let accountCreationDate = '';
 
     return profileDiv;
 }

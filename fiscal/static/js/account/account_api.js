@@ -2,12 +2,11 @@ let account_api = {};
 
 /**
  * Function that obtains the user's information.
- * @param {Object} data Username to be sent to request user information.
  * @param {function} successHandler Callback function to handle the data.
  * @param {Node} errorDOM Element where potential error messages will be added to.
  * @returns {boolean} Confirmation status of the operation.
  */
-account_api.getUserInfo = function (data, successHandler, errorDOM) {
+account_api.getUserInfo = function (successHandler, errorDOM) {
     let status = false;
     let init = {
         method: 'GET',
@@ -15,11 +14,10 @@ account_api.getUserInfo = function (data, successHandler, errorDOM) {
             'Content-Type': 'application/json',
             "Accept": "application/json",
             'Authorization': "token " + localStorage.getItem("key")
-        },
-        body: JSON.stringify(data)
+        }
     }
 
-    fetch("/rest-auth/user/", init)
+    fetch("/user-info/", init)
         .then((response) => {
             if (!response.ok) {
                 response.text().then(text => { throw Error(text) });
