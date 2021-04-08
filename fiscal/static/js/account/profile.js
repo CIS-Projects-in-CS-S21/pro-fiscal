@@ -160,115 +160,163 @@ function userProfile() {
         return form;
     }
 
-    let profileDiv = document.createElement("div");
+    function createDashboard () {
+        let dashboard = document.createElement("div");
+        dashboard.classList.add("dashboard");
 
-    let errorDOM = document.createElement("div");
+        let username = localStorage.getItem("username");
 
-    let username = localStorage.getItem("username");
+        let header = document.createElement("h3");
+        header.innerHTML = "Profile for User <strong>" + username + "</strong>";
 
-    let header = document.createElement("h3");
-    header.innerHTML = "Profile for User <strong>" + username + "</strong>";
+        let accountDateHolder = document.createElement("p");
+        accountDateHolder.innerText = "Created Account on (Date)";
 
-    let dashboard = document.createElement("div");
-    dashboard.classList.add("dashboard");
+        dashboard.appendChild(header);
+        dashboard.appendChild(accountDateHolder);
 
-    let accountDateHolder = document.createElement("p");
-    accountDateHolder.innerText = "Created Account on (Date)";
+        return dashboard;
+    }
 
-    let buttonDiv = document.createElement("div");
-    buttonDiv.classList.add("d-flex");
+    function render() {
+        let errorDOM = document.createElement("div");
 
-    let buttonGroupUsername = document.createElement("div");
-    let buttonGroupPassword = document.createElement("div");
+        let dashboard = createDashboard();
 
-    let updateUsernameButton = createButton({
-        type: "btn-secondary",
-        text: "Update your Username"
-    });
+        /* Button Components */
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
 
-    let updatePasswordButton = createButton({
-        type: "btn-info",
-        text: "Update your Password"
-    });
+        let buttonGroupUsername = document.createElement("div");
+        let buttonGroupPassword = document.createElement("div");
 
-    updateUsernameButton.addEventListener("click", function () {
-        let form = renderUpdateUsernameForm(function () {
-            modal.hideModal();
-            console.log("Hello World");
-        }, function () {
-            modal.hideModal();
+        buttonGroupUsername.classList.add("btn-group", "ml-auto", "mr-auto");
+        buttonGroupPassword.classList.add("btn-group", "ml-auto", "mr-auto");
+
+        let updateUsernameButton = createButton({
+            type: "btn-secondary",
+            text: "Update your Username"
         });
 
-        modal.renderForm(form.container);
-    });
+        let updatePasswordButton = createButton({
+            type: "btn-info",
+            text: "Update your Password"
+        });
 
-    updatePasswordButton.addEventListener("click", function () {
-        const successFunc = (confirm) => {
-            modal.hideModal();
-            modal.alert("Your password has changed.");
-        };
+        updateUsernameButton.addEventListener("click", function () {
+            const successFunc = (confirm) => {
+                modal.hideModal();
+                localStorage.setItem("username", reference);
+                modal.alert("Your username has been changed.");
+                profileDiv.innerHTML = '';
+                render();
+            };
 
-        let form = renderUpdatePasswordForm(function () {
-            let data = {};
-            let errors = [];
+            let form = renderUpdateUsernameForm(function () {
+                let data = {};
+                let errors = [];
 
-            data["new_password1"] = form.new_password1.value;
-            data["new_password2"] = form.new_password2.value;
+                let oldName = form.old_username.value;
+                data["username"] = form.new_username.value;
 
-            if (form.new_password1.value === undefined || form.new_password1.value.length === 0) {
-                let errorMsg = "Enter a password for Password 1";
-                errors.push(errorMsg);
-            } else if (form.new_password2.value === undefined || form.new_password2.value.length === 0) {
-                let errorMsg = "Enter a password for Password 2";
-                errors.push(errorMsg);
-            } else {
-                if (!verify_matching_passwords(form.new_password1.value, form.new_password2.value)) {
-                    let errorMsg = "The passwords do not match.";
+                if (form.new_username.value === undefined || form.new_username.value === '') {
+                    let errorMsg = "Please enter a username.";
                     errors.push(errorMsg);
                 } else {
-                    if (form.new_password1.value.length < 8) {
-                        let errorMsg = "This password is too short. It must contain at least 8 characters.";
+                    if (oldName === form.new_username.value) {
+                        let errorMsg = "Please try to be original here. This is already your username.";
                         errors.push(errorMsg);
-                    }
+                    } else {
+                        if (form.new_username.value.length > 150) {
+                            let errorMsg = "Too many characters. Keep it to 150 characters or less.";
+                            errors.push(errorMsg);
+                        }
 
-                    if (!isNaN(form.new_password1.value)) {
-                        let errorMsg = "This password is entirely numeric.";
-                        errors.push(errorMsg);
+                        if (usernameValidation(form.new_username.value) === null) {
+                            let errorMsg = "Your username can only contain the following: Letters, Digits, and @, ., +, -, _";
+                            errors.push(errorMsg);
+                        }
                     }
                 }
-            }
 
-            if (errors.length === 0) {
-                account_api.changePassword(data, successFunc, errorDOM);
-            } else {
-                modal.renderErrorMessages(errors);
-            }
-        }, function () {
-            modal.hideModal();
+                if (errors.length === 0) {
+                    reference = data["username"];
+                    account_api.updateUsername(data, successFunc, errorDOM);
+                } else {
+                    modal.renderErrorMessages(errors);
+                }
+            }, function () {
+                modal.hideModal();
+            });
+
+            let reference = '';
+
+            modal.renderForm(form.container);
         });
 
-        modal.renderForm(form.container);
+        updatePasswordButton.addEventListener("click", function () {
+            const successFunc = (confirm) => {
+                modal.hideModal();
+                modal.alert("Your password has changed.");
+            };
 
+            let form = renderUpdatePasswordForm(function () {
+                let data = {};
+                let errors = [];
 
-    });
+                data["new_password1"] = form.new_password1.value;
+                data["new_password2"] = form.new_password2.value;
 
-    buttonGroupUsername.classList.add("btn-group", "ml-auto", "mr-auto");
-    buttonGroupPassword.classList.add("btn-group", "ml-auto", "mr-auto");
+                if (form.new_password1.value === undefined || form.new_password1.value === '') {
+                    let errorMsg = "Enter a password for Password 1.";
+                    errors.push(errorMsg);
+                } else if (form.new_password2.value === undefined || form.new_password2.value === '') {
+                    let errorMsg = "Enter a password for Password 2.";
+                    errors.push(errorMsg);
+                } else {
+                    if (!verify_matching_passwords(form.new_password1.value, form.new_password2.value)) {
+                        let errorMsg = "The passwords do not match.";
+                        errors.push(errorMsg);
+                    } else {
+                        if (form.new_password1.value.length < 8) {
+                            let errorMsg = "This password is too short. It must contain at least 8 characters.";
+                            errors.push(errorMsg);
+                        }
 
-    dashboard.appendChild(header);
-    dashboard.appendChild(accountDateHolder);
+                        if (!isNaN(form.new_password1.value)) {
+                            let errorMsg = "This password is entirely numeric.";
+                            errors.push(errorMsg);
+                        }
+                    }
+                }
 
-    profileDiv.appendChild(modal);
-    profileDiv.appendChild(errorDOM);
-    profileDiv.appendChild(dashboard);
+                if (errors.length === 0) {
+                    account_api.changePassword(data, successFunc, errorDOM);
+                } else {
+                    modal.renderErrorMessages(errors);
+                }
+            }, function () {
+                modal.hideModal();
+            });
 
-    buttonGroupUsername.appendChild(updateUsernameButton);
-    buttonGroupPassword.appendChild(updatePasswordButton);
+            modal.renderForm(form.container);
+        });
 
-    buttonDiv.appendChild(buttonGroupUsername);
-    buttonDiv.appendChild(buttonGroupPassword);
+        buttonGroupUsername.appendChild(updateUsernameButton);
+        buttonGroupPassword.appendChild(updatePasswordButton);
 
-    profileDiv.appendChild(buttonDiv);
+        buttonDiv.appendChild(buttonGroupUsername);
+        buttonDiv.appendChild(buttonGroupPassword);
+
+        profileDiv.appendChild(modal);
+        profileDiv.appendChild(errorDOM);
+        profileDiv.appendChild(dashboard);
+        profileDiv.appendChild(buttonDiv);
+    }
+
+    let profileDiv = document.createElement("div");
+
+    render();
 
     return profileDiv;
 }
