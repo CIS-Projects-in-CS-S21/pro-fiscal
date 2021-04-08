@@ -67,7 +67,8 @@ account_api.getUserInfo = function (data, successHandler, errorDOM) {
             successHandler(data);
         }).catch(error => {
             status = false;
-            console.error(error);
+            // alert("A username with that username already exists.");
+            modal.alert("A username with that username already exists.");
             errorDOM.innerText = error;
         })
 
