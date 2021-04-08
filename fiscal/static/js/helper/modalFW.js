@@ -28,25 +28,34 @@
      * @param {string} message - The string to be displayed, HTML string is accepted.
      */
     modal.alert = function(message){
+        function hideModal () {
+            hide(modal);
+        }
+
         modal.innerHTML = "";
 
         var messageArea = document.createElement("div");
 
         var messageText = document.createElement("p");
+        messageText.classList.add("text-center");
         messageArea.appendChild(messageText);
         messageText.innerText = message;
 
-        var exitButton = document.createElement("button");
-        exitButton.innerText = "OK";
-        exitButton.onclick = function(){
-            hide(modal);
-        };
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("text-center");
 
-        messageArea.appendChild(exitButton);
+        let exitButton = createButton({
+            type: "btn-info",
+            text: "Close",
+            onclickhandler: hideModal
+        });
+
+        buttonDiv.appendChild(exitButton);
+
+        messageArea.appendChild(buttonDiv);
         modal.appendChild(messageArea);
 
         show(modal);
-
     };
 
     /**
