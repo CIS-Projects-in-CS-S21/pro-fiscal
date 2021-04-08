@@ -108,7 +108,7 @@ function userProfile() {
         form.old_username = document.createElement('input');
         form.old_username.type = 'text';
         form.old_username.classList.add("form-control");
-        form.old_username.value = localStorage.getItem("username");
+        form.old_username.value = username;
         form.old_username.disabled = true;
 
         let new_username = document.createElement("label");
@@ -202,7 +202,6 @@ function userProfile() {
         updateUsernameButton.addEventListener("click", function () {
             const successFunc = (confirm) => {
                 modal.hideModal();
-                localStorage.setItem("username", reference);
                 modal.alert("Your username has been changed.");
                 profileDiv.innerHTML = '';
                 account_api.getUserInfo(handleProfileInfo, errorDOM);
@@ -236,7 +235,6 @@ function userProfile() {
                 }
 
                 if (errors.length === 0) {
-                    reference = data["username"];
                     account_api.updateUsername(data, successFunc, errorDOM);
                 } else {
                     modal.renderErrorMessages(errors);
@@ -244,8 +242,6 @@ function userProfile() {
             }, function () {
                 modal.hideModal();
             });
-
-            let reference = '';
 
             modal.renderForm(form.container);
         });
