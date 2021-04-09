@@ -104,7 +104,7 @@ monte_vis.future_value_chart = function (array) {
         data: {
             labels: labels,
             datasets: [{
-                // backgroundColor: 'rgb(0, 63, 92)',
+                backgroundColor: 'rgb(0, 63, 92)',
                 data: data,
             }]
         },
@@ -121,6 +121,20 @@ monte_vis.future_value_chart = function (array) {
                             display: true,
                             labelString: 'Future Value (in Dollars)',
                             fontSize: 16
+                        },
+                        ticks: {
+                            fontSize: 14
+                        }
+                }],
+                yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Count of Values per Range',
+                            fontSize: 16
+                        },
+                        ticks: {
+                            fontSize: 14
                         }
                 }]
             }

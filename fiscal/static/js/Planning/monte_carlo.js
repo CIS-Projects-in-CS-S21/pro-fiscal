@@ -72,8 +72,9 @@ function render_monte_interface(){
                     .catch((error) => {
                         message.innerText = error;
                     });
+                modal.hideModal();
             }
-            modal.hideModal();
+
         }
 
         const inputNames = [
@@ -103,15 +104,13 @@ function render_monte_interface(){
             {Bonds: .70, Stocks: .30}];
 
         let elem = document.createElement("div");
-        let formParagraph = document.createElement("p");
-        formParagraph.classList.add("form-style");
-        formParagraph.innerText = "New Simulation";
-        elem.appendChild(formParagraph);
+        elem.classList.add("monte-form-container");
+        let title = document.createElement("h4");
+        title.innerText = "New Simulation";
 
-        let userData = document.createElement("user-data");
-        userData.classList.add("user-inputs");
+
         let simulationDiv = document.createElement("div");
-        simulationDiv.id = "simulation";
+        simulationDiv.classList.add("user-inputs");
 
         const stockBondLabel = document.createTextNode("Choose the percentage of stocks and bonds that your allocation will be: ")
         const selectStockBond = document.createElement("select");
@@ -146,11 +145,11 @@ function render_monte_interface(){
         buttonDiv.appendChild(cancelButton);
 
         let form_error = document.createElement("p");
-        userData.appendChild(form_error);
-        userData.appendChild(simulationDiv);
-        userData.appendChild(buttonDiv);
+        elem.appendChild(title);
+        elem.appendChild(form_error);
+        elem.appendChild(simulationDiv);
+        elem.appendChild(buttonDiv);
 
-        elem.appendChild(userData);
         return elem;
     }
 
@@ -166,7 +165,6 @@ function render_monte_interface(){
                     else
                         return response.text();
                 }).then((data) => {
-                    console.log(data);
                     if (status_code === 202) {
                         message.innerText = "A simulation initiated by this account is currently in progress";
                     }
@@ -174,7 +172,7 @@ function render_monte_interface(){
                         message.innerText = "No simulation results were found for this account";
                     }
                     else if (status_code === 200) {
-                        message.innerText = "";
+                        message.innerText = "Displaying most recent simulation";
                         // have to remove any chart on the page first
                         if(monte_vis.chart){
                             monte_vis.chart.destroy();
@@ -209,7 +207,15 @@ function render_monte_interface(){
     let interface_items = document.createElement("div");
     interface_items.classList.add("monte-carlo-interface");
     let instructions = document.createElement("p");
-    instructions.innerText = "Anything you need to know about the simulation";
+    instructions.innerHTML = `
+        <h4>Instructions</h4>
+        <ul>
+            <li>This simulation uses a random process to project the possible range of future values for your portfolio.</li>
+            <li>Information from your Portfolio Overview will be input into the simulation.</li>
+            <li>The simulation can take some time to complete.  You can interact with other parts of Fiscal while the simulation runs.</li>
+            <li>Press the 'Get Results' button to see if your results are ready yet.</li>
+        </ul>        
+    `
     let controls = document.createElement("div");
     let message = document.createElement("p");
     let get_button = render_get_results();
