@@ -1,0 +1,97 @@
+.monte-container h3 {
+    text-align: center;
+    font-size: 36px;
+}
+
+.monte-carlo-interface {
+    display: grid;
+    grid-template-areas:
+    'instructions buttons';
+    margin: 0 10% 0 10%;
+}
+
+.monte-carlo-interface p {
+    grid-area: instructions;
+}
+
+.monte-carlo-interface div {
+    grid-area: buttons;
+    text-align: right;
+}
+
+.monte-carlo-interface div button {
+    padding: 10px 20px 10px 20px;
+    margin: 0 20px 0 20px;
+}
+
+.monte-carlo-interface div p {
+    padding: 20px;
+
+}
+
+.modal-monte {
+    display: none;
+    position: fixed;
+    z-index: 4;
+    overflow: auto;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 1;
+    transition: opacity 1.25s, top 0.75s;
+}
+
+/*.modal-monte div {*/
+/*    */
+/*}*/
+
+.modalMsgArea {
+    margin: 10% auto;
+    width: 35%;
+    min-width: 680px;
+    padding: 10px;
+    background-color: #F5F9F1;
+    box-shadow: 5px 5px 5px #4b4f4c;
+}
+
+.modal-monte.modal-hide {
+    opacity: 0;
+}
+
+.modal-monte h4 {
+    font-size: 30px;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+}
+
+.modal-monte .monte-form-container {
+    margin: 0;
+    padding: 20px;
+    width: 100%;
+}
+
+.modal-monte .monte-form-container .user-inputs {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    font-size: 18px;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: repeat(6, auto);
+    grid-gap: 8px;
+    margin: auto;
+}
+
+.modal-monte div.button-container {
+    text-align: center;
+}
+
+.modal-monte button{
+    padding: 10px 20px 10px 20px;
+    margin: 20px;
+}
+
