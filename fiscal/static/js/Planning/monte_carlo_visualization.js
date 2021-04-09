@@ -15,30 +15,6 @@ function calculate_days_after(dateData) {
     return daysAfter;
 }
 
-Array.prototype.createHistogram = function (numOfBins) {
-    const obj = []
-
-    const low = Math.min(...this)
-    const high = Math.max(...this)
-    const range = high - low;
-
-    console.log(low, high, range)
-
-    for (i = 0; i < numOfBins; i++) {
-        const start = i === 0 ? low : low + Math.floor(i * range / numOfBins) + 1
-
-        const end = i === numOfBins ? high : low + Math.ceil((i + 1) * range / numOfBins)
-
-        obj.push({
-            label: `${start} - ${end}`,
-            val: this.filter(a => (a >= start && a <= end)).length,
-        })
-    }
-
-    return obj
-}
-
-
 /**
  * Helper function that parses dates in 'YYYY-MM-DD' string format to a date object
  * @param dateString
@@ -56,13 +32,12 @@ function parseDate(dateString) {
 let monte_vis = {};
 monte_vis.future_value_chart = function (array) {
 
-    Array.prototype.createHistogram = function (numOfBins) {
-
+    createHistogram = function (array, numOfBins) {
 
         const obj = []
 
-        const low = Math.min(...this)
-        const high = Math.max(...this)
+        const low = Math.min(...array)
+        const high = Math.max(...array)
         const range = high - low;
         let lastStart = null;
 
@@ -77,14 +52,14 @@ monte_vis.future_value_chart = function (array) {
 
             obj.push({
                 label: `${start}`,
-                val: this.filter(a => (a > start && a < end)).length,
+                val: array.filter(a => (a > start && a < end)).length,
             })
         }
 
         return obj
     }
 
-    const histo = array.createHistogram(20)
+    const histo = createHistogram(array, 20)
 
 
     var labels = histo.map(function (e) {
