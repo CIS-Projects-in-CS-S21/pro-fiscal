@@ -137,6 +137,7 @@ class Monte_carlo_API(APIView):
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
+        
         try:
             results = MonteResults.objects.get(user_id=request.user.pk)
             if results.running:
