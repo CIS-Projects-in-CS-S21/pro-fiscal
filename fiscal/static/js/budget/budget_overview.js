@@ -1,4 +1,36 @@
 /**
+
+ * Function that fetches expense items from the database based on the provided user id.
+ * @param {DOMElement} appendDOM Element to render the component in.
+ * @param {Function} successHandler Function to execute when you successfully retrieve the Expense Data.
+ * @param {DOMElement} errorDOM Element to render error messages to the component.
+ * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
+ * @returns {Array} Collection of budget items associated with the user.
+ */
+const getExpenseData = (appendDOM, successHandler, errorDOM) => {
+    let status = false;
+
+    fetch("/static/json/expense_test.json")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            status = !status;
+            return response.json();
+        })
+        .then((data) => {
+            let expenseItems = data["expense_items"];
+
+            let table = successHandler(expenseItems);
+            appendDOM.appendChild(table);
+        }).catch(error => {
+            status = false;
+            console.log(error);
+            errorDOM.innerText = error;
+        })
+};
+
+/**
  * Function that creates and renders the form for adding an item.
  * @returns {Form} Returns an expense item form for the user to input.
  */

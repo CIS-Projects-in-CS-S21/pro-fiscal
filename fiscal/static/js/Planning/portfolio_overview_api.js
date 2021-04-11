@@ -196,19 +196,20 @@ portfolio_api.add_holding = function (data, successHandler, error_elem) {
 
     fetch("/planning/holding/", init)
         .then((response) => {
-            /*
+            
             if (!response.ok) {
                 console.log(response);
                 throw new Error("" + response.statusText)
             }
-            */
+            
             status = true;
             return response.json();
         }).then((data) => {
+            console.log(data);
             successHandler(data);
         }
         ).catch(error => {
-            status = false
+            status = false;
             error_elem.innerText = error;
         })
 

@@ -1,9 +1,13 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from modules.monte_carlo.monte_carlo import Monte_carlo
+from modules.monte_carlo.portfolio_sim import PortfolioSim
 from planning_tool.serializers import *
+from utils.serializers import *
+from django.db import transaction
+from django.utils.timezone import now
+import threading
+import datetime
 
 class Classifier_API(APIView):
     """
@@ -46,6 +50,7 @@ class Classifier_API(APIView):
             boolean: confirmation if the update to the category was successful
         """
         pass
+
 
 class Cluster_API(APIView):
     """
@@ -108,6 +113,7 @@ class Cluster_API(APIView):
         """
         pass
 
+
 class Monte_carlo_API(APIView):
     """
     Facilitates data transfer from the Monte_carlo class
@@ -118,40 +124,92 @@ class Monte_carlo_API(APIView):
             of the users' names (key) and the results of their monte_carlo
             simulation (value)
     """
-    permission_classes = [permissions.IsAuthenticated]
-
-    # def __init__(self):
-    #     """
-    #     Initializes the Monte_carlo_API object
-    #     """
-    #     pass
+    permission_classes = [permissions.IsAuthenticated]        
 
     def get(self, request):
         """
-         Gets the results of the monte_carlo simulation
+        Gets the results of the monte_carlo simulation
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (string): The name of the user who's monte_carlo sim results
-                are to be fetched
 
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         """
-        if request.user.is_authenticated:
-            data = self.__aggregate_data(request.user)
-            try:
-                start = request.data["start"]
-                end = request.data["end"]
-                self.sim = Monte_carlo(start, end, data["tickers"], data["shares"])
-                self.sim.run_sim()
-                results = self.sim.get_results()
-                return Response(results, status.HTTP_200_OK)
-            except KeyError:
-                return Response({"Error": "Required parameter not provided"}, status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"Error": "User is not logged in"}, status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            results = MonteResults.objects.get(user_id=request.user.pk)
+            if results.running:
+                return Response(data={"detail": "Simulation in progress"}, status=status.HTTP_202_ACCEPTED)
+            else:
+                monte_serializer = MonteResultsSerializer(results)
+                return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
+        except MonteResults.DoesNotExist:
+            return Response(data={"detail": "No Monte Carlo results for this account found"},
+                            status=status.HTTP_204_NO_CONTENT)
 
+    def post(self, request):
+        """
+        Gets the results of the monte_carlo simulation
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: results of the monte_carlo simulation in JSON format
+        """
+
+        user_data = self.__aggregate_data(request.user)
+        if not user_data:
+            return Response(data={"Error": "You must create Portfolio accounts and add holdings before running a simulation"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        valid, data = self.__is_valid(request.data)
+        # print(data)
+        if valid:
+            data.update(user_data)
+            data.update({"user": request.user})
+            query, created = MonteResults.objects.get_or_create(user=request.user, defaults={"running": True})
+            if created:
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
+            elif not query.running:
+                entry = MonteResults.objects.select_for_update(nowait=True).filter(user=request.user)
+                with transaction.atomic():
+                    entry.update(running=True, date=now())
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
+            elif query.running:
+                # Current simulation running status is invalid
+                if (now() - query.date) > datetime.timedelta(minutes=15):
+                    sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                    sim_thread.start()
+                    return Response(data={"detail": "Simulation Initiated"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(data={"detail": "Simulation in progress"}, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(data={"Error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+    def __is_valid(self, request_data):
+        valid_data = {"retire_year": None,
+                      "end_year": None,
+                      "contribution": None,
+                      "monthly_withdrawal": None,
+                      "inflation": None,
+                      "retirement_allocation": None
+                      }
+        resp = {}
+        valid = True
+        for key in valid_data:
+            try:
+                resp[key] = request_data[key]
+            except KeyError:
+                resp.update({key: str(key) + " is a required field"})
+                valid = False
+        return valid, resp
 
     def __aggregate_data(self, user):
         """
@@ -166,13 +224,74 @@ class Monte_carlo_API(APIView):
             dict: A dictionary container the key value pair of the aggregated data
         """
         portfolios = Portfolio.objects.filter(user=user)
+        if len(portfolios) == 0:
+            return None
         port_serializer = PortfolioSerializer(portfolios, many=True)
-        tickers = []
-        shares = []
+        values = {"Stocks": 0, "Bonds": 0}
+        total = 0
         for portfolio in port_serializer.data:
             holdings = Holding.objects.filter(pk__in=portfolio["holdings"])
             hold_serializer = HoldingSerializer(holdings, many=True)
             for holding in hold_serializer.data:
-                tickers.append(holding["ticker"])
-                shares.append(holding["shares"])
-        return {"tickers": tickers, "shares": shares}
+                # print(holding)
+                if holding["security_type"] == "Equity":
+                    value = eval(holding["price"]) * eval(holding["shares"])
+                    values["Stocks"] += value
+                    total += value
+                elif holding["security_type"] == "Fixed Income Securities":
+                    value = eval(holding["price"]) * eval(holding["shares"])
+                    values["Bonds"] += value
+                    total += value
+        if total > 0:
+            allocations = {"Stocks": values["Stocks"] / total, "Bonds": values["Bonds"] / total}
+        else:
+            allocations = {"Stocks": 0, "Bonds": 0}
+        return {"values": values, "allocations": allocations}
+
+
+def initiate_sim(valid_data):
+    retire_year = valid_data["retire_year"]
+    end_year = valid_data["end_year"]
+    inflation = valid_data["inflation"]
+    contribution = valid_data["contribution"]
+    withdrawal = valid_data["monthly_withdrawal"]
+    port_values = valid_data["values"]
+    port_allocations = valid_data["allocations"]
+    if valid_data["retirement_allocation"]:
+        retirement_allocation = valid_data["retirement_allocation"]
+    else:
+        retirement_allocation = None
+
+    sim = PortfolioSim(retire_year, end_year, port_values, contribution, withdrawal, inflation,
+                       port_allocations, retirement_allocation, iterations=1000)
+    sim.run_sim()
+    results = sim.get_results()
+    # print(results)
+    # Store in DB
+    entry = MonteResults.objects.get(user=valid_data["user"])
+    entry.results = {"future_values": results}
+    entry.running = False
+    entry.save(update_fields=['results', 'running'])
+
+
+class UserInfo(APIView):
+    """
+    A custom view to return the information of the user in the session
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """
+        Retrieve the user's info
+
+        Arguments:
+            request (Request): The http request object
+
+        Returns:
+            Response: An http response with JSON data and a status code
+        """
+        current_user_ser = CurrentUserSerializer(request.user)
+        data = current_user_ser.data
+        data["date_joined"] = request.user.date_joined.strftime('%Y-%m-%d')
+        return Response(data)

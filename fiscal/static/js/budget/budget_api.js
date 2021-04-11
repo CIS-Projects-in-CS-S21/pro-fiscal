@@ -32,6 +32,7 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
         })
 
     return status;
+
 }
 
 /**
