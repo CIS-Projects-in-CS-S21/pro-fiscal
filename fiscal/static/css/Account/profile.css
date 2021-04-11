@@ -1,0 +1,7 @@
+input[type="checkbox"] {
+    vertical-align: middle;
+}
+
+.span12.pagination-centered {
+    margin: auto;
+}

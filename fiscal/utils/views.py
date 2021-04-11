@@ -9,7 +9,6 @@ from django.utils.timezone import now
 import threading
 import datetime
 
-
 class Classifier_API(APIView):
     """
     Facilitates data transfer from the Classifier class
@@ -273,3 +272,26 @@ def initiate_sim(valid_data):
     entry.results = {"future_values": results}
     entry.running = False
     entry.save(update_fields=['results', 'running'])
+
+
+class UserInfo(APIView):
+    """
+    A custom view to return the information of the user in the session
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """
+        Retrieve the user's info
+
+        Arguments:
+            request (Request): The http request object
+
+        Returns:
+            Response: An http response with JSON data and a status code
+        """
+        current_user_ser = CurrentUserSerializer(request.user)
+        data = current_user_ser.data
+        data["date_joined"] = request.user.date_joined.strftime('%Y-%m-%d')
+        return Response(data)

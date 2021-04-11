@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import TemplateView
-from utils.views import Monte_carlo_API
+from utils.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,5 +26,6 @@ urlpatterns = [
     path('expense/',include('budget_tool.urls')),
     path('rest-auth/', include('rest_auth.urls')),
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
-    path('monte-carlo/', Monte_carlo_API.as_view(), name="monte_carlo")
+    path('monte-carlo/', Monte_carlo_API.as_view(), name="monte_carlo"),
+    path('user-info/', UserInfo.as_view(), name="user-info")
 ]

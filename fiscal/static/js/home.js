@@ -1,10 +1,15 @@
 function home () {
-    let content = `
-        <h2>Welcome to Fiscal!</h2>
-    `;
-
     let elem = document.createElement("div");
-    elem.innerHTML = content;
+
+    let title = document.createElement("h3");
+    title.innerText = "Welcome to Fiscal's Home Page. Please use the Sidebar to access our different tools.";
+
+    elem.appendChild(title);
+    /*
+    elem.appendChild(modal);
+
+    modal.alert("Welcome to Fiscal");
+    */
 
     return elem;
 }
