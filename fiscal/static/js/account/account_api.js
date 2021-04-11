@@ -71,16 +71,22 @@ account_api.updateUsername = function (data, successHandler, errorDOM) {
         .then((response) => {
             code = response.status;
             clone = response.clone();
-
-            if (response.ok) {
-                return response.json();
-            } else {
-                return response.text();
-            }
+            return response.json();
         }).then(data => {
             if (code >= 200 && code < 300) {
                 successHandler(data);
-            } else {
+            } else if( code === 400){
+                if(data["username"]){
+                    modal.alert(data["username"])
+                }
+                // This case should not occur, but if it does we should see the error message
+                else {
+                    clone.text().then(text => {
+                        modal.alert(text);
+                    })
+                }
+            }
+            else {
                 clone.text().then(text => {
                     modal.alert(text);
                 })
