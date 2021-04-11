@@ -8,4 +8,4 @@ function wealth_target_calculate(params) {
     return finalValue;
 }
 
-module.exports = wealth_target_calculate;
+// module.exports = wealth_target_calculate;

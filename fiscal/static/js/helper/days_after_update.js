@@ -8,4 +8,4 @@
     return parseInt((curr_date - start_date) / (1000 * 60 * 60 * 24), 10);
 };
 
-module.exports = days_after_update;
+// module.exports = days_after_update;
