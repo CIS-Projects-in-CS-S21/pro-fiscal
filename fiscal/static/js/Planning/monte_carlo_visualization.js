@@ -117,9 +117,15 @@ monte_vis.future_value_chart = function (array) {
     })
     // console.log(monte_vis.chart)
 
+    // Change styling specific to monte carlo visualization
+    let chart_container = document.getElementById("chart-container");
+    chart_container.style = "width: 80%; height: 60vh;";
+
     // Used to remove chart from page when user navigates away
     function removeChart() {
             monte_vis.chart.destroy();
+            // reset chart sizing
+            chart_container.style = "";
         }
 
     window.addEventListener('hashchange', removeChart);
