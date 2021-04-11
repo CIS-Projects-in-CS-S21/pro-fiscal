@@ -2,7 +2,8 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from rest_framework.test import APIRequestFactory, APIClient
 from utils.views import *
-from planning_tool.models import Portfolio, Holding
+from planning_tool.serializers import *
+from time import sleep
 
 
 class AccountManagementTest(TestCase):
@@ -84,78 +85,78 @@ class MonteCarloAPITest(TestCase):
 
         self.user = User.objects.create(**self.user_attr)
 
+        self.sec1 = Security_Type.objects.create(type="Equities")
+        self.sec2 = Security_Type.objects.create(type="Fixed Income Securities")
+        self.acc = Account_Type.objects.create(type="IRA")
+
         self.factory = APIRequestFactory()
 
     def test_Bad_Request(self):
         data = {}
 
-        request = self.factory.get("monte-carlo/")
+        request = self.factory.post("monte-carlo/")
         request.user = self.user
         request.data = data
 
         view = Monte_carlo_API()
         view.setup(request)
-        resp = view.get(request)
+        resp = view.post(request)
+        # print(resp.data)
 
         self.assertEqual(resp.status_code, 400, "Request with the wrong data should return 400")
 
-    def test_Successful_Request_No_Data(self):
-        data = {
-            "start": 2019,
-            "end": 2020
+    def test_Good_Request(self):
+        port_data = {
+            'user_id': 1,
+            'account_type': self.acc,
+            "name": "My IRA",
+            "balance": 200.00,
+            "description": "A useful description",
         }
+        port = Portfolio.objects.create(**port_data)
 
-        request = self.factory.get("monte-carlo/")
+        hold_data_1 = {
+            "portfolio_id": 1,
+            "security_type": self.sec1,
+            "ticker": "AAPL",
+            "price": 100.0,
+            "shares": 6,
+            "cost_basis": 40.0,
+            "purchase_date": "2020-12-20"
+        }
+        Holding.objects.create(**hold_data_1)
+
+        hold_data_2 = {
+            "portfolio_id": 1,
+            "security_type": self.sec2,
+            "ticker": "GNMA",
+            "price": 100,
+            "shares": 4,
+            "cost_basis": 40.0,
+            "purchase_date": "2020-12-20"
+        }
+        Holding.objects.create(**hold_data_2)
+
+        data = {"retire_year": 2022,
+                "end_year": 2023,
+                "contribution": 20,
+                "monthly_withdrawal": 5,
+                "inflation": 0.02,
+                "retirement_allocation": ""
+                }
+
+        request = self.factory.post("monte-carlo/")
         request.user = self.user
         request.data = data
 
         view = Monte_carlo_API()
         view.setup(request)
-        resp = view.get(request)
+        resp = view.post(request)
+        # print(resp.data)
 
-        self.assertEqual(resp.status_code, 200, "Request with the right data should return 200")
-        self.assertEqual(resp.data, {}, "User with no portfolios should not return data")
+        self.assertEqual(resp.status_code, 202, "Request with the valid data should return 202")
 
-    # def test_Successful_Request_With_Data(self):
-    #     port_data = {
-    #         'user_id': 1,
-    #         'account_type': "IRA",
-    #         "name": "My IRA",
-    #         "balance": 200.00,
-    #         "description": "A useful description",
-    #         "holdings": []
-    #     }
-    #     Portfolio.objects.create(**port_data)
-    #
-    #     hold_data = {
-    #         "id": 1,
-    #         "portfolio": 1,
-    #         "security_type": "STOCK",
-    #         "ticker": "AAPL",
-    #         "price": 50.0,
-    #         "shares": 2,
-    #         "cost_basis": 40.0,
-    #         "purchase_date": "2020-12-20"
-    #     }
-    #     Holding.objects.create(**hold_data)
-    #
-    #     data = {
-    #         "start": 2019,
-    #         "end": 2020
-    #     }
-    #
-    #     request = self.factory.get("monte-carlo/")
-    #     request.user = self.user
-    #     request.data = data
-    #
-    #     view = Monte_carlo_API()
-    #     view.setup(request)
-    #     resp = view.get(request)
-    #
-    #     print(resp.data)
-    #
-    #     self.assertEqual(resp.status_code, 200, "Request with the right data should return 200")
-
+        
 class UserInfoTest(TestCase):
     def setUp(self):
         User.objects.create_user(username="Test", password="fiscaltest", email="test@test.com")
@@ -174,4 +175,3 @@ class UserInfoTest(TestCase):
         self.client.logout()
         resp = self.client.get('/user-info/', format='json')
         self.assertEquals(resp.status_code, status.HTTP_401_UNAUTHORIZED)
-

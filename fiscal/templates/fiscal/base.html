@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/profile.css' %}">
     <link rel="stylesheet" href="{% static 'css/modalStyle.css' %}">
+    <link rel="stylesheet" href="{% static 'css/planning/MonteCarlo.css' %}">
 
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
@@ -64,7 +65,7 @@
                             <a href="#/portfolio-growth">Portfolio Growth</a>
                         </li>
                         <li>
-                            <a href="#">Monte Carlo</a>
+                            <a href="#/monte-carlo">Monte Carlo</a>
                         </li>
                         <li>
                             <a href="#">Wealth Target Calculator</a>
@@ -169,11 +170,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.js"
         integrity="sha512-zO8oeHCxetPn1Hd9PdDleg5Tw1bAaP0YmNvPY8CwcRyUk7d7/+nyElmFrB6f7vg4f7Fv4sui1mcep8RIEShczg=="
         crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
-    <!-- CDN for Moment.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
-        integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
-        crossorigin="anonymous"></script>
     <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
@@ -200,12 +196,16 @@
 
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_diversification.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
 
     <script src="{% static 'js/budget/budget_overview.js' %}"></script>
-    <script src="{% static 'js/budget/Visualization.js' %}"></script>
+    <script src="{% static 'js/budget/visualization.js' %}"></script>
     <script src="{% static 'js/helper/routeFW.js' %}"></script>
     <script src="{% static 'js/helper/modalFW.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo_api.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo_visualization.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -235,6 +235,7 @@
         myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
         myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
+        myRoutes['#/monte-carlo'] = render_monte_interface;
         myRoutes['#/spending-category'] = render_budget_visualization;
 
         //Check if key exists
