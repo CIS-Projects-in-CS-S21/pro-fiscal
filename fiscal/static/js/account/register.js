@@ -43,5 +43,3 @@ function register () {
     elem.innerHTML = content;
     return elem;
 }
-
-// module.exports = verify_matching_passwords;
