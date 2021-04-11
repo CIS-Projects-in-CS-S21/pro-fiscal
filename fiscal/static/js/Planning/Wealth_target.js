@@ -36,7 +36,7 @@ const inputContent = [
     },type : "text", inputId : "TotalIncome"},
     {inputText : "Enter the interest rate at the given time period (r): ",
     actualFunction : (e)=>{
-            if(isNaN(e.target.value) || e.target.value.length >3 ){
+            if(isNaN(e.target.value) || e.target.value.length >6 ){
                 e.target.value = e.target.value.slice(0, -1)
             }
     }
