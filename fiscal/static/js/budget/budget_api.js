@@ -86,7 +86,7 @@ budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
         body: JSON.stringify(data)
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch("/expense/expense/" + data["id"], init)
         .then((response) => {

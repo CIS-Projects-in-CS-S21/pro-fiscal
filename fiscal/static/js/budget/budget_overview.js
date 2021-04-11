@@ -146,10 +146,11 @@ function render_budget_overview() {
         /* Submit Handler for Expense Items */
         form.save = createButton({
             type: "btn-success",
-            text: "Save"
+            text: "Save",
+            onclickhandler: saveFunction
         });
 
-        form.save.addEventListener("click", saveFunction);
+        // form.save.addEventListener("click", saveFunction);
         let save_cell = document.createElement("td");
         save_cell.style.textAlign = "center";
         save_cell.appendChild(form.save);
@@ -158,10 +159,11 @@ function render_budget_overview() {
         /* Cancel Handler for Expense Items */
         form.cancel = createButton({
             type: "btn-danger",
-            text: "Cancel"
+            text: "Cancel",
+            onclickhandler: cancelFunction
         });
 
-        form.cancel.addEventListener("click", cancelFunction);
+        // form.cancel.addEventListener("click", cancelFunction);
         let cancel_cell = document.createElement("td");
         cancel_cell.style.textAlign = "center";
         cancel_cell.appendChild(form.cancel);
@@ -217,7 +219,7 @@ function render_budget_overview() {
                 errors.push(errorMsg);
             }
 
-            console.log(data);
+            // console.log(data);
 
             if (errors.length === 0) {
                 budget_api.createExpenseItem(data, (new_data) => {
@@ -264,7 +266,7 @@ function render_budget_overview() {
 
             data["id"] = all_expenses[i]["id"];
 
-            console.log(data);
+            // console.log(data);
 
             /* Error Handling takes place here */
             if (form.description.value === undefined || form.description.value === '') {
@@ -355,23 +357,23 @@ function render_budget_overview() {
 
             let update_button = createButton({
                 type: "btn-secondary",
-                text: "Update"
+                text: "Update",
+                onclickhandler: function () {
+                    handleExpenseUpdate(this, this["expense_id"]);
+                }
             });
 
             update_button["expense_id"] = element["id"];
-            update_button.addEventListener("click", function () {
-                handleExpenseUpdate(this, this["expense_id"]);
-            });
 
             let delete_button = createButton({
                 type: "btn-danger",
-                text: "Delete"
+                text: "Delete",
+                onclickhandler: function () {
+                    handleExpenseDelete(this, this["expense_id"]);
+                }
             });
 
             delete_button["expense_id"] = element["id"];
-            delete_button.addEventListener("click", function () {
-                handleExpenseDelete(this, this["expense_id"]);
-            });
 
             cleaner_expenses.push({
                 "Purchase Date": element["transaction_date"],
@@ -406,14 +408,13 @@ function render_budget_overview() {
 
         let createExpenseButton = createButton({
             type: "btn-success",
-            text: "Add Expense"
+            text: "Add Expense",
+            onclickhandler: function () {
+                handleCreateExpense(expense_view);
+            }
         });
 
         sortingOrder = "Purchase Date";
-
-        createExpenseButton.addEventListener("click", function () {
-            handleCreateExpense(expense_view);
-        });
 
         expense_view.appendChild(errorDOM);
         expense_view.appendChild(modal);
