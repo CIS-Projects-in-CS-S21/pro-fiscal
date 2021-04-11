@@ -75,8 +75,8 @@ account_api.updateUsername = function (data, successHandler, errorDOM) {
         }).then(data => {
             if (code >= 200 && code < 300) {
                 successHandler(data);
-            } else if( code === 400){
-                if(data["username"]){
+            } else if (code === 400) {
+                if (data["username"]) {
                     modal.alert(data["username"])
                 }
                 // This case should not occur, but if it does we should see the error message
@@ -109,6 +109,9 @@ account_api.updateUsername = function (data, successHandler, errorDOM) {
  */
 account_api.changePassword = function (data, successHandler, errorDOM) {
     let status = false;
+    let clone = '';
+    let code = '';
+
     let init = {
         method: 'POST',
         headers: {
@@ -121,15 +124,30 @@ account_api.changePassword = function (data, successHandler, errorDOM) {
 
     fetch("/rest-auth/password/change/", init)
         .then((response) => {
-            if (!response.ok) {
-                response.text().then(text => { throw Error(text) });
-            }
-            status = true;
+            code = response.status;
+            clone = response.clone();
             return response.json();
         }).then(data => {
-            successHandler(data);
+            if (code >= 200 && code < 300) {
+                successHandler(data);
+            } else if (code === 400) {
+                if (data["old_password"]) {
+                    modal.alert(data["old_password"] + " inputted for your old password.")
+                }
+                // This case should not occur, but if it does we should see the error message
+                else {
+                    clone.text().then(text => {
+                        modal.alert(text);
+                    })
+                }
+            } else {
+                clone.text().then(text => {
+                    modal.alert(text);
+                })
+            }
+
         }).catch(error => {
-            status = false;
+            // catches any other errors that might occur            
             console.error(error);
             errorDOM.innerText = error;
         })
