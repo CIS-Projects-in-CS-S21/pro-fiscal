@@ -39,6 +39,12 @@ function userProfile() {
         title.innerText = "Update Password";
         title.classList.add("text-center");
 
+        let label_old_password = document.createElement("label");
+        label_old_password.innerText = "Old Password";
+        form.old_password = document.createElement('input');
+        form.old_password.type = 'password';
+        form.old_password.classList.add("form-control");
+
         let label_password1 = document.createElement("label");
         label_password1.innerText = "Password";
         form.new_password1 = document.createElement('input');
@@ -77,6 +83,8 @@ function userProfile() {
         cancel.classList.add("mr-2");
 
         form.container.appendChild(title);
+        form.container.appendChild(label_old_password);
+        form.container.appendChild(form.old_password);
         form.container.appendChild(label_password1);
         form.container.appendChild(form.new_password1);
         form.container.appendChild(label_password2);
@@ -256,8 +264,14 @@ function userProfile() {
                 let data = {};
                 let errors = [];
 
+                data["old_password"] = form.old_password.value;
                 data["new_password1"] = form.new_password1.value;
                 data["new_password2"] = form.new_password2.value;
+
+                if (form.old_password.value === undefined || form.old_password.value === '') {
+                    let errorMsg = "Please enter your previous password here.";
+                    errors.push(errorMsg);
+                }
 
                 if (form.new_password1.value === undefined || form.new_password1.value === '') {
                     let errorMsg = "Enter a password for Password 1.";
