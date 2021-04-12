@@ -1,5 +1,6 @@
 const wealth_target_calculator = require("../js/Planning/calculate_target");
 
+// Unit testing for Wealth Target Calculator's Logical Component
 describe("Checking for proper calculations of the Wealth Target using Compound Interest Formula.", () => {
     test("This should determine whether the wealth target calculator correctly calculates the right value.", () => {
         const input = {
