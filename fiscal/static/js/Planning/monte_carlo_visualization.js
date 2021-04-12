@@ -59,11 +59,12 @@ monte_vis.future_value_chart = function (array) {
         return obj
     }
 
-    const histo = createHistogram(array, 20)
+    const histo = createHistogram(array, 40)
 
 
     var labels = histo.map(function (e) {
-        return '$' + e.label;
+        // return '$' + e.label;
+        return e.label;
     });
 
     var data = histo.map(function (e) {
@@ -94,11 +95,14 @@ monte_vis.future_value_chart = function (array) {
                         display: true,
                         scaleLabel: {
                             display: true,
-                            labelString: 'Future Value (in Dollars)',
+                            labelString: 'Future Value (in Thousands of Dollars)',
                             fontSize: 16
                         },
                         ticks: {
-                            fontSize: 14
+                            fontSize: 14,
+                            callback: function(value, index, values){
+                                return '$' + value / 1000;
+                            }
                         }
                 }],
                 yAxes: [{
