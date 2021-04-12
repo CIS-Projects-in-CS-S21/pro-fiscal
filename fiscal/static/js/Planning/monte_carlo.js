@@ -16,6 +16,8 @@ function render_monte_interface(){
             const yearsPeriod = document.getElementById("Years").value;
             const stockBondValue = document.getElementById("stock-bond-select").value;
 
+            let current_year = new Date(Date.now()).getFullYear()
+
             if (currencyValidation(depositValue)) {
                 input_data["contribution"] = depositValue;
             } else {
@@ -35,13 +37,27 @@ function render_monte_interface(){
                 form_error.innerHTML += "Please enter valid decimal for inflation rate <br>";
             }
             if (retire_year.match(/^\d{4}$/)) {
-                input_data["retire_year"] = parseInt(retire_year);
+                let years = parseInt(retire_year);
+                if(years >= current_year) {
+                    input_data["retire_year"] = years;
+                }
+                else {
+                    valid = false;
+                    form_error.innerHTML += "Retirement year may not be in the past<br>";
+                }
             } else {
                 valid = false;
                 form_error.innerHTML += "Please enter valid number for retirement year <br>";
             }
             if (yearsPeriod.match(/^\d{4}$/)) {
-                input_data["end_year"] = parseInt(yearsPeriod);
+                let years = parseInt(yearsPeriod);
+                if(years > current_year) {
+                    input_data["end_year"] = years;
+                }
+                else {
+                    valid = false;
+                    form_error.innerHTML += "Simulation end year may not be in the past<br>";
+                }
             } else {
                 valid = false;
                 form_error.innerHTML += "Please enter valid number for simulation end year <br>";
@@ -58,13 +74,17 @@ function render_monte_interface(){
                         return response.json();
                     }).then((data) => {
                     if (status_code === 202) {
-                        message.innerText = "A simulation initiated by this account is already in progress";
+                        let msg = "A simulation initiated by this account is already in progress";
+                        message.innerText = msg;
                     } else if (status_code === 201) {
-                        message.innerText = "Simulation initiated. Please wait."
+                        let msg = "Simulation initiated. Please wait."
+                        message.innerText = msg;
                     } else if (status_code === 400) {
                         message.innerHTML = "";
-                        for (let prop in data)
-                            message.innerHTML += data[prop] + '<br>';
+                        if(data["Errors"]){
+                            for (let prop in data["Errors"])
+                                message.innerHTML += data["Errors"][prop] + '<br>';
+                        }
                     } else {
                         throw Error("" + status_code)
                     }

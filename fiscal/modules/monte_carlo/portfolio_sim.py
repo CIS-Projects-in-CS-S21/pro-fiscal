@@ -42,7 +42,7 @@ class PortfolioSim:
         self.__start = dt.date.today()
 
         # check for invalid inputs
-        assert retire_year > self.__start.year, "'retire_year' may not be in the past"
+        assert retire_year >= self.__start.year, "'retire_year' may not be in the past"
         assert end_year > self.__start.year, "'end_year' may not be in the past"
         assert contribution >= 0, "'contribution' may not be negative"
         assert monthly_withdrawal >= 0, "'monthly_withdrawal' may not be negative"
@@ -153,7 +153,7 @@ class PortfolioSim:
 
 if __name__ == "__main__":
     # function to test if the class works if run as main
-    monte = PortfolioSim(2022, 2052, {"Stocks": 600000, "Bond": 400000},
+    monte = PortfolioSim(2010, 2019, {"Stocks": 600000, "Bond": 400000},
                          4000, 5000, 0.03, {"Stocks": 0.6, "Bonds": 0.4}, iterations=1000)
     monte.run_sim()
     results = monte.get_results()

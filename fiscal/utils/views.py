@@ -201,14 +201,24 @@ class Monte_carlo_API(APIView):
                       "inflation": None,
                       "retirement_allocation": None
                       }
-        resp = {}
+        resp = {"Errors": {}}
         valid = True
+        # Check for required keys
         for key in valid_data:
             try:
                 resp[key] = request_data[key]
             except KeyError:
-                resp.update({key: str(key) + " is a required field"})
+                resp["Errors"].update({key: str(key) + " is a required field"})
                 valid = False
+
+        # Check the dates
+        current_year = now().year
+        if request_data["retire_year"] < current_year:
+            valid = False
+            resp["Errors"].update({"retire_year": "Retirement year may not be in the past"})
+        if request_data["end_year"] <= current_year:
+            valid = False
+            resp["Errors"].update({"end_year": "Simulation end year may not be in the past"})
         return valid, resp
 
     def __aggregate_data(self, user):
