@@ -74,6 +74,8 @@ class PortfolioSim:
         before_retirement = pd.date_range(start=self.__start, end=self.__retire, freq='M')
         after_retirement = pd.date_range(start=self.__retire, end=self.__end, freq='M')
 
+        results = np.zeros(self.__iterations, dtype=np.float64)
+
         for i in range(self.__iterations):
             # Reset to initial values for the iteration
             values = pd.Series(self.__portfolio_values, dtype='Float64')
@@ -103,11 +105,15 @@ class PortfolioSim:
                 # increase monthly withdrawal by amortized inflation
                 withdrawal += withdrawal * (self.__inflation / 12)
 
-            self.__sim_results.append(round(values.sum(), 2))
-        self.__store_results()
+            results[i] = values.sum()
 
-    def __store_results(self):
-        pass
+            # self.__sim_results.append(round(values.sum(), 2))
+
+        std_dev = np.std(results)
+        mean = np.mean(results)
+        max_devs = 3
+        no_outliers = results[abs(results) - mean < max_devs * std_dev]
+        self.__sim_results = [round(x, 2) for x in no_outliers]
 
     def get_results(self):
         """
@@ -153,10 +159,10 @@ class PortfolioSim:
 
 if __name__ == "__main__":
     # function to test if the class works if run as main
-    monte = PortfolioSim(2010, 2019, {"Stocks": 600000, "Bond": 400000},
-                         4000, 5000, 0.03, {"Stocks": 0.6, "Bonds": 0.4}, iterations=1000)
+    monte = PortfolioSim(2022, 2023, {"Stocks": 600, "Bond": 400},
+                         200, 50, 0.03, {"Stocks": 0.6, "Bonds": 0.4}, iterations=1000)
     monte.run_sim()
     results = monte.get_results()
     plt.hist(results, 50)
     plt.show()
-    # print(results)
+    print(results)
