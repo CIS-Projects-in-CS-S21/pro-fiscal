@@ -245,7 +245,7 @@ class HoldingDetail(APIView):
     def delete(self, request, pk):
         holding = self.get_object(pk)
         holding.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT);
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AccountTypeList(generics.ListAPIView):

@@ -1,4 +1,5 @@
 /**
+
  * Function that fetches expense items from the database based on the provided user id.
  * @param {DOMElement} appendDOM Element to render the component in.
  * @param {Function} successHandler Function to execute when you successfully retrieve the Expense Data.
@@ -91,33 +92,36 @@ function render_budget_overview() {
         form.container.classList.add("scrollable");
 
         /* Purchase Date for Expense Items */
-        form.purchase_date = document.createElement("input");
-        form.purchase_date.type = "date";
-        form.purchase_date.classList.add("purchase_date");
+        form.transaction_date = document.createElement("input");
+        form.transaction_date.type = "date";
+        form.transaction_date.valueAsDate = new Date();
+        form.transaction_date.classList.add("no_future_inputs", "form-control");
 
         let dateCell = document.createElement("td");
         dateCell.style.textAlign = "right";
-        dateCell.appendChild(form.purchase_date);
+        dateCell.appendChild(form.transaction_date);
         form.container.appendChild(dateCell);
 
         /* Transaction Details for Expense Items */
-        form.details = document.createElement("input");
-        form.details.type = "text";
+        form.description = document.createElement("input");
+        form.description.type = "text";
+        form.description.classList.add("form-control");
 
         let detailsCell = document.createElement("td");
         detailsCell.style.textAlign = "left";
-        detailsCell.appendChild(form.details);
+        detailsCell.appendChild(form.description);
         form.container.appendChild(detailsCell);
 
         /* Cost for Expense Items */
-        form.cost = document.createElement("input");
-        form.cost.type = "number";
-        form.cost.min = "0.01";
-        form.cost.step = "0.01";
+        form.amount = document.createElement("input");
+        form.amount.type = "number";
+        form.amount.min = "0.01";
+        form.amount.step = "0.01";
+        form.amount.classList.add("form-control");
 
         let cost_cell = document.createElement("td");
         cost_cell.style.textAlign = "right";
-        cost_cell.appendChild(form.cost);
+        cost_cell.appendChild(form.amount);
         form.container.appendChild(cost_cell);
 
         /* Categories for Expense Items */
@@ -126,10 +130,13 @@ function render_budget_overview() {
             "Groceries/Household", "Entertainment", "Essentials", "Non-Essentials", "Other"];
 
         form.categories = makePickList(categories);
+
         if (disablePickList) {
             form.categories.disabled = true;
             form.categories.value = "Other";
         }
+
+        form.categories.classList.add("form-control");
 
         let categoryCell = document.createElement("td");
         categoryCell.style.textAlign = "left";
@@ -139,9 +146,11 @@ function render_budget_overview() {
         /* Submit Handler for Expense Items */
         form.save = createButton({
             type: "btn-success",
-            text: "Save"
+            text: "Save",
+            onclickhandler: saveFunction
         });
-        form.save.addEventListener("click", saveFunction);
+
+        // form.save.addEventListener("click", saveFunction);
         let save_cell = document.createElement("td");
         save_cell.style.textAlign = "center";
         save_cell.appendChild(form.save);
@@ -150,9 +159,11 @@ function render_budget_overview() {
         /* Cancel Handler for Expense Items */
         form.cancel = createButton({
             type: "btn-danger",
-            text: "Cancel"
+            text: "Cancel",
+            onclickhandler: cancelFunction
         });
-        form.cancel.addEventListener("click", cancelFunction);
+
+        // form.cancel.addEventListener("click", cancelFunction);
         let cancel_cell = document.createElement("td");
         cancel_cell.style.textAlign = "center";
         cancel_cell.appendChild(form.cancel);
@@ -165,24 +176,67 @@ function render_budget_overview() {
         let tableBody = container.getElementsByTagName("tbody")[0];
         let form = renderBudgetForm(function () {
             let data = {};
+            let errors = [];
 
-            data["purchase_date"] = form.purchase_date.value;
-            data["transaction"] = form.details.value;
-            data["cost"] = parseFloat(form.cost.value);
+            let input_date = '';
+
+            data["transaction_date"] = form.transaction_date.value;
+            data["description"] = form.description.value;
+            data["amount"] = parseFloat(form.amount.value);
             data["category"] = form.categories.value;
 
-            input_item(data, (new_data) => {
-                all_expenses.push(new_data);
-                let expenses = tableBody.parentElement.parentElement;
-                expenses.remove();
-                expenses = handleUserExpenses(all_expenses);
-                container.appendChild(expenses);
-            }, errorDOM);
+            /*
+            if (form.categories.value !== "Automatically Created") {
+                let errorMsg = "I don't know how you managed this, but your Category should be predetermined by the Budget Classifier, not manually selected.";
+                errors.push(errorMsg);
+            }
+            */
+
+            /* Error Handling takes place here */
+            if (form.description.value === undefined || form.description.value === '') {
+                let errorMsg = "Please add a description for your Expense Item!";
+                errors.push(errorMsg);
+            }
+
+            if (form.transaction_date.value === '') {
+                let errorMsg = "You have to add a Purchase Date for your Expense Item.";
+                errors.push(errorMsg);
+            }
+
+            input_date = new Date(form.transaction_date.value);
+            let d = new Date().setHours(0, 0, 0, 0);
+
+            if (days_after_update(d, input_date) < 0) {
+                let errorMsg = "You cannot pick a date from the future.";
+                errors.push(errorMsg);
+            }
+
+            if (form.amount.value === undefined || form.amount.value === '' || isNaN(form.amount.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.amount.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            // console.log(data);
+
+            if (errors.length === 0) {
+                budget_api.createExpenseItem(data, (new_data) => {
+                    all_expenses.push(new_data);
+                    let expenses = tableBody.parentElement.parentElement;
+                    expenses.remove();
+                    expenses = handleUserExpenses(all_expenses);
+                    container.appendChild(expenses);
+                }, errorDOM);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             form.container.remove();
         }, true);
 
-        formMaxDate("purchase_date");
+        formMaxDate("no_future_inputs");
 
         tableBody.appendChild(form.container);
     };
@@ -203,29 +257,66 @@ function render_budget_overview() {
 
         let form = renderBudgetForm(function () {
             let data = {};
-            
-            data["purchase_date"] = form.purchase_date.value;
-            data["transaction"] = form.details.value;
-            data["cost"] = parseFloat(form.cost.value);
+            let errors = [];
+
+            data["transaction_date"] = form.transaction_date.value;
+            data["description"] = form.description.value;
+            data["amount"] = parseFloat(form.amount.value);
             data["category"] = form.categories.value;
 
-            input_item(data, (new_data) => {
-                all_expenses[i] = new_data;
-                expense_container.remove();
-                expense_container = handleUserExpenses(all_expenses);
-                elem.appendChild(expense_container);
-            }, errorDOM);
+            data["id"] = all_expenses[i]["id"];
+
+            // console.log(data);
+
+            /* Error Handling takes place here */
+            if (form.description.value === undefined || form.description.value === '') {
+                let errorMsg = "Please add a description for your Expense Item!";
+                errors.push(errorMsg);
+            }
+
+            if (form.transaction_date.value === '') {
+                let errorMsg = "You have to add a Purchase Date for your Expense Item.";
+                errors.push(errorMsg);
+            }
+
+            let input_date = new Date(form.transaction_date.value);
+            let d = new Date().setHours(0, 0, 0, 0);
+
+            if (days_after_update(d, input_date) < 0) {
+                let errorMsg = "You cannot pick a date from the future.";
+                errors.push(errorMsg);
+            }
+
+            if (form.amount.value === undefined || form.amount.value === '' || isNaN(form.amount.value)) {
+                let errorMsg = "Your entered price is either empty or not a number.";
+                errors.push(errorMsg);
+            } else if (currencyValidation(form.amount.value) === null) {
+                let errorMsg = "Your entered price has too many decimal places, or your balance is a negative number.";
+                errors.push(errorMsg);
+            }
+
+            if (errors.length === 0) {
+                budget_api.updateExpenseItem(data,
+                    (new_data) => {
+                        all_expenses[i] = new_data;
+                        expense_container.remove();
+                        expense_container = handleUserExpenses(all_expenses);
+                        elem.appendChild(expense_container);
+                    }, errorDOM);
+            } else {
+                modal.renderErrorMessages(errors);
+            }
         }, function () {
             expense_container.remove();
             expense_container = handleUserExpenses(all_expenses);
             elem.appendChild(expense_container);
         }, false);
 
-        formMaxDate("purchase_date");
+        formMaxDate("no_future_inputs");
 
-        form.purchase_date.value = Date.parse(expenseItem["purchase_date"]);
-        form.details.value = expenseItem["transaction"];
-        form.cost.value = expenseItem["cost"];
+        form.transaction_date.value = expenseItem["transaction_date"];
+        form.description.value = expenseItem["description"];
+        form.amount.value = expenseItem["amount"];
         form.categories.value = expenseItem["category"];
 
         row.parentElement.insertBefore(form.container, row);
@@ -233,7 +324,14 @@ function render_budget_overview() {
     }
 
     const handleExpenseDelete = (container, expense_id) => {
-        console.log(expense_id);
+        function toDeleteExpense() {
+            budget_api.deleteExpenseItem(expense_id, () => {
+                row.remove();
+            }, errorDOM);
+        }
+
+        let row = container.parentElement.parentElement;
+        modal.confirm("Are you sure you want to delete this expense?", toDeleteExpense);
     }
 
     const handleUserExpenses = (expenses) => {
@@ -253,34 +351,34 @@ function render_budget_overview() {
         }
 
         all_expenses = expenses;
-        
+
         for (let i = 0; i < expenses.length; i++) {
             let element = expenses[i];
 
             let update_button = createButton({
                 type: "btn-secondary",
-                text: "Update"
+                text: "Update",
+                onclickhandler: function () {
+                    handleExpenseUpdate(this, this["expense_id"]);
+                }
             });
 
             update_button["expense_id"] = element["id"];
-            update_button.addEventListener("click", function () {
-                handleExpenseUpdate(this, this["expense_id"]);
-            });
 
             let delete_button = createButton({
                 type: "btn-danger",
-                text: "Delete"
+                text: "Delete",
+                onclickhandler: function () {
+                    handleExpenseDelete(this, this["expense_id"]);
+                }
             });
 
             delete_button["expense_id"] = element["id"];
-            delete_button.addEventListener("click", function () {
-                handleExpenseDelete(this, this["expense_id"]);
-            });
 
             cleaner_expenses.push({
-                "Purchase Date": element["purchase_date"],
-                "Transaction Detail": element["transaction"],
-                "Cost": element["cost"],
+                "Purchase Date": element["transaction_date"],
+                "Transaction Detail": element["description"],
+                "Cost": element["amount"],
                 "Category": element["category"],
                 "Update": update_button,
                 "Delete": delete_button
@@ -298,6 +396,11 @@ function render_budget_overview() {
         return expense_container;
     }
 
+    function prepareExpenses(expenseItems) {
+        let table = handleUserExpenses(expenseItems);
+        expense_view.appendChild(table);
+    }
+
     function render() {
         expense_view.innerHTML = "";
         all_expenses = [];
@@ -305,20 +408,22 @@ function render_budget_overview() {
 
         let createExpenseButton = createButton({
             type: "btn-success",
-            text: "Add Expense"
+            text: "Add Expense",
+            onclickhandler: function () {
+                handleCreateExpense(expense_view);
+            }
         });
 
-        sortingOrder = "Purchase Date"
-
-        createExpenseButton.addEventListener("click", function () {
-            handleCreateExpense(expense_view);
-        });
+        sortingOrder = "Purchase Date";
 
         expense_view.appendChild(errorDOM);
+        expense_view.appendChild(modal);
         expense_view.appendChild(createExpenseButton);
         expense_view.appendChild(document.createElement("p"));
 
-        getExpenseData(expense_view, handleUserExpenses, errorDOM);
+        budget_api.getAllExpenseItems(prepareExpenses, errorDOM);
+
+        // getExpenseData(expense_view, handleUserExpenses, errorDOM);
     }
 
     /* Main starts here */

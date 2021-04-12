@@ -19,7 +19,7 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
     fetch("/expense/expense/", init)
         .then((response) => {
             if (!response.ok) {
-                throw new Error("" + response.statusText)
+                response.text().then(text => { throw Error(text) });
             }
             status = true;
             return response.json();
@@ -28,6 +28,111 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
         }).catch(error => {
             status = false;
             console.error(error);
+            errorDOM.innerText = error;
+        })
+
+    return status;
+
+}
+
+/**
+ * 
+ * @param {*} data 
+ * @param {*} successHandler 
+ * @param {*} errorDOM 
+ */
+budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
+    let status = false;
+    let init = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        },
+        body: JSON.stringify(data)
+    }
+
+    fetch("/expense/expense/", init)
+        .then((response) => {
+
+            if (!response.ok) {
+                response.text().then(text => { throw Error(text) });
+            }
+
+            status = true;
+            return response.json();
+        }).then((data) => {
+            successHandler(data);
+        }
+        ).catch(error => {
+            status = false;
+            console.error(error);
+            errorDOM.innerText = error;
+        })
+
+    return status;
+}
+
+budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
+    let status = false;
+    let init = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        },
+        body: JSON.stringify(data)
+    }
+
+    // console.log(data);
+
+    fetch("/expense/expense/" + data["id"], init)
+        .then((response) => {
+
+            if (!response.ok) {
+                response.text().then(text => { throw Error(text) });
+            }
+
+            status = true;
+            return response.json();
+        }).then((data) => {
+            successHandler(data);
+        }
+        ).catch(error => {
+            status = false;
+            errorDOM.innerText = error;
+        })
+
+    return status;
+}
+
+budget_api.deleteExpenseItem = function (expense_id, successHandler, errorDOM) {
+    let status = false;
+    let init = {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        },
+    }
+
+    fetch("/expense/expense/" + expense_id, init)
+        .then((response) => {
+
+            if (!response.ok) {
+                response.text().then(text => { throw Error(text) });
+                // throw new Error("" + response.statusText)
+            }
+
+            status = true;
+        }).then(() => {
+            successHandler();
+        }
+        ).catch(error => {
+            status = false;
             errorDOM.innerText = error;
         })
 
