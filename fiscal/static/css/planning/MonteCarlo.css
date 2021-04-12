@@ -1,3 +1,6 @@
+/* ---------------------------------------------------
+    INTERFACE STYLE
+----------------------------------------------------- */
 .monte-container h3 {
     text-align: center;
     font-size: 36px;
@@ -17,6 +20,8 @@
 .monte-carlo-interface div {
     grid-area: buttons;
     text-align: right;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .monte-carlo-interface div button {
@@ -28,7 +33,9 @@
     padding: 20px;
 
 }
-
+/* ---------------------------------------------------
+    MODAL STYLE
+----------------------------------------------------- */
 .modal-monte {
     display: none;
     position: fixed;
@@ -93,5 +100,26 @@
 .modal-monte button{
     padding: 10px 20px 10px 20px;
     margin: 20px;
+}
+
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+
+@media (max-width: 1480px) {
+    .monte-carlo-interface {
+        display: flex;
+        flex-direction: column;
+        margin: 0 10% 0 10%;
+    }
+
+    .monte-carlo-interface p {
+        margin: auto;
+    }
+
+    .monte-carlo-interface div {
+        text-align: center;
+    }
+
 }
 
