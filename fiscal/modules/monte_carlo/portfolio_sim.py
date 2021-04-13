@@ -70,9 +70,12 @@ class PortfolioSim:
         """
         Run the Monte_carlo simulation for the user
         """
-
-        before_retirement = pd.date_range(start=self.__start, end=self.__retire, freq='M')
-        after_retirement = pd.date_range(start=self.__retire, end=self.__end, freq='M')
+        if self.__end > self.__retire:
+            before_retirement = len(pd.date_range(start=self.__start, end=self.__retire, freq='M'))
+            after_retirement = len(pd.date_range(start=self.__retire, end=self.__end, freq='M'))
+        else:
+            before_retirement = len(pd.date_range(start=self.__start, end=self.__end, freq='M'))
+            after_retirement = 0
 
         results = np.zeros(self.__iterations, dtype=np.float64)
 
@@ -83,7 +86,7 @@ class PortfolioSim:
             withdrawal = self.__monthly_withdrawal
 
             # Calculate values before retirement, accounting for monthly contributions
-            for j in range(len(before_retirement)):
+            for j in range(before_retirement):
                 for k in range(len(self.__stats)):
                     # Geometric Brownian Motion: S_i+1 = S_i(mu*dt + sigma * normal * sqrt(dt) + S_i
                     values[k] += values[k] * (self.__stats["mean"][k] + np.random.normal(0, 1) * self.__stats["std"][k])
@@ -94,7 +97,7 @@ class PortfolioSim:
             allocations = pd.Series(self.__retirement_allocation)
 
             # Calculate values after retirement, accounting for monthly withdrawals
-            for j in range(len(after_retirement)):
+            for j in range(after_retirement):
                 for k in range(len(self.__stats)):
                     # Geometric Brownian Motion: S_i+1 = S_i(mu*dt + sigma * normal * sqrt(dt) + S_i
                     values[k] += values[k] * (self.__stats["mean"][k] + np.random.normal(0, 1) * self.__stats["std"][k])
@@ -159,7 +162,7 @@ class PortfolioSim:
 
 if __name__ == "__main__":
     # function to test if the class works if run as main
-    monte = PortfolioSim(2022, 2023, {"Stocks": 600, "Bond": 400},
+    monte = PortfolioSim(2025, 2023, {"Stocks": 600, "Bond": 400},
                          200, 50, 0.03, {"Stocks": 0.6, "Bonds": 0.4}, iterations=1000)
     monte.run_sim()
     results = monte.get_results()
