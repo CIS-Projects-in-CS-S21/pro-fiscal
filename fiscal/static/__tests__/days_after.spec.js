@@ -1,4 +1,4 @@
-const days_after_update = require("../js/days_after_update");
+const days_after_update = require("../js/helper/days_after_update");
 
 describe("Checking for days after", () => {
     test("It should return 2 days in between April 1st and April 3rd.", () => {

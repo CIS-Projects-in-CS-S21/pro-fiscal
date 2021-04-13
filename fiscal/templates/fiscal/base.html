@@ -21,7 +21,10 @@
     <link rel="stylesheet" href="{% static 'css/planning/overview.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/register.css' %}">
     <link rel="stylesheet" href="{% static 'css/account/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account/profile.css' %}">
     <link rel="stylesheet" href="{% static 'css/modalStyle.css' %}">
+    <link rel="stylesheet" href="{% static 'css/planning/MonteCarlo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/planning/WealthTarget.css' %}">
 
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet"
@@ -63,10 +66,10 @@
                             <a href="#/portfolio-growth">Portfolio Growth</a>
                         </li>
                         <li>
-                            <a href="#">Monte Carlo</a>
+                            <a href="#/monte-carlo">Monte Carlo</a>
                         </li>
                         <li>
-                            <a href="#">Wealth Target Calculator</a>
+                            <a href="#/wealthTarget-calculator">Wealth Target Calculator</a>
                         </li>
                         <li>
                             <a href="#">Cluster Analysis</a>
@@ -82,7 +85,7 @@
                             <a href="#/budget-overview">Spending Overview</a>
                         </li>
                         <li>
-                            <a href="#">Spending Visualization</a>
+                            <a href="#/spending-category">Spending Visualization</a>
                         </li>
                     </ul>
                 </li>
@@ -125,7 +128,7 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Profile</a>
+                                <a class="nav-link" href="#/profile">Profile</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Glossary</a>
@@ -168,29 +171,55 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.js"
         integrity="sha512-zO8oeHCxetPn1Hd9PdDleg5Tw1bAaP0YmNvPY8CwcRyUk7d7/+nyElmFrB6f7vg4f7Fv4sui1mcep8RIEShczg=="
         crossorigin="anonymous"></script>
-        <!-- jQuery Custom Scroller CDN -->
+    <!-- CDN for Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+        integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+        crossorigin="anonymous"></script>
+
+    <!-- jQuery Custom Scroller CDN -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 
 
     <script src="{% static 'js/home.js' %}"></script>
+
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
+    <script src="{% static 'js/helper/matchPassword.js' %}"></script>
+
     <script src="{% static 'js/helper/createButton.js' %}"></script>
     <script src="{% static 'js/helper/makePickList.js' %}"></script>
     <script src="{% static 'js/helper/createTable.js' %}"></script>
     <script src="{% static 'js/helper/days_after_update.js' %}"></script>
     <script src="{% static 'js/helper/formMaxDate.js' %}"></script>
-    <script src="{% static 'js/currencyValidation.js' %}"></script>
+    <script src="{% static 'js/helper/usernameValidation.js' %}"></script>
 
+    <script src="{% static 'js/helper/currencyValidation.js' %}"></script>
+
+    <script src="{% static 'js/Planning/calculate_target.js' %}"></script>
+
+    <script src="{% static 'js/account/account_api.js' %}"></script>
+    <script src="{% static 'js/account/register.js' %}"></script>
+    <script src="{% static 'js/account/login.js' %}"></script>
+    <script src="{% static 'js/account/profile.js' %}"></script>
 
     <script src="{% static 'js/Planning/portfolio_overview_api.js' %}"></script>
+    <script src="{% static 'js/budget/budget_api.js' %}"></script>
+
     <script src="{% static 'js/Planning/Portfolio_overview.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_diversification.js' %}"></script>
-    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo.js' %}"></script>
     <script src="{% static 'js/Planning/portfolio_growth.js' %}"></script>
+
+    <script src="{% static 'js/budget/budget_overview.js' %}"></script>
+    <script src="{% static 'js/budget/visualization.js' %}"></script>
+
     <script src="{% static 'js/helper/routeFW.js' %}"></script>
     <script src="{% static 'js/helper/modalFW.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo_api.js' %}"></script>
+    <script src="{% static 'js/Planning/monte_carlo_visualization.js' %}"></script>
+    <script src="{% static 'js/Planning/Wealth_target.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -214,18 +243,21 @@
         var myRoutes = [];
 
         myRoutes['#/home'] = home;
+        myRoutes['#/profile'] = userProfile;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
         myRoutes['#/portfolio-diversification'] = render_portfolio_diversification;
         myRoutes['#/budget-overview'] = render_budget_overview;
         myRoutes['#/portfolio-growth'] = render_portfolio_growth;
+        myRoutes['#/monte-carlo'] = render_monte_interface;
+        myRoutes['#/spending-category'] = render_budget_visualization;
+         myRoutes['#/wealthTarget-calculator'] = render_wealthTarget_interface;
 
         //Check if key exists
         const key = localStorage.getItem("key");
         if (!key) {
             window.location.replace("/register")
         }
-
 
         routeFW({
             routeArray: myRoutes,

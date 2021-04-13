@@ -80,36 +80,41 @@ class ExpenseDetail(APIView):
 
         return Response(exp_data)
 
-    def put(self, request, key):
+    def put(self, request, pk):
         """
         Update the specified expense
 
         Args:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the expense
+            pk (int): The primary key of the expense
 
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        # request.data["expense_id"] = key
-        expense_serializer = ExpenseSerializer(data=request.data)
+        # request.data["expense_id"] = pk
+        request.data["user"] = request.user.pk
+
+        # expense_serializer = ExpenseSerializer(data=request.data)
+        expense = self.get_object(pk)
+        expense_serializer = ExpenseSerializer(expense, data=request.data)
+
         if expense_serializer.is_valid():
             expense_serializer.save()
             return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
         return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, key):
+    def delete(self, request, pk):
         """
         Delete the specified expense
 
         Args:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the expense
+            pk (int): The primary key of the expense
 
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        expense = self.get_object(key)
+        expense = self.get_object(pk)
         expense.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     """test"""

@@ -230,6 +230,7 @@ function render_portfolio_overview() {
             data["ticker"] = form.ticker.value;
             data["price"] = parseFloat(form.price.value);
             data["shares"] = parseFloat(form.shares.value);
+
             if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
                 input_date = new Date(form.purchase_date.value);
@@ -253,6 +254,7 @@ function render_portfolio_overview() {
             }
 
             data["portfolio"] = all_portfolios[list_id]["id"];
+            data["id"] = holdings[i]["id"];
 
             if (form.ticker.value.length > 5) {
                 let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
@@ -267,11 +269,8 @@ function render_portfolio_overview() {
                 errors.push(errorMsg);
             }
 
-            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value)) {
-                let errorMsg = "Your entered number of shares is either empty or not a number.";
-                errors.push(errorMsg);
-            } else if (currencyValidation(form.shares.value) === null) {
-                let errorMsg = "Your entered number of shares has too many decimal places, or your number of shares is a negative number.";
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value) || form.shares.value > 0) {
+                let errorMsg = "Your entered number of shares is either empty, not a number, or a negative number.";
                 errors.push(errorMsg);
             }
 
@@ -281,7 +280,7 @@ function render_portfolio_overview() {
             }
 
             if (errors.length === 0) {
-                portfolio_api.add_holding(data,
+                portfolio_api.update_holding(data,
                     (new_data) => {
                         holdings[i] = new_data;
                         holdings_div.remove();
@@ -672,6 +671,7 @@ function render_portfolio_overview() {
 
         form.purchase_date = document.createElement("input");
         form.purchase_date.type = "date";
+        form.purchase_date.valueAsDate = new Date();
         form.purchase_date.classList.add("no_future_inputs");
         form.purchase_date.classList.add("form-control");
 
