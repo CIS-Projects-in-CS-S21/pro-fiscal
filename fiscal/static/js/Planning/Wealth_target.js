@@ -1,5 +1,12 @@
+/**
+ * 
+ * @returns {DOMElement} The element that will be displayed onto the Wealth Target Calculator page.
+ */
 function render_wealthTarget_interface() {
 
+    /**
+     * Function that collects the user's inputs, and renders the present value P into the page.
+     */
     const submitWealth = () => {
         const futureValue = parseFloat(document.getElementById("TotalIncome").value);
         const InterestRate = parseFloat(document.getElementById("Rate").value);
@@ -7,12 +14,31 @@ function render_wealthTarget_interface() {
         //send to backend here
 
         //change values of input to null
+        /*
         document.getElementById("TotalIncome").value = null;
         document.getElementById("Rate").value = null;
         document.getElementById("time").value = null;
         console.log(futureValue, InterestRate, TimePeriod);
+        */
 
+        let params = {
+            "wealth_target_inputs": {
+                "target_wealth": futureValue,
+                "annual_return": InterestRate,
+                "num_years": TimePeriod
+            },
+            "date": new Date()
+        }
 
+        let formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+
+        let results = wealth_target_calculate(params);
+
+        let item = document.getElementById("presentValue");
+        item.value = formatter.format(results);
     }
 
     const inputContent = [
@@ -43,15 +69,13 @@ function render_wealthTarget_interface() {
             , type: "text", inputId: "time", disabled: false
         },
         {
-            inputText: "Present Value to save to attain your Future Value: ",
+            inputText: "Present Value to save to attain your Future Value (P): ",
             actualFunction: (e) => {
 
             }
             , type: "text", inputId: "presentValue", disabled: true
         }
-    ]
-
-
+    ];
 
     let FormWealth = document.createElement("div");
     let formParagraph = document.createElement("p");
@@ -89,15 +113,12 @@ function render_wealthTarget_interface() {
     const submitIcon = document.createElement("button");
     submitIcon.id = "submitForm";
     submitIcon.innerHTML = "calculate";
-    submitIcon.addEventListener("click", submitWealth)
+    submitIcon.addEventListener("click", submitWealth);
     wealthDiv.appendChild(submitIcon);
-
-
 
     userInfo.appendChild(wealthDiv);
 
     FormWealth.appendChild(userInfo);
-
 
     return FormWealth;
 }
