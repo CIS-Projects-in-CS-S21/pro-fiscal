@@ -18,14 +18,14 @@ class Classifier:
     Attributes:
         model (classifier_model): The pickled classifier model saved from the external
             jupyter-notebook
+        vectorizer: A TfidfVectorizer object from sklearn
+        model_path (str): The path to the pickled classifier model
+        vectorizer_path (str): The path to the pickled vectorizer object
     """
     
     def __init__(self):
         """
         Initializes the Classifier object
-
-        Arguments:
-            model_path (string): The name of the pickled classifier model
         """
         self.model_path = os.path.join(BASE_DIR.parent, "machine_learning", "pickled_objs", "linear_clf.pkl")
         self.vectorizer_path = os.path.join(BASE_DIR.parent, "machine_learning", "pickled_objs", "Tfidf_vect.pkl")
@@ -41,6 +41,11 @@ class Classifier:
         with open(self.vectorizer_path, 'rb') as vect_file:
             self.vectorizer = pickle.load(vect_file)
 
+        self.tag_map = defaultdict(lambda: wn.NOUN)
+        self.tag_map['J'] = wn.ADJ
+        self.tag_map['V'] = wn.VERB
+        self.tag_map['R'] = wn.ADV
+
     
     def classify(self, dict):
         """
@@ -51,12 +56,7 @@ class Classifier:
         
         Returns:
             string: The name of the class that the expenditure was placed into
-        """
-
-        tag_map = defaultdict(lambda: wn.NOUN)
-        tag_map['J'] = wn.ADJ
-        tag_map['V'] = wn.VERB
-        tag_map['R'] = wn.ADV
+        """        
 
         description = dict["description"].lower()
 
@@ -69,7 +69,7 @@ class Classifier:
         for word, tag in pos_tag(words):
             # Below condition is to check for Stop words and consider only alphabets
             if word not in stopwords.words('english') and word.isalpha():
-                word_Final = word_Lemmatized.lemmatize(word, tag_map[tag[0]])
+                word_Final = word_Lemmatized.lemmatize(word, self.tag_map[tag[0]])
                 Final_words.append(word_Final)
 
         # transform words to vector from pickeled model
