@@ -1,41 +1,43 @@
-
 .form-wealth {
-font-size: 18px;
+    font-size: 18px;
 }
-.form-wealth h1{
-font-size: 30px
+
+.form-wealth h1 {
+    font-size: 30px
 }
 
 #wealth {
     height: 318px;
-    width: 500px;
+    /* width: 500px; */
+    width: 60%;
     display: grid;
     font-size: 17px;
     align-items: center;
     justify-content: center;
     background-color: #dcdcdc;
+    border-radius: 5px;
     grid-template-columns: 255px 1fr;
     grid-template-rows: 67px 67px 67px;
-    grid-template-areas:
-    ". TotalIncome"
-    ". Rate"
-    ". time"
-
-    "submitForm submitForm";
+    grid-template-areas: ". TotalIncome" ". Rate" ". time" "submitForm submitForm";
     margin: 0 auto;
     padding: 20px;
 }
-#submitForm {
-text-transform: uppercase;
-background-color: #28a745;
-padding: 8px;
-color: white;
+
+.wealthResult {
+    background-color: #dcdcdc;
+    border-radius: 5px;
+    width: 60%;
+    margin: auto;
+    padding: 2rem;
 }
 
+.wealthAnswer {
+    font-size: 20px;
+}
 
-
-
-
-
-
-
+#submitForm {
+    text-transform: uppercase;
+    background-color: #28a745;
+    padding: 8px;
+    color: white;
+}
