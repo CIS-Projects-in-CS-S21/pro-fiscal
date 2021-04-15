@@ -92,19 +92,21 @@ function render_portfolio_overview() {
 
             let update_button = createButton({
                 type: "btn-secondary",
-                text: "Update"
+                text: "Update",
+                onclickhandler: function () { handleHoldingUpdate(this, this["holding_id"]); }
             });
 
             update_button["holding_id"] = holdingItem["id"];
-            update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
+            // update_button.addEventListener("click", function () { handleHoldingUpdate(this, this["holding_id"]); })
             cleaner_holdings[i]["Update"] = update_button;
 
             let delete_button = createButton({
                 type: "btn-danger",
-                text: "Delete"
+                text: "Delete",
+                onclickhandler: function () { handleHoldingDelete(this, this["holding_id"]); }
             });
             delete_button["holding_id"] = holdingItem["id"];
-            delete_button.addEventListener("click", function () { handleHoldingDelete(this, this["holding_id"]); })
+            // delete_button.addEventListener("click", function () { handleHoldingDelete(this, this["holding_id"]); })
             cleaner_holdings[i]["Delete"] = delete_button;
         }
 
@@ -254,7 +256,7 @@ function render_portfolio_overview() {
             }
 
             data["portfolio"] = all_portfolios[list_id]["id"];
-            data["id"] = holdings[i]["id"];
+            data["id"] = holding["id"];
 
             if (form.ticker.value.length > 5) {
                 let errorMsg = "Ticker Name has too many characters (max characters of 5, found " + form.ticker.value.length + " characters).";
@@ -269,7 +271,7 @@ function render_portfolio_overview() {
                 errors.push(errorMsg);
             }
 
-            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value) || form.shares.value > 0) {
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value) || form.shares.value < 0) {
                 let errorMsg = "Your entered number of shares is either empty, not a number, or a negative number.";
                 errors.push(errorMsg);
             }
@@ -282,7 +284,7 @@ function render_portfolio_overview() {
             if (errors.length === 0) {
                 portfolio_api.update_holding(data,
                     (new_data) => {
-                        holdings[i] = new_data;
+                        all_portfolios[list_id]["holdings"][i] = new_data;
                         holdings_div.remove();
                         holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
                         elem.appendChild(holdings_div);

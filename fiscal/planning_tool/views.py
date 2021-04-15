@@ -231,7 +231,8 @@ class HoldingDetail(APIView):
         return Response(h_data)
 
     def put(self, request, pk):
-        holding_serializer = HoldingSerializer(data=request.data)
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding, data=request.data)
         if holding_serializer.is_valid():
             input_date = holding_serializer.validated_data["purchase_date"]
             if input_date <= datetime.date.today():
