@@ -42,7 +42,7 @@ function render_wealthTarget_interface() {
 
     const inputContent = [
         {
-            inputText: "Enter the amount of money that you want to have at the retirement (F): ",
+            inputText: "Enter the amount of money that you want to have at retirement (F): ",
             actualFunction: (e) => {
                 if (isNaN(e.target.value) || e.target.value.length > 7) {
                     e.target.value = e.target.value.slice(0, -1)
@@ -50,7 +50,7 @@ function render_wealthTarget_interface() {
             }, type: "text", inputId: "TotalIncome"
         },
         {
-            inputText: "Enter the interest rate at the given time period (r): ",
+            inputText: "Enter the annual expected rate of return (r): ",
             actualFunction: (e) => {
                 if (isNaN(e.target.value) || e.target.value.length > 6) {
                     e.target.value = e.target.value.slice(0, -1)
@@ -77,7 +77,7 @@ function render_wealthTarget_interface() {
         <ul>
             <li>The wealth target calculator is a tool that calculates how much wealth you are going to need to be ready for retirement.</li>
             <li>You will input how much money do you want to have at the point of your retirement (F). </li>
-            <li>You will also input the interest rate (r) and the number of years that you have before you can retire (n).</li>
+            <li>You will also input the annual expected rate of return for your investments (r) and the number of years that you have before you can retire (n).</li>
             <li>By clicking the calculate button, you can see how much wealth is needed to be prepared for retirement (P).</li>
             <li>Equation for wealth target calculator: P = F/((1+r)^n). </li>
         </ul>
@@ -118,7 +118,7 @@ function render_wealthTarget_interface() {
     outputBoxDiv.classList.add("row");
 
     let outputLabel = document.createElement("div");
-    outputLabel.innerText = "Present Value to save to attain your Future Value (P)";
+    outputLabel.innerText = "Present Value required to attain your Future Value";
     outputLabel.classList.add("col", "text-center");
 
     let outputAnswer = document.createElement("div");

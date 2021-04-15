@@ -8,8 +8,7 @@
 
 #wealth {
     height: 318px;
-    /* width: 500px; */
-    width: 60%;
+     width: 500px;
     display: grid;
     font-size: 17px;
     align-items: center;
@@ -26,7 +25,7 @@
 .wealthResult {
     background-color: #dcdcdc;
     border-radius: 5px;
-    width: 60%;
+    width: 500px;
     margin: auto;
     padding: 2rem;
 }
