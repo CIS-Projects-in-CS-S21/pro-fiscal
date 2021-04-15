@@ -399,10 +399,6 @@ function render_portfolio_overview() {
                     modal.hideModal();
                     handleSinglePortfolio(data);
                     renderPortfolioDashboard();
-                    /*
-                    portfolio_listing.insertBefore(renderCreateButton(), form.container);
-                    form.container.remove();
-                    */
                 }
 
                 let data = {};
@@ -433,22 +429,10 @@ function render_portfolio_overview() {
             },
             function () {
                 modal.hideModal();
-                /*
-                portfolio_listing.insertBefore(renderCreateButton(), form.container);
-                form.container.remove();
-                $('.portfolio-list').append(detached);
-                */
             }
         );
 
-
         modal.renderForm(form.container);
-
-        /*
-        portfolio_listing.insertBefore(form.container, parent_elem);
-        portfolio_listing.removeChild(parent_elem);
-        let detached = $('.collapsible-container').detach();
-        */
     }
 
     const renderPortfolioContents = (portfolio_item, list_id) => {

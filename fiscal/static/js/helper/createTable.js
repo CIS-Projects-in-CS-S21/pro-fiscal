@@ -1,7 +1,8 @@
 /**
  * Function that is used to create a table.
- * @param {Object} params Object containing a list of objects, the property to sort the objects by, and whether the sorting order should be reversed or not.
- * @returns {DomElement} A table that lists all the items and their properties.
+ * @typedef {{objList: Array, sortOrderPropName: string, reverse: boolean}} Params
+ * @param {Params} params Object containing a list of objects, the property to sort the objects by, and whether the sorting order should be reversed or not.
+ * @returns {HTMLDivElement} A table that lists all the items and their properties.
  */
 function createTable(params) {
 

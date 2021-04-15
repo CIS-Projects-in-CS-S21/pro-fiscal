@@ -1,20 +1,22 @@
 /**
- * Function that creates a modal display component
+ * Function that creates a modal display component to render messages in
  * @typedef {{className: string, hideClass: string, showClass: string}} Params
  * @param {Params} params The parameter object containing optional class names to be applied
  * @returns {HTMLDivElement}
  */
- function modalFW(params) {
+function modalFW(params) {
     var className = params.className || "modal";
     var hideClass = params.hideClass || "modal-hide";
     var showClass = params.showClass || "modal-show";
 
-    function hide(elem){
+    /* Function that hides the modal element */
+    function hide(elem) {
         elem.classList.add(hideClass);
         elem.style.display = "none";
     }
 
-    function show(elem){
+    /* Function that shows the modal element */
+    function show(elem) {
         elem.classList.remove(hideClass);
         elem.style.display = "block";
     }
@@ -25,10 +27,10 @@
 
     /**
      * Function to display a message in the modal component
-     * @param {string} message - The string to be displayed, HTML string is accepted.
+     * @param {string} message - The string to be displayed, HTML string is accepted
      */
-    modal.alert = function(message){
-        function hideModal () {
+    modal.alert = function (message) {
+        function hideModal() {
             hide(modal);
         }
 
@@ -60,10 +62,10 @@
 
     /**
      * Function to display a confirmation modal
-     * @param {string} message - The string to be displayed, HTML string is accepted.
-     * @param {function} callBack - A function to be invoked if the ok button is clicked
+     * @param {string} message - The string to be displayed, HTML string is accepted
+     * @param {Function} callBack - A function to be invoked if the "Yes" button is clicked
      */
-    modal.confirm = function(message, callBack){
+    modal.confirm = function (message, callBack) {
         modal.innerHTML = "";
 
         var messageArea = document.createElement("div");
@@ -119,6 +121,10 @@
         show(modal);
     };
 
+    /**
+     * Function that displays the error messages that the user might encounter while using the website 
+     * @param {Array} elements The list of error messages to be displayed on the modal
+     */
     modal.renderErrorMessages = function (elements) {
         modal.innerHTML = "";
 
@@ -140,7 +146,7 @@
         closeBtn.setAttribute("type", "button");
         closeBtn.setAttribute("value", "Close");
         closeBtn.classList.add("btn", "btn-info", "centered-btn");
-        closeBtn.onclick = function(){
+        closeBtn.onclick = function () {
             hide(modal);
         };
 
@@ -149,6 +155,10 @@
         show(modal);
     }
 
+    /**
+     * Function that utilizes the modal to render a form that the user can input data in
+     * @param {HTMLDivElement} element The form to be displayed on the modal
+     */
     modal.renderForm = function (element) {
         modal.innerHTML = "";
 
@@ -161,6 +171,7 @@
         show(modal);
     }
 
+    /* Wrapper Function to call the private hide function */
     modal.hideModal = function () {
         hide(modal);
     }
@@ -169,7 +180,7 @@
      * A function to display a modal containing a DOM element
      * @param {Node} element - The DOM element to be displayed in the modal
      */
-    modal.displayElement = function(element){
+    modal.displayElement = function (element) {
         modal.innerHTML = "";
 
         var messageArea = document.createElement("div");
@@ -178,7 +189,7 @@
 
         var exitButton = document.createElement("button");
         exitButton.innerHTML = "OK";
-        exitButton.onclick = function(){
+        exitButton.onclick = function () {
             hide(modal);
         };
 

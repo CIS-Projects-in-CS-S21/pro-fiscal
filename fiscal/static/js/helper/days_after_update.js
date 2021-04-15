@@ -1,7 +1,7 @@
 /**
- * 
+ * Function that calculates the number of days in between the inputted dates
  * @param {Date} curr_date The current Date
- * @param {Date} start_date The Date where the user first purchased the Portfolio
+ * @param {Date} start_date The starting Date
  * @returns {int} Denotes how many days has passed from start_date to curr_date
  */
 function days_after_update (curr_date, start_date) {

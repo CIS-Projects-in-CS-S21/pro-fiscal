@@ -1,3 +1,8 @@
+/**
+ * Function that changes which components are rendered onto the page based on the page's hash.
+ * @typedef {{routeArray: Array, contentID: string, startLink: string}} Params
+ * @param {Params} params Configurations to change the components rendered on the page, and failure options should an error occur.
+ */
 function routeFW(params) {
     let contentID = params.contentID || "content";
     let startLink = params.startLink || "#/home";
