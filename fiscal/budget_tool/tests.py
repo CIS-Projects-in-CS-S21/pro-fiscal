@@ -117,7 +117,7 @@ class ListViewTest(TestCase):
             "amount": 100.50,
             "transaction_date": "2021-03-29",
             "description": "Fi$cal merch",
-            "category": "Essential"
+            "category": ""
         }
         request = self.factory.post("expense/", data=data, format="json")
         request.user = self.user
@@ -127,6 +127,7 @@ class ListViewTest(TestCase):
         view.setup(request)
         resp = view.post(request)
 
+        self.assertNotEquals(resp.data["category"], "", "Category should be added")
         self.assertEquals(resp.status_code, 201)
 
 

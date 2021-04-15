@@ -9,6 +9,8 @@ from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from modules.classifier.classifier import Classifier
+
 class ExpenseList(APIView):
     """
     List all expenses, or create a new one
@@ -42,6 +44,13 @@ class ExpenseList(APIView):
             Response: JSON formatted data and HTTP status
         """
         request.data["user"] = request.user.pk
+        # gather data for the classifier 
+        new_example = {}
+        new_example["description"] = request.data["description"]
+        new_example["amount"] = request.data["amount"]
+        new_example["transaction_date"] = request.data["transaction_date"]
+        request.data["category"] = Classifier().classify(new_example)
+
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
             expense_serializer.save()
@@ -117,4 +126,4 @@ class ExpenseDetail(APIView):
         expense = self.get_object(pk)
         expense.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    """test"""
+
