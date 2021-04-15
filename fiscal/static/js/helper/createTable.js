@@ -1,13 +1,16 @@
-/** 
- * Function used to create a click-sortable table from json data
- * 
- * 
- * 
- * 
-*/
-
+/**
+ * Function that is used to create a table.
+ * @param {Object} params Object containing a list of objects, the property to sort the objects by, and whether the sorting order should be reversed or not.
+ * @returns {DomElement} A table that lists all the items and their properties.
+ */
 function createTable(params) {
 
+    /**
+     * Function to sort the elements in the table by property
+     * @param {Array} list List of objects to sort
+     * @param {string} property What property should the list be sorted by
+     * @param {boolean} reverse What order should the list be sorted in
+     */
     function sortByProperty(list, property, reverse) {
         list.sort(function (a, b) {
             let aValue = convert(a[property]);
@@ -30,6 +33,7 @@ function createTable(params) {
         });
     }
 
+    /* Convert a value into its respective format */
     function convert(item) {
         if (typeof item === 'Node' || item instanceof Node) {
             return "";
