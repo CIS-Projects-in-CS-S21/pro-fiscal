@@ -70,7 +70,7 @@ class PlanningToolAPITest(TestCase):
             "description": "A useful description"
         }
 
-        resp = self.client.put('/planning/portfolio/' + + str(self.port_1.id), data, format='json')
+        resp = self.client.put('/planning/portfolio/' + str(self.port_1.id), data, format='json')
         self.assertEquals(resp.status_code, status.HTTP_200_OK, resp.data)
 
     def test_update_portfolio_failure(self):

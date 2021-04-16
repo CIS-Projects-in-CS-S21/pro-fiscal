@@ -156,13 +156,13 @@ class DetailViewTest(TestCase):
         self.factory = APIRequestFactory()
         
     def test_get_success(self):
-        request = self.factory.get("expense/1")
+        request = self.factory.get("expense/" + str(self.exp_1.id))
         request.user = self.user
 
         view = ExpenseDetail()
         view.setup(request)
 
-        resp = view.get(request, 1)
+        resp = view.get(request, self.exp_1.id)
 
         self.assertEquals(resp.status_code, 200)
 
