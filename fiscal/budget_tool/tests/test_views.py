@@ -78,52 +78,6 @@ class ListViewTest(TestCase):
 
         self.assertEquals(resp.status_code, 400)
 
-    def test_get_success(self):
-        # Add the data to the test DB
-
-        new_exp = {
-            "id": 1,
-            "user": self.user,
-            "amount": 500.00,
-            "transaction_date": "2021-03-30",
-            "description": "Nike merch",
-            "category": "Essential"
-        }
-        """exp = Expense.objects.create(**new_exp)"""
-
-        data = {
-            "user": self.user,
-            "name": "This Will Not Work",
-            "amount": 0.00
-        }
-        request = self.factory.get("expense/", data=data, format="json")
-        request.user = self.user
-        request.data = data
-
-        view = ExpenseList()
-        view.setup(request)
-        resp = view.get(request)
-
-        self.assertEquals(resp.status_code, 200)
-
-    def test_post_success(self):
-
-        data = {
-            "amount": 100.50,
-            "transaction_date": "2021-03-29",
-            "description": "Fi$cal merch",
-            "category": "Other"
-        }
-        request = self.factory.post("expense/", data=data, format="json")
-        request.user = self.user
-        request.data = data
-
-        view = ExpenseList()
-        view.setup(request)
-        resp = view.post(request)
-
-        self.assertEquals(resp.status_code, 201, resp.data)
-
 
 class DetailViewTest(TestCase):
     
