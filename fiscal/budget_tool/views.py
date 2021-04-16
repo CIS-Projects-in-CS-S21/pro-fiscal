@@ -30,10 +30,9 @@ class ExpenseList(APIView):
         expense = Expense.objects.filter(user=request.user)
         expense_serializer = ExpenseSerializer(expense, many=True)
 
-        """expense["amount"] = expense_serializer.data"""
         return Response(expense_serializer.data)
 
-    def post(self, request):
+    def post(self, request, format='application/json'):
         """
         Add a new expense
 
@@ -99,10 +98,8 @@ class ExpenseDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        # request.data["expense_id"] = pk
         request.data["user"] = request.user.pk
 
-        # expense_serializer = ExpenseSerializer(data=request.data)
         expense = self.get_object(pk)
         expense_serializer = ExpenseSerializer(expense, data=request.data)
 
