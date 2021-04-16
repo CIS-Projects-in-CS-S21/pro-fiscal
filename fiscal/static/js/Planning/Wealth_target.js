@@ -57,7 +57,7 @@ function render_wealthTarget_interface() {
                 }
             }
             , type: "text", inputId: "Rate"
-        },
+        } ,
         {
             inputText: "Enter the number of years that you have before you can retire (n): ",
             actualFunction: (e) => {
@@ -79,7 +79,7 @@ function render_wealthTarget_interface() {
             <li>You will input how much money do you want to have at the point of your retirement (F). </li>
             <li>You will also input the annual expected rate of return for your investments (r) and the number of years that you have before you can retire (n).</li>
             <li>By clicking the calculate button, you can see how much wealth is needed to be prepared for retirement (P).</li>
-            <li>Equation for wealth target calculator: P = F/((1+r)^n). </li>
+            <li>Equation for wealth target calculator: P = F/((1+(r/100))^n). </li>
         </ul>
     `
     FormWealth.appendChild(formParagraph);
@@ -105,6 +105,7 @@ function render_wealthTarget_interface() {
     submitIcon.innerHTML = "calculate";
     submitIcon.addEventListener("click", submitWealth);
     wealthDiv.appendChild(submitIcon);
+
 
     let outputBox = document.createElement("div");
     outputBox.classList.add("wealthResult");

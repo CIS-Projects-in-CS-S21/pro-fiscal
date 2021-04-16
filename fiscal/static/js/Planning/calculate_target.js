@@ -30,7 +30,7 @@ function wealth_target_calculate(params) {
         return null;
     }
 
-    const finalValue = target_wealth / ((1 + annual_return) ** num_years);
+    const finalValue = target_wealth / ((1 + (annual_return / 100)) ** num_years);
 
     return finalValue;
 }
