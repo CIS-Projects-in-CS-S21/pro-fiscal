@@ -168,6 +168,8 @@ class Monte_carlo_API(APIView):
             except KeyError:
                 resp["Errors"].update({key: str(key) + " is a required field"})
                 valid = False
+        if not valid:
+            return valid, resp
 
         # Check the dates
         current_year = now().year
