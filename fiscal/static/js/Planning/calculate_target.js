@@ -1,4 +1,4 @@
-/**/
+/*
 function currencyValidation(value) { // Literally here for unit testing. Comment out when not unit testing.
     var regex = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/;
     
@@ -7,7 +7,7 @@ function currencyValidation(value) { // Literally here for unit testing. Comment
     }
     return null;
 }
-
+*/
 
 /**
  * 
@@ -34,5 +34,4 @@ function wealth_target_calculate(params) {
 
     return finalValue;
 }
-// 
-module.exports = wealth_target_calculate;
+// module.exports = wealth_target_calculate;
