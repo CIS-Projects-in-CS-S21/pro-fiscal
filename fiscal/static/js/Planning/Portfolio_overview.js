@@ -173,11 +173,8 @@ function render_portfolio_overview() {
                 errors.push(errorMsg);
             }
 
-            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value)) {
-                let errorMsg = "Your entered number of shares is either empty or not a number.";
-                errors.push(errorMsg);
-            } else if (currencyValidation(form.shares.value) === null) {
-                let errorMsg = "Your entered number of shares has too many decimal places, or your number of shares is a negative number.";
+            if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value) || form.shares.value < 0) {
+                let errorMsg = "Your entered number of shares is either empty, not a number, or a negative number.";
                 errors.push(errorMsg);
             }
 
