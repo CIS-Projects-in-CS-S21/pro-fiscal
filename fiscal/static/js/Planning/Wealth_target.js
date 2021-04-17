@@ -50,7 +50,7 @@ function render_wealthTarget_interface() {
             }, type: "text", inputId: "TotalIncome"
         },
         {
-            inputText: "Enter the annual expected rate of return (r): ",
+            inputText: "Enter the annual expected rate of return (r) (in percent): ",
             actualFunction: (e) => {
                 if (isNaN(e.target.value) || e.target.value.length > 6) {
                     e.target.value = e.target.value.slice(0, -1)
