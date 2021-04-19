@@ -11,13 +11,20 @@ class PortfolioSim:
 
     Attributes:
         iterations (int): The number of times to run the simulation
-        sim_results (dictionary): An array of the results of the user's
-            Monte_carlo simulation. Key:value is the stock ticker name
-            and the monte-carlo sim results for the ticker as a numPy.array
-        start (date): The starting date for the simulation
+        sim_results (list): The results of the user's
+            Monte_carlo simulation.
+        start (date): The current date, which is the starting date for the simulation
         retire (date): The date when the simulation switches to retirement
         end (date): The ending date for the simulation
-        index_trackers (date): The tickers to query for historical data
+        current_allocation (dict): Current allocation of investments in the portfolio where each key is the investment
+            type and each value is the percentage weight.
+        retirement_allocation (dict): The allocation of investments in the portfolio when the simulation switches to
+            retirement where each key is the investment type and each value is the percentage weight.
+        contribution (float): The amount contributed to the portfolio each month before retirement
+        monthly_withdawal: The amount withdrawn monthly from the portfolio after retirement
+        inflation (float): An inflation assumption
+        iterations (int): The number of iterations the simulation will run for
+        index_trackers (dict): The tickers to query for historical data
         stats (dataframe): Statistics about the historical data
     """
 
@@ -33,7 +40,7 @@ class PortfolioSim:
             current_allocation (dict): Percentage weights of different portfolio categories
             retirement_allocation (dict): Percentage weights of different portfolio categories after retirement
             portfolio_values (dict): Current value of different portfolio categories
-            contribution (int): The amount contributed monthly before retirement
+            contribution (float): The amount contributed to the portfolio each month before retirement
             monthly_withdrawal (int): The amount withdrawn monthly from the portfolio after retirement
             inflation (float): An inflation assumption
             iterations (int): The number of iterations the simulation will run for
@@ -68,7 +75,7 @@ class PortfolioSim:
 
     def run_sim(self):
         """
-        Run the Monte_carlo simulation for the user
+        Run the Monte_carlo simulation for the user and store the results in sim_results
         """
         if self.__end > self.__retire:
             before_retirement = len(pd.date_range(start=self.__start, end=self.__retire, freq='M'))
@@ -130,6 +137,9 @@ class PortfolioSim:
     def __get_historical_data(self):
         """
         Fetches the historical data of the user's assets
+
+        Returns:
+            Dataframe: Statistics about the fetched historical data including mean and standard deviation
         """
 
         histDf = pd.DataFrame()
@@ -138,7 +148,7 @@ class PortfolioSim:
                                     dt.date.today())['Adj Close']
             histDf[key] = pd.Series(prices)
 
-        # Resample the price series to be weekly
+        # Resample the price series to be monthly
         histDf = histDf.resample('M', label='left').first()
         historical_returns = histDf.pct_change(fill_method='ffill')
         # find volatility
