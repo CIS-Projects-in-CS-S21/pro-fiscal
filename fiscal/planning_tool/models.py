@@ -34,6 +34,7 @@ class Portfolio(models.Model):
         name (String): The name of the portfolio account
         description (String): A description of the portfolio account
         balance (decimal): The current balance of the portfolio account
+        date (Date): The date when the portfolio was last modified
     """
     user = models.ForeignKey(User, related_name='portfolio_accounts', on_delete=models.CASCADE)
     account_type = models.ForeignKey(Account_Type, related_name='account_type', on_delete=models.SET_NULL, null=True, blank=True)

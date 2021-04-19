@@ -33,7 +33,7 @@ def fetch_balance_history(portfolio_data):
 
 def fetch_holdings(portfolio_data):
     """
-    A function to query data from the holdings table
+    A function to query data from the holdings table associated with a portfolio
 
     Arguments:
         portfolio_data (dict): Portfolio data
@@ -114,6 +114,18 @@ class PortfolioDetail(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, key):
+        """
+        Query for a specific entry from the Portfolio table
+
+        Arguments:
+             key (int): The primary key for the database record
+
+        Returns:
+            Portfolio: An instance of the Portfolio model class
+
+        Raises:
+            Http404: If the specified database record is not found
+        """
         try:
             return Portfolio.objects.get(pk=key)
         except Portfolio.DoesNotExist:
@@ -188,10 +200,35 @@ class PortfolioDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class HoldingList(APIView):
+    """
+    Create an individual holding
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    """
     def get(self, request):
+        """
+        Serves HTTP GET requests
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: No data and HTTP status
+        """
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
     def post(self, request):
+        """
+        Add a new Holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
         holding_serializer = HoldingSerializer(data=request.data)
         if holding_serializer.is_valid():
                 input_date = holding_serializer.validated_data["purchase_date"]
@@ -214,12 +251,34 @@ class HoldingDetail(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, key):
+        """
+        Query for a specific entry from the Holding table
+
+        Arguments:
+             key (int): The primary key for the database record
+
+        Returns:
+            Portfolio: An instance of the Holding model class
+
+        Raises:
+            Http404: If the specified database record is not found
+        """
         try:
             return Holding.objects.get(pk=key)
         except Holding.DoesNotExist:
             raise Http404
 
     def get(self, request, pk):
+        """
+        Get the specified holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the holding
+
+        Returns:
+            Response: JSON formatted data
+        """
         holding = self.get_object(pk)
         holding_serializer = HoldingSerializer(holding)
 
@@ -231,7 +290,18 @@ class HoldingDetail(APIView):
         return Response(h_data)
 
     def put(self, request, pk):
-        holding_serializer = HoldingSerializer(data=request.data)
+        """
+        Update the specified holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the holding
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding, data=request.data)
         if holding_serializer.is_valid():
             input_date = holding_serializer.validated_data["purchase_date"]
             if input_date <= datetime.date.today():
@@ -243,6 +313,16 @@ class HoldingDetail(APIView):
         return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
+        """
+        Delete the specified holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the holding
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        """
         holding = self.get_object(pk)
         holding.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
