@@ -21,7 +21,7 @@ class PortfolioSim:
         retirement_allocation (dict): The allocation of investments in the portfolio when the simulation switches to
             retirement where each key is the investment type and each value is the percentage weight.
         contribution (float): The amount contributed to the portfolio each month before retirement
-        monthly_withdawal: The amount withdrawn monthly from the portfolio after retirement
+        monthly_withdawal (float): The amount withdrawn monthly from the portfolio after retirement
         inflation (float): An inflation assumption
         iterations (int): The number of iterations the simulation will run for
         index_trackers (dict): The tickers to query for historical data
