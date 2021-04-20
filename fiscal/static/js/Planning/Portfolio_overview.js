@@ -345,10 +345,6 @@ function render_portfolio_overview() {
                 // TODO: add validation and errors
 
                 let data = portfolio;
-                data["name"] = form.name.value;
-                data["account_type"] = form.account_type.value;
-                data["balance"] = parseFloat(form.balance.value);
-                data["description"] = form.description.value;
 
                 let errors = [];
                 if (form.name.value === undefined || form.name.value === '') {
@@ -365,9 +361,17 @@ function render_portfolio_overview() {
                 }
 
                 if (errors.length === 0) {
+                    data["name"] = form.name.value;
+                    data["account_type"] = form.account_type.value;
+                    data["balance"] = parseFloat(form.balance.value);
+                    data["description"] = form.description.value;
+
                     portfolio_api.update_portfolio(data, successFunc, error);
                 } else {
                     modal.renderErrorMessages(errors);
+                    let contents = renderPortfolioContents(portfolio, list_id);
+                    elem.parentElement.insertBefore(contents, elem);
+                    elem.remove();
                 }
             },
             () => {
