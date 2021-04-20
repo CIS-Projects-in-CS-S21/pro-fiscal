@@ -36,10 +36,11 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
 }
 
 /**
- * 
- * @param {*} data 
- * @param {*} successHandler 
- * @param {*} errorDOM 
+ * @param {*} data
+ * @param {*} successHandler
+ * @param {*} errorDOM
+ * @throws {InvalidArgumentException} If any params is NaN, null, etc.
+ * @returns {boolean} Returns a status for the API create function.
  */
 budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
     let status = false;
@@ -74,6 +75,14 @@ budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
     return status;
 }
 
+
+/**
+ * @param {*} data
+ * @param {*} successHandler
+ * @param {*} errorDOM
+ * @throws {InvalidArgumentException} If any params is NaN, null, etc.
+ * @returns {boolean} Returns a status for the API update function.
+ */
 budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
     let status = false;
     let init = {
@@ -108,6 +117,13 @@ budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
     return status;
 }
 
+/**
+ * @param {*} data
+ * @param {*} successHandler
+ * @param {*} errorDOM
+ * @throws {InvalidArgumentException} If any params is NaN, null, etc.
+ * @returns {boolean} Returns a status for the API delete function.
+ */
 budget_api.deleteExpenseItem = function (expense_id, successHandler, errorDOM) {
     let status = false;
     let init = {

@@ -1,3 +1,7 @@
+/**
+ * Function to render a pie chart visualization of a user's spending based on a pre-defined list of
+ * categories.
+ */
 function render_budget_visualization() {
 
     const renderExpenses = (expenseItems) => {
@@ -63,6 +67,11 @@ function render_budget_visualization() {
                         }
                     }
                 },
+                plugins: {
+                    datalabels: {
+                        display: false,
+                    },
+                }
             }
         });
 
