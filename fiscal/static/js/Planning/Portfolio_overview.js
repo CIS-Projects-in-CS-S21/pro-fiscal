@@ -232,7 +232,7 @@ function render_portfolio_overview() {
 
             if (form.purchase_date.value) {
                 data["purchase_date"] = form.purchase_date.value;
-                input_date = new Date(form.purchase_date.value);
+                let input_date = new Date(form.purchase_date.value);
                 // Get Midnight of the current date
                 let d = new Date();
                 d.setHours(0, 0, 0, 0);
@@ -241,6 +241,9 @@ function render_portfolio_overview() {
                     let errorMsg = "You cannot pick a date from the future.";
                     errors.push(errorMsg);
                 }
+            } else {
+                let errorMsg = "You have to add a Purchase Date for your Holding.";
+                errors.push(errorMsg);
             }
 
             if (form.cost_basis.value) {
@@ -270,11 +273,6 @@ function render_portfolio_overview() {
 
             if (form.shares.value === undefined || form.shares.value === '' || isNaN(form.shares.value) || form.shares.value < 0) {
                 let errorMsg = "Your entered number of shares is either empty, not a number, or a negative number.";
-                errors.push(errorMsg);
-            }
-
-            if (input_date === '') {
-                let errorMsg = "You have to add a Purchase Date for your Holding.";
                 errors.push(errorMsg);
             }
 
