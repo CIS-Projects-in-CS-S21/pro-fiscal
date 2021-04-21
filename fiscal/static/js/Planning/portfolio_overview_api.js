@@ -291,6 +291,13 @@ portfolio_api.delete_holding = function (holding_id, successHandler, error_elem)
     return status;
 };
 
+/**
+ * Function that retrieves user account types.
+ * @param {function} successHandler callback function to handle the data
+ * @param {Node} error_elem the element to add a useful error message to
+ * @returns {boolean} confirmation status
+ * @throws {InvalidArgumentException} if the user enters invalid id or account name.
+ */
 portfolio_api.get_account_types = function (successHandler, error_elem) {
     let status = false;
     let init = {
@@ -317,7 +324,13 @@ portfolio_api.get_account_types = function (successHandler, error_elem) {
 
     return status;
 }
-
+/**
+ * Function that retrieves user's account's security types.
+ * @param {function} successHandler callback function to handle the data
+ * @param {Node} error_elem the element to add a useful error message to
+ * @returns {boolean} confirmation status
+ * @throws {InvalidArgumentException} if the user enters invalid id or account name.
+ */
 portfolio_api.get_security_types = function (successHandler, error_elem) {
     let status = false;
     let init = {
