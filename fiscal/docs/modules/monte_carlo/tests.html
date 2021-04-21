@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
-<title>budget_tool.serializers API documentation</title>
+<title>modules.monte_carlo.tests API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,29 +19,43 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>budget_tool.serializers</code></h1>
+<h1 class="title">Module <code>modules.monte_carlo.tests</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from rest_framework import serializers
-from budget_tool.models import Expense
+<pre><code class="python">from django.test import TestCase
+from modules.monte_carlo.portfolio_sim import PortfolioSim
+from modules.monte_carlo.stock_sim import StockSim
 
-class ExpenseSerializer(serializers.ModelSerializer):
+
+class StockSim_Test(TestCase):
     &#34;&#34;&#34;
-    A class to serialize and deserialize Expense instances
+    A class for testing the Monte-carlo sim
+
+    WARNING: Tests take AGES to run
+    &#34;&#34;&#34;
+    # tests that the results are the correct length for two years
+    #  At 50 weeks a year, the sim should have a len of 100
+    def test_correct_len(self):
+        monte = StockSim(2019, 2020, [&#34;AAPL&#34;], [5])
+        monte.run_sim()
+        results = monte.get_results()
+        self.assertEquals(100, len(results))
+
+class PortfolioSim_Test(TestCase):
+    &#34;&#34;&#34;
+    A class for testing the Portfolio Monte Carlo Sim
     &#34;&#34;&#34;
 
-    class Meta:
-        &#34;&#34;&#34;
-        Attributes:
-            model (__class__): The Expense model class
-            fields (list): A list of the fields in the Expense model
-        &#34;&#34;&#34;
-        model = Expense
-        fields = [&#39;id&#39;, &#39;user&#39;, &#39;amount&#39;, &#39;transaction_date&#39;, &#39;description&#39;, &#39;category&#39;]</code></pre>
+    def test_correct_shape(self):
+        monte = PortfolioSim(2022, 2025, {&#34;Stocks&#34;: 0.6, &#34;Bond&#34;: 0.4},
+                             50, 5, 0.02, {&#34;Stocks&#34;: 600, &#34;Bonds&#34;: 400}, iterations=100)
+        monte.run_sim()
+        results = monte.get_results()
+        self.assertEquals(len(results), 100)</code></pre>
 </details>
 </section>
 <section>
@@ -53,48 +67,111 @@ class ExpenseSerializer(serializers.ModelSerializer):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="budget_tool.serializers.ExpenseSerializer"><code class="flex name class">
-<span>class <span class="ident">ExpenseSerializer</span></span>
-<span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
+<dt id="modules.monte_carlo.tests.PortfolioSim_Test"><code class="flex name class">
+<span>class <span class="ident">PortfolioSim_Test</span></span>
+<span>(</span><span>methodName='runTest')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A class to serialize and deserialize Expense instances</p></div>
+<div class="desc"><p>A class for testing the Portfolio Monte Carlo Sim</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class ExpenseSerializer(serializers.ModelSerializer):
+<pre><code class="python">class PortfolioSim_Test(TestCase):
     &#34;&#34;&#34;
-    A class to serialize and deserialize Expense instances
+    A class for testing the Portfolio Monte Carlo Sim
     &#34;&#34;&#34;
 
-    class Meta:
-        &#34;&#34;&#34;
-        Attributes:
-            model (__class__): The Expense model class
-            fields (list): A list of the fields in the Expense model
-        &#34;&#34;&#34;
-        model = Expense
-        fields = [&#39;id&#39;, &#39;user&#39;, &#39;amount&#39;, &#39;transaction_date&#39;, &#39;description&#39;, &#39;category&#39;]</code></pre>
+    def test_correct_shape(self):
+        monte = PortfolioSim(2022, 2025, {&#34;Stocks&#34;: 0.6, &#34;Bond&#34;: 0.4},
+                             50, 5, 0.02, {&#34;Stocks&#34;: 600, &#34;Bonds&#34;: 400}, iterations=100)
+        monte.run_sim()
+        results = monte.get_results()
+        self.assertEquals(len(results), 100)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>rest_framework.serializers.ModelSerializer</li>
-<li>rest_framework.serializers.Serializer</li>
-<li>rest_framework.serializers.BaseSerializer</li>
-<li>rest_framework.fields.Field</li>
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
 </ul>
-<h3>Class variables</h3>
+<h3>Methods</h3>
 <dl>
-<dt id="budget_tool.serializers.ExpenseSerializer.Meta"><code class="name">var <span class="ident">Meta</span></code></dt>
+<dt id="modules.monte_carlo.tests.PortfolioSim_Test.test_correct_shape"><code class="name flex">
+<span>def <span class="ident">test_correct_shape</span></span>(<span>self)</span>
+</code></dt>
 <dd>
-<div class="desc"><h2 id="attributes">Attributes</h2>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_correct_shape(self):
+    monte = PortfolioSim(2022, 2025, {&#34;Stocks&#34;: 0.6, &#34;Bond&#34;: 0.4},
+                         50, 5, 0.02, {&#34;Stocks&#34;: 600, &#34;Bonds&#34;: 400}, iterations=100)
+    monte.run_sim()
+    results = monte.get_results()
+    self.assertEquals(len(results), 100)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="modules.monte_carlo.tests.StockSim_Test"><code class="flex name class">
+<span>class <span class="ident">StockSim_Test</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class for testing the Monte-carlo sim</p>
+<p>WARNING: Tests take AGES to run</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StockSim_Test(TestCase):
+    &#34;&#34;&#34;
+    A class for testing the Monte-carlo sim
+
+    WARNING: Tests take AGES to run
+    &#34;&#34;&#34;
+    # tests that the results are the correct length for two years
+    #  At 50 weeks a year, the sim should have a len of 100
+    def test_correct_len(self):
+        monte = StockSim(2019, 2020, [&#34;AAPL&#34;], [5])
+        monte.run_sim()
+        results = monte.get_results()
+        self.assertEquals(100, len(results))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
 <dl>
-<dt><strong><code>model</code></strong> :&ensp;<code>__class__</code></dt>
-<dd>The Expense model class</dd>
-<dt><strong><code>fields</code></strong> :&ensp;<code>list</code></dt>
-<dd>A list of the fields in the Expense model</dd>
-</dl></div>
+<dt id="modules.monte_carlo.tests.StockSim_Test.test_correct_len"><code class="name flex">
+<span>def <span class="ident">test_correct_len</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_correct_len(self):
+    monte = StockSim(2019, 2020, [&#34;AAPL&#34;], [5])
+    monte.run_sim()
+    results = monte.get_results()
+    self.assertEquals(100, len(results))</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -109,15 +186,21 @@ class ExpenseSerializer(serializers.ModelSerializer):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="budget_tool" href="index.html">budget_tool</a></code></li>
+<li><code><a title="modules.monte_carlo" href="index.html">modules.monte_carlo</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="budget_tool.serializers.ExpenseSerializer" href="#budget_tool.serializers.ExpenseSerializer">ExpenseSerializer</a></code></h4>
+<h4><code><a title="modules.monte_carlo.tests.PortfolioSim_Test" href="#modules.monte_carlo.tests.PortfolioSim_Test">PortfolioSim_Test</a></code></h4>
 <ul class="">
-<li><code><a title="budget_tool.serializers.ExpenseSerializer.Meta" href="#budget_tool.serializers.ExpenseSerializer.Meta">Meta</a></code></li>
+<li><code><a title="modules.monte_carlo.tests.PortfolioSim_Test.test_correct_shape" href="#modules.monte_carlo.tests.PortfolioSim_Test.test_correct_shape">test_correct_shape</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="modules.monte_carlo.tests.StockSim_Test" href="#modules.monte_carlo.tests.StockSim_Test">StockSim_Test</a></code></h4>
+<ul class="">
+<li><code><a title="modules.monte_carlo.tests.StockSim_Test.test_correct_len" href="#modules.monte_carlo.tests.StockSim_Test.test_correct_len">test_correct_len</a></code></li>
 </ul>
 </li>
 </ul>

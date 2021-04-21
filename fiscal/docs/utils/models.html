@@ -27,8 +27,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from django.db import models
+from django.contrib.auth.models import User
 
-# Create your models here.</code></pre>
+
+class MonteResults(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    results = models.JSONField(null=True)
+    date = models.DateTimeField(auto_now=True)
+    running = models.BooleanField(default=False)</code></pre>
 </details>
 </section>
 <section>
@@ -38,6 +44,279 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="utils.models.MonteResults"><code class="flex name class">
+<span>class <span class="ident">MonteResults</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>MonteResults(id, user, results, date, running)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MonteResults(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    results = models.JSONField(null=True)
+    date = models.DateTimeField(auto_now=True)
+    running = models.BooleanField(default=False)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.db.models.base.Model</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="utils.models.MonteResults.DoesNotExist"><code class="name">var <span class="ident">DoesNotExist</span></code></dt>
+<dd>
+<div class="desc"><p>The requested object does not exist</p></div>
+</dd>
+<dt id="utils.models.MonteResults.MultipleObjectsReturned"><code class="name">var <span class="ident">MultipleObjectsReturned</span></code></dt>
+<dd>
+<div class="desc"><p>The query returned multiple objects when only one was expected.</p></div>
+</dd>
+<dt id="utils.models.MonteResults.objects"><code class="name">var <span class="ident">objects</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="utils.models.MonteResults.date"><code class="name">var <span class="ident">date</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="utils.models.MonteResults.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="utils.models.MonteResults.results"><code class="name">var <span class="ident">results</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="utils.models.MonteResults.running"><code class="name">var <span class="ident">running</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="utils.models.MonteResults.user"><code class="name">var <span class="ident">user</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related object on the forward side of a one-to-one relation.</p>
+<p>In the example::</p>
+<pre><code>class Restaurant(Model):
+    place = OneToOneField(Place, related_name='restaurant')
+</code></pre>
+<p><code>Restaurant.place</code> is a <code>ForwardOneToOneDescriptor</code> instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related instance through the forward relation.
+
+    With the example above, when getting ``child.parent``:
+
+    - ``self`` is the descriptor managing the ``parent`` attribute
+    - ``instance`` is the ``child`` instance
+    - ``cls`` is the ``Child`` class (we don&#39;t need it)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    # The related instance is loaded from the database and then cached
+    # by the field on the model instance state. It can also be pre-cached
+    # by the reverse accessor (ReverseOneToOneDescriptor).
+    try:
+        rel_obj = self.field.get_cached_value(instance)
+    except KeyError:
+        has_value = None not in self.field.get_local_related_value(instance)
+        ancestor_link = instance._meta.get_ancestor_link(self.field.model) if has_value else None
+        if ancestor_link and ancestor_link.is_cached(instance):
+            # An ancestor link will exist if this field is defined on a
+            # multi-table inheritance parent of the instance&#39;s class.
+            ancestor = ancestor_link.get_cached_value(instance)
+            # The value might be cached on an ancestor if the instance
+            # originated from walking down the inheritance chain.
+            rel_obj = self.field.get_cached_value(ancestor, default=None)
+        else:
+            rel_obj = None
+        if rel_obj is None and has_value:
+            rel_obj = self.get_object(instance)
+            remote_field = self.field.remote_field
+            # If this is a one-to-one relation, set the reverse accessor
+            # cache on the related object to the current instance to avoid
+            # an extra SQL query if it&#39;s accessed later on.
+            if not remote_field.multiple:
+                remote_field.set_cached_value(rel_obj, instance)
+        self.field.set_cached_value(instance, rel_obj)
+
+    if rel_obj is None and not self.field.null:
+        raise self.RelatedObjectDoesNotExist(
+            &#34;%s has no %s.&#34; % (self.field.model.__name__, self.field.name)
+        )
+    else:
+        return rel_obj</code></pre>
+</details>
+</dd>
+<dt id="utils.models.MonteResults.user_id"><code class="name">var <span class="ident">user_id</span></code></dt>
+<dd>
+<div class="desc"><p>Retrieve and caches the value from the datastore on the first lookup.
+Return the cached value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="utils.models.MonteResults.get_next_by_date"><code class="name flex">
+<span>def <span class="ident">get_next_by_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateTimeField: date&gt;, is_next=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+<dt id="utils.models.MonteResults.get_previous_by_date"><code class="name flex">
+<span>def <span class="ident">get_previous_by_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateTimeField: date&gt;, is_next=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -49,6 +328,26 @@
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="utils" href="index.html">utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="utils.models.MonteResults" href="#utils.models.MonteResults">MonteResults</a></code></h4>
+<ul class="">
+<li><code><a title="utils.models.MonteResults.DoesNotExist" href="#utils.models.MonteResults.DoesNotExist">DoesNotExist</a></code></li>
+<li><code><a title="utils.models.MonteResults.MultipleObjectsReturned" href="#utils.models.MonteResults.MultipleObjectsReturned">MultipleObjectsReturned</a></code></li>
+<li><code><a title="utils.models.MonteResults.date" href="#utils.models.MonteResults.date">date</a></code></li>
+<li><code><a title="utils.models.MonteResults.get_next_by_date" href="#utils.models.MonteResults.get_next_by_date">get_next_by_date</a></code></li>
+<li><code><a title="utils.models.MonteResults.get_previous_by_date" href="#utils.models.MonteResults.get_previous_by_date">get_previous_by_date</a></code></li>
+<li><code><a title="utils.models.MonteResults.id" href="#utils.models.MonteResults.id">id</a></code></li>
+<li><code><a title="utils.models.MonteResults.objects" href="#utils.models.MonteResults.objects">objects</a></code></li>
+<li><code><a title="utils.models.MonteResults.results" href="#utils.models.MonteResults.results">results</a></code></li>
+<li><code><a title="utils.models.MonteResults.running" href="#utils.models.MonteResults.running">running</a></code></li>
+<li><code><a title="utils.models.MonteResults.user" href="#utils.models.MonteResults.user">user</a></code></li>
+<li><code><a title="utils.models.MonteResults.user_id" href="#utils.models.MonteResults.user_id">user_id</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -26,80 +26,350 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from rest_framework.views import APIView
+<pre><code class="python">import decimal
+import datetime
+
+from planning_tool.serializers import *
+
+from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions, generics
+
+
+
+def fetch_balance_history(portfolio_data):
+    &#34;&#34;&#34;
+    A function to query data from the balance history table and build a dictionary of the values
+
+    Arguments:
+        portfolio_data (dict): Portfolio data
+
+    Returns:
+        A dict with all the balance history values associated with this portfolio
+    &#34;&#34;&#34;
+    history = Balance_History.objects.filter(pk__in=portfolio_data[&#39;balance_history&#39;])
+    history_serializer = BalanceHistorySerializer(history, many=True)
+
+    balance_history = {&#34;balance&#34;: [], &#34;date&#34;: []}
+    for balance in history_serializer.data:
+        balance[&#34;balance&#34;] = decimal.Decimal(balance[&#34;balance&#34;])
+        balance_history[&#34;balance&#34;].append(balance[&#34;balance&#34;])
+        balance_history[&#34;date&#34;].append(balance[&#34;date&#34;])
+
+    return balance_history
+
+def fetch_holdings(portfolio_data):
+    &#34;&#34;&#34;
+    A function to query data from the holdings table associated with a portfolio
+
+    Arguments:
+        portfolio_data (dict): Portfolio data
+
+    Returns:
+        A list of all the holdings associated with this portfolio
+    &#34;&#34;&#34;
+    holdings = Holding.objects.filter(pk__in=portfolio_data[&#39;holdings&#39;])
+    holding_serializer = HoldingSerializer(holdings, many=True)
+
+    for holding in holding_serializer.data:
+        # return from model is a string, must be converted
+        holding[&#34;price&#34;] = decimal.Decimal(holding[&#34;price&#34;])
+        holding[&#34;shares&#34;] = decimal.Decimal(holding[&#34;shares&#34;])
+        if holding[&#34;cost_basis&#34;]:
+            holding[&#34;cost_basis&#34;] = decimal.Decimal(holding[&#34;cost_basis&#34;])
+
+    return holding_serializer.data
+
 
 class PortfolioList(APIView):
     &#34;&#34;&#34;
     List all accounts, or add a new one
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
     &#34;&#34;&#34;
+
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         &#34;&#34;&#34;
         Get the list of accounts
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
 
         Returns:
             Response: list of account in JSON format
         &#34;&#34;&#34;
-        pass
 
-    def post(self, request):
+        portfolio = Portfolio.objects.filter(user=request.user)
+        portfolio_serializer = PortfolioSerializer(portfolio, many=True)
+
+        for portfolio in portfolio_serializer.data:
+            portfolio[&#34;balance&#34;] = decimal.Decimal(portfolio[&#34;balance&#34;])
+
+            portfolio[&#34;holdings&#34;] = fetch_holdings(portfolio)
+            portfolio[&#34;balance_history&#34;] = fetch_balance_history(portfolio)
+
+        return Response(portfolio_serializer.data)
+
+    def post(self, request, format=&#39;application/json&#39;):
         &#34;&#34;&#34;
         Add a new account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass
+        request.data[&#34;user&#34;] = request.user.pk
+        portfolio_serializer = PortfolioSerializer(data=request.data)
+        if portfolio_serializer.is_valid():
+            portfolio_serializer.save()
+            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PortfolioDetail(APIView):
     &#34;&#34;&#34;
     Get, update, or delete an individual portfolio account
-    &#34;&#34;&#34;
 
-    def get(self, request, key):
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    &#34;&#34;&#34;
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, key):
+        &#34;&#34;&#34;
+        Query for a specific entry from the Portfolio table
+
+        Arguments:
+             key (int): The primary key for the database record
+
+        Returns:
+            Portfolio: An instance of the Portfolio model class
+
+        Raises:
+            Http404: If the specified database record is not found
+        &#34;&#34;&#34;
+        try:
+            return Portfolio.objects.get(pk=key)
+        except Portfolio.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=&#39;application/json&#39;):
         &#34;&#34;&#34;
         Get the specified portfolio account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the portfolio account
 
         Returns:
             Response: JSON formatted data
         &#34;&#34;&#34;
-        pass
+        portfolio = self.get_object(pk)
+        portfolio_serializer = PortfolioSerializer(portfolio)
 
-    def put(self, request, key):
+        ps_data = portfolio_serializer.data
+
+        # return from model is a string, must be converted
+        ps_data[&#34;balance&#34;] = decimal.Decimal(ps_data[&#34;balance&#34;])
+
+        ps_data[&#34;holdings&#34;] = fetch_holdings(ps_data)
+        ps_data[&#34;balance_history&#34;] = fetch_balance_history(ps_data)
+
+        return Response(ps_data)
+
+    def put(self, request, pk, format=&#39;application/json&#39;):
         &#34;&#34;&#34;
         Update the specified portfolio account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the portfolio account
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass
+        old_data = self.get_object(pk)
+        date = datetime.date.today()
+        new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
+        new_history.save()
 
-    def delete(self, request, key):
+        request.data[&#34;user&#34;] = request.user.pk
+        request.data[&#34;date&#34;] = date
+        portfolio_serializer = PortfolioSerializer(old_data, data=request.data)
+        if portfolio_serializer.is_valid():
+            portfolio_serializer.save()
+
+            ps_data = portfolio_serializer.data
+            ps_data[&#34;holdings&#34;] = fetch_holdings(ps_data)
+            ps_data[&#34;balance_history&#34;] = fetch_balance_history(ps_data)
+
+            return Response(ps_data, status=status.HTTP_200_OK)
+        return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
         &#34;&#34;&#34;
         Delete the specified portfolio account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the portfolio account
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass</code></pre>
+        portfolio = self.get_object(pk)
+        portfolio.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class HoldingList(APIView):
+    &#34;&#34;&#34;
+    Create an individual holding
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    &#34;&#34;&#34;
+    def get(self, request):
+        &#34;&#34;&#34;
+        Serves HTTP GET requests
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: No data and HTTP status
+        &#34;&#34;&#34;
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+    def post(self, request):
+        &#34;&#34;&#34;
+        Add a new Holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        &#34;&#34;&#34;
+        holding_serializer = HoldingSerializer(data=request.data)
+        if holding_serializer.is_valid():
+                input_date = holding_serializer.validated_data[&#34;purchase_date&#34;]
+                if input_date &lt;= datetime.date.today():
+                    holding_serializer.save()
+                    return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    holding_serializer.errors.update({&#34;purchase_date&#34;: &#34;Date may not be in the future&#34;})
+                    return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class HoldingDetail(APIView):
+    &#34;&#34;&#34;
+    Get, update, or delete an individual holding
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    &#34;&#34;&#34;
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, key):
+        &#34;&#34;&#34;
+        Query for a specific entry from the Holding table
+
+        Arguments:
+             key (int): The primary key for the database record
+
+        Returns:
+            Portfolio: An instance of the Holding model class
+
+        Raises:
+            Http404: If the specified database record is not found
+        &#34;&#34;&#34;
+        try:
+            return Holding.objects.get(pk=key)
+        except Holding.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        &#34;&#34;&#34;
+        Get the specified holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the holding
+
+        Returns:
+            Response: JSON formatted data
+        &#34;&#34;&#34;
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding)
+
+        h_data = holding_serializer.data
+        h_data[&#34;price&#34;] = decimal.Decimal(h_data[&#34;price&#34;])
+        h_data[&#34;shares&#34;] = decimal.Decimal(h_data[&#34;shares&#34;])
+        h_data[&#34;cost_basis&#34;] = decimal.Decimal(h_data[&#34;cost_basis&#34;])
+
+        return Response(h_data)
+
+    def put(self, request, pk):
+        &#34;&#34;&#34;
+        Update the specified holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the holding
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        &#34;&#34;&#34;
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding, data=request.data)
+        if holding_serializer.is_valid():
+            input_date = holding_serializer.validated_data[&#34;purchase_date&#34;]
+            if input_date &lt;= datetime.date.today():
+                holding_serializer.save()
+                return Response(holding_serializer.data, status=status.HTTP_200_OK)
+            else:
+                holding_serializer.errors.update({&#34;purchase_date&#34;: &#34;Date may not be in the future&#34;})
+                return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        &#34;&#34;&#34;
+        Delete the specified holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the holding
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        &#34;&#34;&#34;
+        holding = self.get_object(pk)
+        holding.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AccountTypeList(generics.ListAPIView):
+    &#34;&#34;&#34;
+    Provides a read-only list of account types in the database
+    &#34;&#34;&#34;
+    queryset = Account_Type.objects.all()
+    serializer_class = Account_TypeSerializer
+
+
+class SecurityTypeList(generics.ListAPIView):
+    &#34;&#34;&#34;
+    Provides a read-only list of security types in the database
+    &#34;&#34;&#34;
+    queryset = Security_Type.objects.all()
+    serializer_class = Security_TypeSerializer</code></pre>
 </details>
 </section>
 <section>
@@ -107,85 +377,249 @@ class PortfolioDetail(APIView):
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="planning_tool.views.fetch_balance_history"><code class="name flex">
+<span>def <span class="ident">fetch_balance_history</span></span>(<span>portfolio_data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A function to query data from the balance history table and build a dictionary of the values</p>
+<h2 id="arguments">Arguments</h2>
+<p>portfolio_data (dict): Portfolio data</p>
+<h2 id="returns">Returns</h2>
+<p>A dict with all the balance history values associated with this portfolio</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fetch_balance_history(portfolio_data):
+    &#34;&#34;&#34;
+    A function to query data from the balance history table and build a dictionary of the values
+
+    Arguments:
+        portfolio_data (dict): Portfolio data
+
+    Returns:
+        A dict with all the balance history values associated with this portfolio
+    &#34;&#34;&#34;
+    history = Balance_History.objects.filter(pk__in=portfolio_data[&#39;balance_history&#39;])
+    history_serializer = BalanceHistorySerializer(history, many=True)
+
+    balance_history = {&#34;balance&#34;: [], &#34;date&#34;: []}
+    for balance in history_serializer.data:
+        balance[&#34;balance&#34;] = decimal.Decimal(balance[&#34;balance&#34;])
+        balance_history[&#34;balance&#34;].append(balance[&#34;balance&#34;])
+        balance_history[&#34;date&#34;].append(balance[&#34;date&#34;])
+
+    return balance_history</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.views.fetch_holdings"><code class="name flex">
+<span>def <span class="ident">fetch_holdings</span></span>(<span>portfolio_data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A function to query data from the holdings table associated with a portfolio</p>
+<h2 id="arguments">Arguments</h2>
+<p>portfolio_data (dict): Portfolio data</p>
+<h2 id="returns">Returns</h2>
+<p>A list of all the holdings associated with this portfolio</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fetch_holdings(portfolio_data):
+    &#34;&#34;&#34;
+    A function to query data from the holdings table associated with a portfolio
+
+    Arguments:
+        portfolio_data (dict): Portfolio data
+
+    Returns:
+        A list of all the holdings associated with this portfolio
+    &#34;&#34;&#34;
+    holdings = Holding.objects.filter(pk__in=portfolio_data[&#39;holdings&#39;])
+    holding_serializer = HoldingSerializer(holdings, many=True)
+
+    for holding in holding_serializer.data:
+        # return from model is a string, must be converted
+        holding[&#34;price&#34;] = decimal.Decimal(holding[&#34;price&#34;])
+        holding[&#34;shares&#34;] = decimal.Decimal(holding[&#34;shares&#34;])
+        if holding[&#34;cost_basis&#34;]:
+            holding[&#34;cost_basis&#34;] = decimal.Decimal(holding[&#34;cost_basis&#34;])
+
+    return holding_serializer.data</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="planning_tool.views.PortfolioDetail"><code class="flex name class">
-<span>class <span class="ident">PortfolioDetail</span></span>
+<dt id="planning_tool.views.AccountTypeList"><code class="flex name class">
+<span>class <span class="ident">AccountTypeList</span></span>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get, update, or delete an individual portfolio account</p>
+<div class="desc"><p>Provides a read-only list of account types in the database</p>
 <p>Constructor. Called in the URLconf; can contain helpful extra
 keyword arguments, and other things.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class PortfolioDetail(APIView):
+<pre><code class="python">class AccountTypeList(generics.ListAPIView):
     &#34;&#34;&#34;
-    Get, update, or delete an individual portfolio account
+    Provides a read-only list of account types in the database
+    &#34;&#34;&#34;
+    queryset = Account_Type.objects.all()
+    serializer_class = Account_TypeSerializer</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.generics.ListAPIView</li>
+<li>rest_framework.mixins.ListModelMixin</li>
+<li>rest_framework.generics.GenericAPIView</li>
+<li>rest_framework.views.APIView</li>
+<li>django.views.generic.base.View</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.views.AccountTypeList.queryset"><code class="name">var <span class="ident">queryset</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="planning_tool.views.AccountTypeList.serializer_class"><code class="name">var <span class="ident">serializer_class</span></code></dt>
+<dd>
+<div class="desc"><p>A class to serialize and deserialize Account_Type instances to and from JSON data</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.views.HoldingDetail"><code class="flex name class">
+<span>class <span class="ident">HoldingDetail</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get, update, or delete an individual holding</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>permission_classes</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the accepted permissions for this view</dd>
+</dl>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HoldingDetail(APIView):
+    &#34;&#34;&#34;
+    Get, update, or delete an individual holding
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
     &#34;&#34;&#34;
 
-    def get(self, request, key):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, key):
         &#34;&#34;&#34;
-        Get the specified portfolio account
+        Query for a specific entry from the Holding table
 
-        Args:
+        Arguments:
+             key (int): The primary key for the database record
+
+        Returns:
+            Portfolio: An instance of the Holding model class
+
+        Raises:
+            Http404: If the specified database record is not found
+        &#34;&#34;&#34;
+        try:
+            return Holding.objects.get(pk=key)
+        except Holding.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        &#34;&#34;&#34;
+        Get the specified holding
+
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the holding
 
         Returns:
             Response: JSON formatted data
         &#34;&#34;&#34;
-        pass
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding)
 
-    def put(self, request, key):
+        h_data = holding_serializer.data
+        h_data[&#34;price&#34;] = decimal.Decimal(h_data[&#34;price&#34;])
+        h_data[&#34;shares&#34;] = decimal.Decimal(h_data[&#34;shares&#34;])
+        h_data[&#34;cost_basis&#34;] = decimal.Decimal(h_data[&#34;cost_basis&#34;])
+
+        return Response(h_data)
+
+    def put(self, request, pk):
         &#34;&#34;&#34;
-        Update the specified portfolio account
+        Update the specified holding
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the holding
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass
+        holding = self.get_object(pk)
+        holding_serializer = HoldingSerializer(holding, data=request.data)
+        if holding_serializer.is_valid():
+            input_date = holding_serializer.validated_data[&#34;purchase_date&#34;]
+            if input_date &lt;= datetime.date.today():
+                holding_serializer.save()
+                return Response(holding_serializer.data, status=status.HTTP_200_OK)
+            else:
+                holding_serializer.errors.update({&#34;purchase_date&#34;: &#34;Date may not be in the future&#34;})
+                return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, key):
+    def delete(self, request, pk):
         &#34;&#34;&#34;
-        Delete the specified portfolio account
+        Delete the specified holding
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the portfolio account
+            pk (int): The primary key of the holding
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass</code></pre>
+        holding = self.get_object(pk)
+        holding.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>rest_framework.views.APIView</li>
 <li>django.views.generic.base.View</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.views.HoldingDetail.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
-<dt id="planning_tool.views.PortfolioDetail.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self, request, key)</span>
+<dt id="planning_tool.views.HoldingDetail.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self, request, pk)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Delete the specified portfolio account</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
-<dd>The primary key of the portfolio account</dd>
-</dl>
+<div class="desc"><p>Delete the specified holding</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request
+pk (int): The primary key of the holding</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
@@ -195,32 +629,30 @@ keyword arguments, and other things.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete(self, request, key):
+<pre><code class="python">def delete(self, request, pk):
     &#34;&#34;&#34;
-    Delete the specified portfolio account
+    Delete the specified holding
 
-    Args:
+    Arguments:
         request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the portfolio account
+        pk (int): The primary key of the holding
 
     Returns:
         Response: JSON formatted data and HTTP status
     &#34;&#34;&#34;
-    pass</code></pre>
+    holding = self.get_object(pk)
+    holding.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
 </details>
 </dd>
-<dt id="planning_tool.views.PortfolioDetail.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, request, key)</span>
+<dt id="planning_tool.views.HoldingDetail.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, request, pk)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get the specified portfolio account</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
-<dd>The primary key of the portfolio account</dd>
-</dl>
+<div class="desc"><p>Get the specified holding</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request
+pk (int): The primary key of the holding</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
@@ -230,32 +662,76 @@ keyword arguments, and other things.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, request, key):
+<pre><code class="python">def get(self, request, pk):
     &#34;&#34;&#34;
-    Get the specified portfolio account
+    Get the specified holding
 
-    Args:
+    Arguments:
         request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the portfolio account
+        pk (int): The primary key of the holding
 
     Returns:
         Response: JSON formatted data
     &#34;&#34;&#34;
-    pass</code></pre>
+    holding = self.get_object(pk)
+    holding_serializer = HoldingSerializer(holding)
+
+    h_data = holding_serializer.data
+    h_data[&#34;price&#34;] = decimal.Decimal(h_data[&#34;price&#34;])
+    h_data[&#34;shares&#34;] = decimal.Decimal(h_data[&#34;shares&#34;])
+    h_data[&#34;cost_basis&#34;] = decimal.Decimal(h_data[&#34;cost_basis&#34;])
+
+    return Response(h_data)</code></pre>
 </details>
 </dd>
-<dt id="planning_tool.views.PortfolioDetail.put"><code class="name flex">
-<span>def <span class="ident">put</span></span>(<span>self, request, key)</span>
+<dt id="planning_tool.views.HoldingDetail.get_object"><code class="name flex">
+<span>def <span class="ident">get_object</span></span>(<span>self, key)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Update the specified portfolio account</p>
-<h2 id="args">Args</h2>
+<div class="desc"><p>Query for a specific entry from the Holding table</p>
+<h2 id="arguments">Arguments</h2>
+<p>key (int): The primary key for the database record</p>
+<h2 id="returns">Returns</h2>
 <dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
-<dd>The primary key of the portfolio account</dd>
+<dt><code>Portfolio</code></dt>
+<dd>An instance of the Holding model class</dd>
 </dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>Http404</code></dt>
+<dd>If the specified database record is not found</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_object(self, key):
+    &#34;&#34;&#34;
+    Query for a specific entry from the Holding table
+
+    Arguments:
+         key (int): The primary key for the database record
+
+    Returns:
+        Portfolio: An instance of the Holding model class
+
+    Raises:
+        Http404: If the specified database record is not found
+    &#34;&#34;&#34;
+    try:
+        return Holding.objects.get(pk=key)
+    except Holding.DoesNotExist:
+        raise Http404</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.views.HoldingDetail.put"><code class="name flex">
+<span>def <span class="ident">put</span></span>(<span>self, request, pk)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the specified holding</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request
+pk (int): The primary key of the holding</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
@@ -265,18 +741,452 @@ keyword arguments, and other things.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def put(self, request, key):
+<pre><code class="python">def put(self, request, pk):
     &#34;&#34;&#34;
-    Update the specified portfolio account
+    Update the specified holding
 
-    Args:
+    Arguments:
         request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the portfolio account
+        pk (int): The primary key of the holding
 
     Returns:
         Response: JSON formatted data and HTTP status
     &#34;&#34;&#34;
-    pass</code></pre>
+    holding = self.get_object(pk)
+    holding_serializer = HoldingSerializer(holding, data=request.data)
+    if holding_serializer.is_valid():
+        input_date = holding_serializer.validated_data[&#34;purchase_date&#34;]
+        if input_date &lt;= datetime.date.today():
+            holding_serializer.save()
+            return Response(holding_serializer.data, status=status.HTTP_200_OK)
+        else:
+            holding_serializer.errors.update({&#34;purchase_date&#34;: &#34;Date may not be in the future&#34;})
+            return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.views.HoldingList"><code class="flex name class">
+<span>class <span class="ident">HoldingList</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create an individual holding</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>permission_classes</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the accepted permissions for this view</dd>
+</dl>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HoldingList(APIView):
+    &#34;&#34;&#34;
+    Create an individual holding
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    &#34;&#34;&#34;
+    def get(self, request):
+        &#34;&#34;&#34;
+        Serves HTTP GET requests
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: No data and HTTP status
+        &#34;&#34;&#34;
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+    def post(self, request):
+        &#34;&#34;&#34;
+        Add a new Holding
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        &#34;&#34;&#34;
+        holding_serializer = HoldingSerializer(data=request.data)
+        if holding_serializer.is_valid():
+                input_date = holding_serializer.validated_data[&#34;purchase_date&#34;]
+                if input_date &lt;= datetime.date.today():
+                    holding_serializer.save()
+                    return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    holding_serializer.errors.update({&#34;purchase_date&#34;: &#34;Date may not be in the future&#34;})
+                    return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.views.APIView</li>
+<li>django.views.generic.base.View</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.views.HoldingList.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, request)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Serves HTTP GET requests</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Response</code></dt>
+<dd>No data and HTTP status</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, request):
+    &#34;&#34;&#34;
+    Serves HTTP GET requests
+
+    Arguments:
+        request (HttpRequest): The request object from an HTTP request
+
+    Returns:
+        Response: No data and HTTP status
+    &#34;&#34;&#34;
+    return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.views.HoldingList.post"><code class="name flex">
+<span>def <span class="ident">post</span></span>(<span>self, request)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add a new Holding</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Response</code></dt>
+<dd>JSON formatted data and HTTP status</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def post(self, request):
+    &#34;&#34;&#34;
+    Add a new Holding
+
+    Arguments:
+        request (HttpRequest): The request object from an HTTP request
+
+    Returns:
+        Response: JSON formatted data and HTTP status
+    &#34;&#34;&#34;
+    holding_serializer = HoldingSerializer(data=request.data)
+    if holding_serializer.is_valid():
+            input_date = holding_serializer.validated_data[&#34;purchase_date&#34;]
+            if input_date &lt;= datetime.date.today():
+                holding_serializer.save()
+                return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                holding_serializer.errors.update({&#34;purchase_date&#34;: &#34;Date may not be in the future&#34;})
+                return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(holding_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.views.PortfolioDetail"><code class="flex name class">
+<span>class <span class="ident">PortfolioDetail</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get, update, or delete an individual portfolio account</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>permission_classes</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the accepted permissions for this view</dd>
+</dl>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PortfolioDetail(APIView):
+    &#34;&#34;&#34;
+    Get, update, or delete an individual portfolio account
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
+    &#34;&#34;&#34;
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, key):
+        &#34;&#34;&#34;
+        Query for a specific entry from the Portfolio table
+
+        Arguments:
+             key (int): The primary key for the database record
+
+        Returns:
+            Portfolio: An instance of the Portfolio model class
+
+        Raises:
+            Http404: If the specified database record is not found
+        &#34;&#34;&#34;
+        try:
+            return Portfolio.objects.get(pk=key)
+        except Portfolio.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=&#39;application/json&#39;):
+        &#34;&#34;&#34;
+        Get the specified portfolio account
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the portfolio account
+
+        Returns:
+            Response: JSON formatted data
+        &#34;&#34;&#34;
+        portfolio = self.get_object(pk)
+        portfolio_serializer = PortfolioSerializer(portfolio)
+
+        ps_data = portfolio_serializer.data
+
+        # return from model is a string, must be converted
+        ps_data[&#34;balance&#34;] = decimal.Decimal(ps_data[&#34;balance&#34;])
+
+        ps_data[&#34;holdings&#34;] = fetch_holdings(ps_data)
+        ps_data[&#34;balance_history&#34;] = fetch_balance_history(ps_data)
+
+        return Response(ps_data)
+
+    def put(self, request, pk, format=&#39;application/json&#39;):
+        &#34;&#34;&#34;
+        Update the specified portfolio account
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the portfolio account
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        &#34;&#34;&#34;
+        old_data = self.get_object(pk)
+        date = datetime.date.today()
+        new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
+        new_history.save()
+
+        request.data[&#34;user&#34;] = request.user.pk
+        request.data[&#34;date&#34;] = date
+        portfolio_serializer = PortfolioSerializer(old_data, data=request.data)
+        if portfolio_serializer.is_valid():
+            portfolio_serializer.save()
+
+            ps_data = portfolio_serializer.data
+            ps_data[&#34;holdings&#34;] = fetch_holdings(ps_data)
+            ps_data[&#34;balance_history&#34;] = fetch_balance_history(ps_data)
+
+            return Response(ps_data, status=status.HTTP_200_OK)
+        return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        &#34;&#34;&#34;
+        Delete the specified portfolio account
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+            pk (int): The primary key of the portfolio account
+
+        Returns:
+            Response: JSON formatted data and HTTP status
+        &#34;&#34;&#34;
+        portfolio = self.get_object(pk)
+        portfolio.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.views.APIView</li>
+<li>django.views.generic.base.View</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.views.PortfolioDetail.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.views.PortfolioDetail.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self, request, pk)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete the specified portfolio account</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request
+pk (int): The primary key of the portfolio account</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Response</code></dt>
+<dd>JSON formatted data and HTTP status</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self, request, pk):
+    &#34;&#34;&#34;
+    Delete the specified portfolio account
+
+    Arguments:
+        request (HttpRequest): The request object from an HTTP request
+        pk (int): The primary key of the portfolio account
+
+    Returns:
+        Response: JSON formatted data and HTTP status
+    &#34;&#34;&#34;
+    portfolio = self.get_object(pk)
+    portfolio.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.views.PortfolioDetail.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, request, pk, format='application/json')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the specified portfolio account</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request
+pk (int): The primary key of the portfolio account</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Response</code></dt>
+<dd>JSON formatted data</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, request, pk, format=&#39;application/json&#39;):
+    &#34;&#34;&#34;
+    Get the specified portfolio account
+
+    Arguments:
+        request (HttpRequest): The request object from an HTTP request
+        pk (int): The primary key of the portfolio account
+
+    Returns:
+        Response: JSON formatted data
+    &#34;&#34;&#34;
+    portfolio = self.get_object(pk)
+    portfolio_serializer = PortfolioSerializer(portfolio)
+
+    ps_data = portfolio_serializer.data
+
+    # return from model is a string, must be converted
+    ps_data[&#34;balance&#34;] = decimal.Decimal(ps_data[&#34;balance&#34;])
+
+    ps_data[&#34;holdings&#34;] = fetch_holdings(ps_data)
+    ps_data[&#34;balance_history&#34;] = fetch_balance_history(ps_data)
+
+    return Response(ps_data)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.views.PortfolioDetail.get_object"><code class="name flex">
+<span>def <span class="ident">get_object</span></span>(<span>self, key)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Query for a specific entry from the Portfolio table</p>
+<h2 id="arguments">Arguments</h2>
+<p>key (int): The primary key for the database record</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Portfolio</code></dt>
+<dd>An instance of the Portfolio model class</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>Http404</code></dt>
+<dd>If the specified database record is not found</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_object(self, key):
+    &#34;&#34;&#34;
+    Query for a specific entry from the Portfolio table
+
+    Arguments:
+         key (int): The primary key for the database record
+
+    Returns:
+        Portfolio: An instance of the Portfolio model class
+
+    Raises:
+        Http404: If the specified database record is not found
+    &#34;&#34;&#34;
+    try:
+        return Portfolio.objects.get(pk=key)
+    except Portfolio.DoesNotExist:
+        raise Http404</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.views.PortfolioDetail.put"><code class="name flex">
+<span>def <span class="ident">put</span></span>(<span>self, request, pk, format='application/json')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update the specified portfolio account</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request
+pk (int): The primary key of the portfolio account</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Response</code></dt>
+<dd>JSON formatted data and HTTP status</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def put(self, request, pk, format=&#39;application/json&#39;):
+    &#34;&#34;&#34;
+    Update the specified portfolio account
+
+    Arguments:
+        request (HttpRequest): The request object from an HTTP request
+        pk (int): The primary key of the portfolio account
+
+    Returns:
+        Response: JSON formatted data and HTTP status
+    &#34;&#34;&#34;
+    old_data = self.get_object(pk)
+    date = datetime.date.today()
+    new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
+    new_history.save()
+
+    request.data[&#34;user&#34;] = request.user.pk
+    request.data[&#34;date&#34;] = date
+    portfolio_serializer = PortfolioSerializer(old_data, data=request.data)
+    if portfolio_serializer.is_valid():
+        portfolio_serializer.save()
+
+        ps_data = portfolio_serializer.data
+        ps_data[&#34;holdings&#34;] = fetch_holdings(ps_data)
+        ps_data[&#34;balance_history&#34;] = fetch_balance_history(ps_data)
+
+        return Response(ps_data, status=status.HTTP_200_OK)
+    return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
 </dd>
 </dl>
@@ -287,6 +1197,11 @@ keyword arguments, and other things.</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>List all accounts, or add a new one</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>permission_classes</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the accepted permissions for this view</dd>
+</dl>
 <p>Constructor. Called in the URLconf; can contain helpful extra
 keyword arguments, and other things.</p></div>
 <details class="source">
@@ -296,37 +1211,64 @@ keyword arguments, and other things.</p></div>
 <pre><code class="python">class PortfolioList(APIView):
     &#34;&#34;&#34;
     List all accounts, or add a new one
+
+    Attributes:
+        permission_classes (list): A list of the accepted permissions for this view
     &#34;&#34;&#34;
+
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         &#34;&#34;&#34;
         Get the list of accounts
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
 
         Returns:
             Response: list of account in JSON format
         &#34;&#34;&#34;
-        pass
 
-    def post(self, request):
+        portfolio = Portfolio.objects.filter(user=request.user)
+        portfolio_serializer = PortfolioSerializer(portfolio, many=True)
+
+        for portfolio in portfolio_serializer.data:
+            portfolio[&#34;balance&#34;] = decimal.Decimal(portfolio[&#34;balance&#34;])
+
+            portfolio[&#34;holdings&#34;] = fetch_holdings(portfolio)
+            portfolio[&#34;balance_history&#34;] = fetch_balance_history(portfolio)
+
+        return Response(portfolio_serializer.data)
+
+    def post(self, request, format=&#39;application/json&#39;):
         &#34;&#34;&#34;
         Add a new account
 
-        Args:
+        Arguments:
             request (HttpRequest): The request object from an HTTP request
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass</code></pre>
+        request.data[&#34;user&#34;] = request.user.pk
+        portfolio_serializer = PortfolioSerializer(data=request.data)
+        if portfolio_serializer.is_valid():
+            portfolio_serializer.save()
+            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>rest_framework.views.APIView</li>
 <li>django.views.generic.base.View</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.views.PortfolioList.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="planning_tool.views.PortfolioList.get"><code class="name flex">
@@ -334,11 +1276,8 @@ keyword arguments, and other things.</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the list of accounts</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-</dl>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
@@ -352,25 +1291,32 @@ keyword arguments, and other things.</p></div>
     &#34;&#34;&#34;
     Get the list of accounts
 
-    Args:
+    Arguments:
         request (HttpRequest): The request object from an HTTP request
 
     Returns:
         Response: list of account in JSON format
     &#34;&#34;&#34;
-    pass</code></pre>
+
+    portfolio = Portfolio.objects.filter(user=request.user)
+    portfolio_serializer = PortfolioSerializer(portfolio, many=True)
+
+    for portfolio in portfolio_serializer.data:
+        portfolio[&#34;balance&#34;] = decimal.Decimal(portfolio[&#34;balance&#34;])
+
+        portfolio[&#34;holdings&#34;] = fetch_holdings(portfolio)
+        portfolio[&#34;balance_history&#34;] = fetch_balance_history(portfolio)
+
+    return Response(portfolio_serializer.data)</code></pre>
 </details>
 </dd>
 <dt id="planning_tool.views.PortfolioList.post"><code class="name flex">
-<span>def <span class="ident">post</span></span>(<span>self, request)</span>
+<span>def <span class="ident">post</span></span>(<span>self, request, format='application/json')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Add a new account</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-</dl>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
@@ -380,18 +1326,62 @@ keyword arguments, and other things.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def post(self, request):
+<pre><code class="python">def post(self, request, format=&#39;application/json&#39;):
     &#34;&#34;&#34;
     Add a new account
 
-    Args:
+    Arguments:
         request (HttpRequest): The request object from an HTTP request
 
     Returns:
         Response: JSON formatted data and HTTP status
     &#34;&#34;&#34;
-    pass</code></pre>
+    request.data[&#34;user&#34;] = request.user.pk
+    portfolio_serializer = PortfolioSerializer(data=request.data)
+    if portfolio_serializer.is_valid():
+        portfolio_serializer.save()
+        return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.views.SecurityTypeList"><code class="flex name class">
+<span>class <span class="ident">SecurityTypeList</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Provides a read-only list of security types in the database</p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SecurityTypeList(generics.ListAPIView):
+    &#34;&#34;&#34;
+    Provides a read-only list of security types in the database
+    &#34;&#34;&#34;
+    queryset = Security_Type.objects.all()
+    serializer_class = Security_TypeSerializer</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.generics.ListAPIView</li>
+<li>rest_framework.mixins.ListModelMixin</li>
+<li>rest_framework.generics.GenericAPIView</li>
+<li>rest_framework.views.APIView</li>
+<li>django.views.generic.base.View</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.views.SecurityTypeList.queryset"><code class="name">var <span class="ident">queryset</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="planning_tool.views.SecurityTypeList.serializer_class"><code class="name">var <span class="ident">serializer_class</span></code></dt>
+<dd>
+<div class="desc"><p>A class to serialize and deserialize Security_Type instances to and from JSON data</p></div>
 </dd>
 </dl>
 </dd>
@@ -409,13 +1399,45 @@ keyword arguments, and other things.</p></div>
 <li><code><a title="planning_tool" href="index.html">planning_tool</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="planning_tool.views.fetch_balance_history" href="#planning_tool.views.fetch_balance_history">fetch_balance_history</a></code></li>
+<li><code><a title="planning_tool.views.fetch_holdings" href="#planning_tool.views.fetch_holdings">fetch_holdings</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="planning_tool.views.AccountTypeList" href="#planning_tool.views.AccountTypeList">AccountTypeList</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.views.AccountTypeList.queryset" href="#planning_tool.views.AccountTypeList.queryset">queryset</a></code></li>
+<li><code><a title="planning_tool.views.AccountTypeList.serializer_class" href="#planning_tool.views.AccountTypeList.serializer_class">serializer_class</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.views.HoldingDetail" href="#planning_tool.views.HoldingDetail">HoldingDetail</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.views.HoldingDetail.delete" href="#planning_tool.views.HoldingDetail.delete">delete</a></code></li>
+<li><code><a title="planning_tool.views.HoldingDetail.get" href="#planning_tool.views.HoldingDetail.get">get</a></code></li>
+<li><code><a title="planning_tool.views.HoldingDetail.get_object" href="#planning_tool.views.HoldingDetail.get_object">get_object</a></code></li>
+<li><code><a title="planning_tool.views.HoldingDetail.permission_classes" href="#planning_tool.views.HoldingDetail.permission_classes">permission_classes</a></code></li>
+<li><code><a title="planning_tool.views.HoldingDetail.put" href="#planning_tool.views.HoldingDetail.put">put</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.views.HoldingList" href="#planning_tool.views.HoldingList">HoldingList</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.views.HoldingList.get" href="#planning_tool.views.HoldingList.get">get</a></code></li>
+<li><code><a title="planning_tool.views.HoldingList.post" href="#planning_tool.views.HoldingList.post">post</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="planning_tool.views.PortfolioDetail" href="#planning_tool.views.PortfolioDetail">PortfolioDetail</a></code></h4>
 <ul class="">
 <li><code><a title="planning_tool.views.PortfolioDetail.delete" href="#planning_tool.views.PortfolioDetail.delete">delete</a></code></li>
 <li><code><a title="planning_tool.views.PortfolioDetail.get" href="#planning_tool.views.PortfolioDetail.get">get</a></code></li>
+<li><code><a title="planning_tool.views.PortfolioDetail.get_object" href="#planning_tool.views.PortfolioDetail.get_object">get_object</a></code></li>
+<li><code><a title="planning_tool.views.PortfolioDetail.permission_classes" href="#planning_tool.views.PortfolioDetail.permission_classes">permission_classes</a></code></li>
 <li><code><a title="planning_tool.views.PortfolioDetail.put" href="#planning_tool.views.PortfolioDetail.put">put</a></code></li>
 </ul>
 </li>
@@ -423,7 +1445,15 @@ keyword arguments, and other things.</p></div>
 <h4><code><a title="planning_tool.views.PortfolioList" href="#planning_tool.views.PortfolioList">PortfolioList</a></code></h4>
 <ul class="">
 <li><code><a title="planning_tool.views.PortfolioList.get" href="#planning_tool.views.PortfolioList.get">get</a></code></li>
+<li><code><a title="planning_tool.views.PortfolioList.permission_classes" href="#planning_tool.views.PortfolioList.permission_classes">permission_classes</a></code></li>
 <li><code><a title="planning_tool.views.PortfolioList.post" href="#planning_tool.views.PortfolioList.post">post</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.views.SecurityTypeList" href="#planning_tool.views.SecurityTypeList">SecurityTypeList</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.views.SecurityTypeList.queryset" href="#planning_tool.views.SecurityTypeList.queryset">queryset</a></code></li>
+<li><code><a title="planning_tool.views.SecurityTypeList.serializer_class" href="#planning_tool.views.SecurityTypeList.serializer_class">serializer_class</a></code></li>
 </ul>
 </li>
 </ul>
