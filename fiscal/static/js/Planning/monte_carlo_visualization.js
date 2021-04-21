@@ -30,8 +30,22 @@ function parseDate(dateString) {
 }
 
 let monte_vis = {};
+/**
+ * Function that calls the monte carlo API and requests a simulation initiation
+ * @param {Array} input array of values pulled from a JSON object
+ * @returns {Chart} A histogram based of a bar chart using the ChartJS library
+ * @throws {Error} if the input array is null, has negative values, etc.
+ */
 monte_vis.future_value_chart = function (array) {
 
+    /**
+     * Function that calls the monte carlo API and requests a simulation initiation
+     * @param {Array} input array of values pulled from a JSON object
+     * @param {int} number of bins that is hard coded for the x-axis. This number determines the ranges that the values
+     *              will fall into, contributing to their respective range frequencies
+     * @returns {Array} array of bin values/ranges
+     * @throws {Error} if any of the inputs array are null, negative, etc.
+     */
     createHistogram = function (array, numOfBins) {
 
         const obj = []
