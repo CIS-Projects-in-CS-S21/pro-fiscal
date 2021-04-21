@@ -29,6 +29,10 @@ function parseDate(dateString){
     return new Date(year, month, day);
 }
 
+/**
+ * Function that renders a line graph highlighting the growth of a user's portfolio.
+ * @returns {Chart}
+ */
 function render_portfolio_growth() {
 
     var contents = document.createElement("div");
@@ -45,6 +49,7 @@ function render_portfolio_growth() {
     let chartDateData;
     let maxDays = 0;
 
+    //Function that grabs JSON object
     const getPortfolioChangeData = () => {
         let portfolios = "";
 
@@ -81,6 +86,7 @@ function render_portfolio_growth() {
         })
     }
 
+    //Function that extracts info from JSON object
     const extractPortfolioBalanceDates = (portfolios) => {
         for (let i = 0; i < portfolios.length; i++) {
             let item = portfolios[i];
@@ -152,6 +158,7 @@ function render_portfolio_growth() {
         }
     }
 
+    //Create dataset with colors for later use when creating graph
     const createDynamicDatasets = (portfolios) => {
         let datasets = [];
         let colors = ['rgb(0, 63, 92)', 'rgb(188, 80, 144)', 'rgb(255, 166, 0)',
@@ -173,6 +180,7 @@ function render_portfolio_growth() {
         return datasets;
     }
 
+    //Actual function that creates chart using ChartJS library
     function createAreaChart(dataItems) {
         var ctx = document.getElementById('myChart').getContext('2d');
 

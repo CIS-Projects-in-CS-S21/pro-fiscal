@@ -1,3 +1,7 @@
+/**
+ * Function that renders a pie chart highlighting the diversification of a user's portfolio.
+ * @returns {Chart}
+ */
 function render_portfolio_diversification() {
     var contents = document.createElement("div");
     let header = document.createElement("h3");
@@ -20,6 +24,7 @@ function render_portfolio_diversification() {
         "rgb(133, 237, 85)",
     ];
 
+    //Function that grabs JSON object
     const getDiversificationData = () => {
         var url = "/planning/portfolio/"
         var init = {
@@ -47,6 +52,8 @@ function render_portfolio_diversification() {
         });
     }
 
+    //Function takes in dataset and totals all values from a user's account(s) based on security type. This is done
+    //for every security type a user has in their holding(s).
     const createDataset = (dataset) => {
         const combinedDataset = {};
 
@@ -70,6 +77,7 @@ function render_portfolio_diversification() {
         return {"labels": Object.keys(combinedDataset), "values": Object.values(combinedDataset)}
     }
 
+    //Actual function that creates the pie chart using ChartJS.
     function createPieChart(dataSet) {
         var ctx = document.getElementById("myChart").getContext("2d");
 
