@@ -119,7 +119,7 @@ class Monte_carlo_API(APIView):
 
         user_data = self.__aggregate_data(request.user)
         if not user_data:
-            return Response(data={"Error": "You must create Portfolio accounts and add holdings before running a simulation"},
+            return Response(data={"Errors": {"user_data": "You must create Portfolio accounts and add holdings before running a simulation"}},
                             status=status.HTTP_400_BAD_REQUEST)
         valid, data = self.__is_valid(request.data)
         # print(data)
@@ -147,7 +147,7 @@ class Monte_carlo_API(APIView):
                 else:
                     return Response(data={"detail": "Simulation in progress"}, status=status.HTTP_202_ACCEPTED)
             else:
-                return Response(data={"Error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(data={"Errors": {"server_error": "Something went wrong"}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
