@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: account/account_api.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: account/account_api.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>let account_api = {};
+
+/**
+ * Function that obtains the user's information.
+ * @param {function} successHandler Callback function to handle the data.
+ * @param {Node} errorDOM Element where potential error messages will be added to.
+ * @returns {boolean} Confirmation status of the operation.
+ */
+account_api.getUserInfo = function (successHandler, errorDOM) {
+    let status = false;
+    let init = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        }
+    }
+
+    fetch("/user-info/", init)
+        .then((response) => {
+            if (!response.ok) {
+                response.text().then(text => { throw Error(text) });
+            }
+            status = true;
+            return response.json();
+        }).then(data => {
+            successHandler(data);
+        }).catch(error => {
+            status = false;
+            console.error(error);
+            errorDOM.innerText = error;
+        })
+
+    return status;
+}
+
+/**
+ if (!response.ok) {
+                response.text().then(text => {
+                    errorText = text;
+                    errorDOM.innerText = errorText;
+                    throw new Error(errorText);
+                });
+            }
+ */
+
+/**
+ * Function that updates the user's username.
+ * @param {Object} data Username to be sent to request user information.
+ * @param {function} successHandler Callback function to handle the data.
+ * @param {Node} errorDOM Element where potential error messages will be added to.
+ * @returns {boolean} Confirmation status of the operation.
+ */
+account_api.updateUsername = function (data, successHandler, errorDOM) {
+    let status = false;
+    let clone = '';
+    let code = '';
+
+    let init = {
+        method: 'PATCH', // Not PUT in this case
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        },
+        body: JSON.stringify(data)
+    }
+
+    fetch("/rest-auth/user/", init)
+        .then((response) => {
+            code = response.status;
+            clone = response.clone();
+            return response.json();
+        }).then(data => {
+            if (code >= 200 &amp;&amp; code &lt; 300) {
+                successHandler(data);
+            } else if (code === 400) {
+                if (data["username"]) {
+                    modal.alert(data["username"])
+                }
+                // This case should not occur, but if it does we should see the error message
+                else {
+                    clone.text().then(text => {
+                        modal.alert(text);
+                    })
+                }
+            }
+            else {
+                clone.text().then(text => {
+                    modal.alert(text);
+                })
+            }
+        }).catch(error => {
+            // catches any other errors that might occur            
+            console.error(error);
+            errorDOM.innerText = error;
+        })
+
+    return status;
+}
+
+/**
+ * Function that allows the user to change their password.
+ * @param {Object} data Object containing the new password and a confirmation password to update the user's password.
+ * @param {function} successHandler Callback function to handle the data.
+ * @param {Node} errorDOM Element where potential error messages will be added to.
+ * @returns {boolean} Confirmation status of the operation.
+ */
+account_api.changePassword = function (data, successHandler, errorDOM) {
+    let status = false;
+    let clone = '';
+    let code = '';
+
+    let init = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        },
+        body: JSON.stringify(data)
+    }
+
+    fetch("/rest-auth/password/change/", init)
+        .then((response) => {
+            code = response.status;
+            clone = response.clone();
+            return response.json();
+        }).then(data => {
+            if (code >= 200 &amp;&amp; code &lt; 300) {
+                successHandler(data);
+            } else if (code === 400) {
+                if (data["old_password"]) {
+                    modal.alert(data["old_password"] + " inputted for your old password.")
+                }
+                // This case should not occur, but if it does we should see the error message
+                else {
+                    clone.text().then(text => {
+                        modal.alert(text);
+                    })
+                }
+            } else {
+                clone.text().then(text => {
+                    modal.alert(text);
+                })
+            }
+
+        }).catch(error => {
+            // catches any other errors that might occur            
+            console.error(error);
+            errorDOM.innerText = error;
+        })
+
+    return status;
+}
+
+/**
+ * Function that allows the user to reset their password.
+ * @param {Object} data Object containing the new password and a confirmation password to update the user's password.
+ * @param {function} successHandler Callback function to handle the data.
+ * @param {Node} errorDOM Element where potential error messages will be added to.
+ * @returns {boolean} Confirmation status of the operation.
+ */
+account_api.resetPassword = function (data, successHandler, errorDOM) {
+    let status = false;
+    let init = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            'Authorization': "token " + localStorage.getItem("key")
+        },
+        body: JSON.stringify(data)
+    }
+
+    fetch("/rest-auth/password/reset/", init)
+        .then((response) => {
+            if (!response.ok) {
+                response.text().then(text => { throw Error(text) });
+            }
+            status = true;
+            return response.json();
+        }).then(data => {
+            successHandler(data);
+        }).catch(error => {
+            status = false;
+            console.error(error);
+            errorDOM.innerText = error;
+        })
+
+    return status;
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#create_new_account">create_new_account</a></li><li><a href="global.html#create_security_questions">create_security_questions</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#delete_item">delete_item</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#find_user_by_email">find_user_by_email</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#input_item">input_item</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#match_passwords">match_passwords</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_update_form">render_update_form</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#toggle_advanced_setting">toggle_advanced_setting</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_item">update_item</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#update_security_questions">update_security_questions</a></li><li><a href="global.html#update_user_credentials">update_user_credentials</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr 21 2021 11:40:11 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

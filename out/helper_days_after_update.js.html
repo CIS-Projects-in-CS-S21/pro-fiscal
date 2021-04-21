@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: helper/days_after_update.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,28 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: helper/days_after_update.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Function that calculates the number of days in between the inputted dates
+ * @param {Date} curr_date The current Date
+ * @param {Date} start_date The starting Date
+ * @returns {int} Denotes how many days has passed from start_date to curr_date
+ */
+function days_after_update (curr_date, start_date) {
+    return parseInt((curr_date - start_date) / (1000 * 60 * 60 * 24), 10);
+};
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+// module.exports = days_after_update;</code></pre>
+        </article>
+    </section>
 
 
 

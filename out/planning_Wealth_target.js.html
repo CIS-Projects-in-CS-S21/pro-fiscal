@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: planning/Wealth_target.js</title>
+    <title>JSDoc: Source: Planning/Wealth_target.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: planning/Wealth_target.js</h1>
+    <h1 class="page-title">Source: Planning/Wealth_target.js</h1>
 
     
 
@@ -27,17 +27,144 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Function that calculates the wealth target value.
- * @param {float} desired_income Amount that would be received by the user within a specific time.
- * @param {float} inflation_rate the percent that shows the change in prices-increase in prices and the value of a currency is falling.
- * @param {float} withdrawal_rate the rate at which the users withdraw money from their account.
- * @param {float} investment_return amount of money that the user would make or lost on an investment within a specific time.
- * @param {int} time Specified period in which user’s activity occurs.
- * @returns {float} user's total wealth target value.
- * @throws {InvalidArgumentException} if the user enters invalid data or number
+ * 
+ * @returns {DOMElement} The element that will be displayed onto the Wealth Target Calculator page.
  */
-function calculate_target (desired_income, inflation_rate, withdrawal_rate, investment_return, time) {
+function render_wealthTarget_interface() {
 
+    /**
+     * Function that collects the user's inputs, and renders the present value P into the page.
+     */
+    const submitWealth = () => {
+        const futureValue = parseFloat(document.getElementById("TotalIncome").value);
+        const InterestRate = parseFloat(document.getElementById("Rate").value);
+        const TimePeriod = parseFloat(document.getElementById("time").value);
+        //send to backend here
+
+        //change values of input to null
+        /*
+        document.getElementById("TotalIncome").value = null;
+        document.getElementById("Rate").value = null;
+        document.getElementById("time").value = null;
+        console.log(futureValue, InterestRate, TimePeriod);
+        */
+
+        let params = {
+            "wealth_target_inputs": {
+                "target_wealth": futureValue,
+                "annual_return": InterestRate,
+                "num_years": TimePeriod
+            },
+            "date": new Date()
+        }
+
+        let formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+
+        let results = wealth_target_calculate(params);
+
+        outputAnswer.innerText = formatter.format(results);
+    }
+
+    const inputContent = [
+        {
+            inputText: "Enter the amount of money that you want to have at retirement (F): ",
+            actualFunction: (e) => {
+                if (isNaN(e.target.value) || e.target.value.length > 7) {
+                    e.target.value = e.target.value.slice(0, -1)
+                }
+            }, type: "text", inputId: "TotalIncome"
+        },
+        {
+            inputText: "Enter the annual expected rate of return (r): ",
+            actualFunction: (e) => {
+                if (isNaN(e.target.value) || e.target.value.length > 6) {
+                    e.target.value = e.target.value.slice(0, -1)
+                }
+            }
+            , type: "text", inputId: "Rate"
+        },
+        {
+            inputText: "Enter the number of years that you have before you can retire (n): ",
+            actualFunction: (e) => {
+                if (isNaN(e.target.value) || e.target.value.length > 7) {
+                    e.target.value = e.target.value.slice(0, -1)
+                }
+            }
+            , type: "text", inputId: "time"
+        }
+    ];
+
+    let FormWealth = document.createElement("div");
+    let formParagraph = document.createElement("p");
+    formParagraph.classList.add("form-wealth");
+    formParagraph.innerHTML = `
+        &lt;h1>Wealth Target Calculator&lt;/h1>
+        &lt;ul>
+            &lt;li>The wealth target calculator is a tool that calculates how much wealth you are going to need to be ready for retirement.&lt;/li>
+            &lt;li>You will input how much money do you want to have at the point of your retirement (F). &lt;/li>
+            &lt;li>You will also input the annual expected rate of return for your investments (r) and the number of years that you have before you can retire (n).&lt;/li>
+            &lt;li>By clicking the calculate button, you can see how much wealth is needed to be prepared for retirement (P).&lt;/li>
+            &lt;li>Equation for wealth target calculator: P = F/((1+r)^n). &lt;/li>
+        &lt;/ul>
+    `
+    FormWealth.appendChild(formParagraph);
+
+    let userInfo = document.createElement("div");
+    userInfo.classList.add("wealth-inputs");
+    let wealthDiv = document.createElement("div");
+    wealthDiv.id = "wealth";
+    inputContent.forEach(input => {
+        const label = document.createTextNode(input.inputText);
+        const actual = document.createElement("input");
+        actual.id = input.inputId;
+        actual.type = input.type;
+        actual.addEventListener("input", input.actualFunction);
+        wealthDiv.appendChild(label);
+        wealthDiv.appendChild(actual);
+    });
+
+    wealthDiv.appendChild(document.createElement("br"));
+
+    const submitIcon = document.createElement("button");
+    submitIcon.id = "submitForm";
+    submitIcon.innerHTML = "calculate";
+    submitIcon.addEventListener("click", submitWealth);
+    wealthDiv.appendChild(submitIcon);
+
+    let outputBox = document.createElement("div");
+    outputBox.classList.add("wealthResult");
+
+    let outputTitle = document.createElement("h3");
+    outputTitle.innerText = "Wealth Calculator Results";
+    outputTitle.classList.add("text-center");
+    outputBox.appendChild(outputTitle);
+
+    let outputBoxDiv = document.createElement("div");
+    outputBoxDiv.classList.add("row");
+
+    let outputLabel = document.createElement("div");
+    outputLabel.innerText = "Present Value required to attain your Future Value";
+    outputLabel.classList.add("col", "text-center");
+
+    let outputAnswer = document.createElement("div");
+    outputAnswer.innerText = "$0.00";
+    outputAnswer.classList.add("col", "text-center", "wealthAnswer");
+
+    outputBoxDiv.appendChild(outputLabel);
+    outputBoxDiv.appendChild(outputAnswer);
+
+    outputBox.appendChild(outputBoxDiv);
+
+    userInfo.appendChild(wealthDiv);
+
+    FormWealth.appendChild(userInfo);
+    FormWealth.appendChild(document.createElement("br"));
+    FormWealth.appendChild(outputBox);
+
+    return FormWealth;
 }</code></pre>
         </article>
     </section>
@@ -48,13 +175,13 @@ function calculate_target (desired_income, inflation_rate, withdrawal_rate, inve
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="render_component.html">render_component</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add_holding">add_holding</a></li><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#calculate_target">calculate_target</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#create_new_account">create_new_account</a></li><li><a href="global.html#create_portfolio">create_portfolio</a></li><li><a href="global.html#create_security_questions">create_security_questions</a></li><li><a href="global.html#delete_holding">delete_holding</a></li><li><a href="global.html#delete_item">delete_item</a></li><li><a href="global.html#delete_portfolio">delete_portfolio</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#fetch_user_items">fetch_user_items</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#find_user_by_email">find_user_by_email</a></li><li><a href="global.html#future_value_chart">future_value_chart</a></li><li><a href="global.html#get_portfolios">get_portfolios</a></li><li><a href="global.html#input_item">input_item</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#map_by_category">map_by_category</a></li><li><a href="global.html#match_passwords">match_passwords</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_categorical_spending">render_categorical_spending</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_future_value">render_future_value</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#routing_function">routing_function</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#toggle_advanced_setting">toggle_advanced_setting</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_holding">update_holding</a></li><li><a href="global.html#update_item">update_item</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#update_portfolio">update_portfolio</a></li><li><a href="global.html#update_security_questions">update_security_questions</a></li><li><a href="global.html#update_user_credentials">update_user_credentials</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#create_new_account">create_new_account</a></li><li><a href="global.html#create_security_questions">create_security_questions</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#delete_item">delete_item</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#find_user_by_email">find_user_by_email</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#input_item">input_item</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#match_passwords">match_passwords</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_update_form">render_update_form</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#toggle_advanced_setting">toggle_advanced_setting</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_item">update_item</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#update_security_questions">update_security_questions</a></li><li><a href="global.html#update_user_credentials">update_user_credentials</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Mar 04 2021 16:40:06 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr 21 2021 11:40:11 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

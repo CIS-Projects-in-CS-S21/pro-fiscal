@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: helper/formMaxDate.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,37 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: helper/formMaxDate.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Function used to disable date inputs from the future
+ * @param {string} className Class Name for the elements for the function to disable form inputs for future dates
+ */
+function formMaxDate (className) {
+    $(function () {
+        var dtToday = new Date();
 
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if (month &lt; 10)
+            month = '0' + month.toString();
+        if (day &lt; 10)
+            day = '0' + day.toString();
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+        var maxDate = year + '-' + month + '-' + day;
+        $('.' + className).attr('max', maxDate);
+    });
+}</code></pre>
+        </article>
+    </section>
 
 
 

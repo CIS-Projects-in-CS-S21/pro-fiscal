@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: helper/usernameValidation.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,30 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: helper/usernameValidation.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Function that checks if a string is a valid username for Django's REST Auth API (Letters, digits and @/./+/-/_ only)
+ * @param {string} username The inputted username
+ * @returns {string} Returns null if the username is not a valid username, and the username otherwise
+ */
+function usernameValidation (username) {
+    var regex = /^[A-Za-z0-9@.+_-]+$/;
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    if (regex.test(username)) {
+        return username;
+    }
+    return null;
+}</code></pre>
+        </article>
+    </section>
 
 
 

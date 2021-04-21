@@ -31,8 +31,8 @@
  * @param {string} email The email associated with the account the user wants to obtain account information.
  * @returns {boolean} Verifies whether the inputted email is in the database.
  */
-function find_user_by_email (email) {
-    
+function find_user_by_email(email) {
+
 }
 
 /**
@@ -41,8 +41,8 @@ function find_user_by_email (email) {
  * @param {string} password The password associated with the account the user wants to log into.
  * @returns {boolean} Determines whether or not the user is able to access the account in question.
  */
-function match_passwords (email, password) {
-    
+function match_passwords(email, password) {
+
 }
 
 /**
@@ -50,14 +50,60 @@ function match_passwords (email, password) {
  * @returns {Form} A form that the user can input their credentials to login.
  */
 function loginInterface() {
+    let content = `
+         &lt;p class="form-style">FISCAL&lt;/p>
+
+        &lt;form id="basic-form">
+
+            &lt;user-form class="user-login-form">
+                &lt;p id="general_error" class="error">&lt;/p>
+                &lt;input type="text" placeholder="username"/>&lt;span id="username" class="error">&lt;/span>
+                &lt;input type="text" placeholder="email"/>&lt;span id="email" class="error">&lt;/span>
+                &lt;input type="password" placeholder="password"/>&lt;span id="password" class="error">&lt;/span>
+                &lt;button>Login&lt;/button>
+                &lt;p class="No-password">Forgot Password ?&lt;/p>
+                
+                &lt;p class="message to-register">Don't have an account? &lt;span class="link">Create Account&lt;span> &lt;/p>
+            &lt;/user-form>
+        &lt;/form>
+    `;
+
+
+    let elem = document.createElement("div");
+    elem.innerHTML = content;
+    return elem;
 
 }
 
 /**
- * Function that signs the user out.
- * @returns {string} A confirmation message is returned stating that the user has logged out.
+ * Function that logs the user out and renders an interface that confirms that the user logged out.
+ * @returns {Element} A confirmation message is returned stating that the user has logged out.
  */
 function logoutInterface() {
+
+    function logout() {
+        console.log("Logging out user");
+        postLogout().then(resp => {
+            console.log(resp)
+            localStorage.removeItem("key")
+            window.location.replace("/")
+        });
+    }
+
+    async function postLogout() {
+        let url = "/rest-auth/logout/";
+        const response = fetch(url, {
+            method: "post"
+        });
+        return response;
+    }
+
+    let message = document.createElement("h2");
+
+    message.innerText = "Logging out...";
+    logout();
+
+    return message;
 
 }</code></pre>
         </article>
@@ -69,13 +115,13 @@ function logoutInterface() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="render_component.html">render_component</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add_holding">add_holding</a></li><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#calculate_target">calculate_target</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#create_new_account">create_new_account</a></li><li><a href="global.html#create_portfolio">create_portfolio</a></li><li><a href="global.html#create_security_questions">create_security_questions</a></li><li><a href="global.html#delete_holding">delete_holding</a></li><li><a href="global.html#delete_item">delete_item</a></li><li><a href="global.html#delete_portfolio">delete_portfolio</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#fetch_user_items">fetch_user_items</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#find_user_by_email">find_user_by_email</a></li><li><a href="global.html#future_value_chart">future_value_chart</a></li><li><a href="global.html#get_portfolios">get_portfolios</a></li><li><a href="global.html#input_item">input_item</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#map_by_category">map_by_category</a></li><li><a href="global.html#match_passwords">match_passwords</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_categorical_spending">render_categorical_spending</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_future_value">render_future_value</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#routing_function">routing_function</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#toggle_advanced_setting">toggle_advanced_setting</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_holding">update_holding</a></li><li><a href="global.html#update_item">update_item</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#update_portfolio">update_portfolio</a></li><li><a href="global.html#update_security_questions">update_security_questions</a></li><li><a href="global.html#update_user_credentials">update_user_credentials</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#create_new_account">create_new_account</a></li><li><a href="global.html#create_security_questions">create_security_questions</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#delete_item">delete_item</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#find_user_by_email">find_user_by_email</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#input_item">input_item</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#match_passwords">match_passwords</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_update_form">render_update_form</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#toggle_advanced_setting">toggle_advanced_setting</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_item">update_item</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#update_security_questions">update_security_questions</a></li><li><a href="global.html#update_user_credentials">update_user_credentials</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Mar 04 2021 16:40:06 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr 21 2021 11:40:11 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
