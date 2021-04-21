@@ -1,35 +1,15 @@
 /**
- * Function that attempts to update the user's account credentials.
- * @param {string} email The new email the account the user wants to update their account to.
- * @param {string} password The password the user wants to update for their account.
- * @returns {boolean} Verifies whether the inputted email is in the database.
+ * Function that renders the user profile component.
+ * @returns {HTMLDivElement} A DOM Element that represents the page for the user profile.
  */
-function update_user_credentials(email, password) {
-
-}
-
-/**
- * Function that attempts to update the user's security questions and answers.
- * @param {Array} questions A series of questions the user wants to use for their security questions.
- * @param {Array} answers A series of answers for the user's security questions.
- * @returns {string} Confirmation message via a Success message dependent on the operation.
- * @throws Will throw an error if either the questions or the answers arrays contain null, NaN, etc.
- * @throws If the length of the questions and the answers arrays are not matching.
- */
-function update_security_questions(questions, answers) {
-
-}
-
-/**
- * Function that toggles the advanced setting on and off.
- * @returns {boolean} Returns the status of the advanced setting.
- */
-function toggle_advanced_setting() {
-
-}
-
 function userProfile() {
 
+    /**
+     * Function that creates the form used to update a user's password.
+     * @param {function} saveFunc Function that handles the submission of a form.
+     * @param {function} cancelFunc Function that handles the cancel action of a form.
+     * @returns {HTMLDivElement} The form to be rendered to the user.
+     */
     function renderUpdatePasswordForm(saveFunc, cancelFunc) {
         let form = {};
 
@@ -102,6 +82,12 @@ function userProfile() {
         return form;
     }
 
+    /**
+     * Function that creates the form used to update a user's username.
+     * @param {function} saveFunc Function that handles the submission of a form.
+     * @param {function} cancelFunc Function that handles the cancel action of a form.
+     * @returns {HTMLDivElement} The form to be rendered to the user.
+     */
     function renderUpdateUsernameForm(saveFunc, cancelFunc) {
         let form = {};
 
@@ -168,6 +154,10 @@ function userProfile() {
         return form;
     }
 
+    /**
+     * Function that renders a dashboard showing the user their username, and when they created their account.
+     * @returns {HTMLDivElement} A DOM Element used to render information about the user.
+     */
     function createDashboard() {
         let dashboard = document.createElement("div");
         dashboard.classList.add("dashboard");
@@ -184,6 +174,9 @@ function userProfile() {
         return dashboard;
     }
 
+    /**
+     * Function that renders the components of the profile page.
+     */
     function render() {
         let dashboard = createDashboard();
 
@@ -320,6 +313,7 @@ function userProfile() {
         profileDiv.appendChild(buttonDiv);
     }
 
+    /* Function that handles the user's account data and formats them in a meaningful fashion. */
     const handleProfileInfo = (data) => {
         username = data['username'];
         accountCreationDate = moment(data['date_joined']).format('MMMM Do, YYYY');
