@@ -1,5 +1,4 @@
 /**
-
  * Function that fetches expense items from the database based on the provided user id.
  * @param {DOMElement} appendDOM Element to render the component in.
  * @param {Function} successHandler Function to execute when you successfully retrieve the Expense Data.
@@ -85,6 +84,14 @@ function delete_item(expense_id) {
 function render_budget_overview() {
 
     // Need mechanism to disable pick list for creating expense item
+    /**
+     * Function that creates a form for a user's personal budget item inputs.
+     * @param {*} saveFunction
+     * @param {*} cancelFunction
+     * @param {*} disablePickList
+     * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
+     */
+
     const renderBudgetForm = (saveFunction, cancelFunction, disablePickList) => {
         let form = {};
 
@@ -172,6 +179,11 @@ function render_budget_overview() {
         return form;
     };
 
+    /**
+     * Function that deals with the creation of an expense item by the user.
+     * @param {*} container
+     * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
+     */
     const handleCreateExpense = (container) => {
         let tableBody = container.getElementsByTagName("tbody")[0];
         let form = renderBudgetForm(function () {
@@ -240,7 +252,11 @@ function render_budget_overview() {
 
         tableBody.appendChild(form.container);
     };
-
+    /**
+     * Function that deals with the updating of an expense item by the user.
+     * @param {*} container
+     * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
+     */
     const handleExpenseUpdate = (container, expense_id) => {
         let row = container.parentElement.parentElement;
         let expense_container = row.parentElement.parentElement.parentElement.parentElement;
@@ -322,7 +338,12 @@ function render_budget_overview() {
         row.parentElement.insertBefore(form.container, row);
         row.remove();
     }
-
+    /**
+     * Function that deals with the deletion of an expense item by the user.
+     * @param {*} container
+     * @param {*} expense_id
+     * @throws {InvalidArgumentException} If any inputs are invalid, NaN, null, etc.
+     */
     const handleExpenseDelete = (container, expense_id) => {
         function toDeleteExpense() {
             budget_api.deleteExpenseItem(expense_id, () => {
@@ -333,7 +354,12 @@ function render_budget_overview() {
         let row = container.parentElement.parentElement;
         modal.confirm("Are you sure you want to delete this expense?", toDeleteExpense);
     }
-
+    /**
+     * Function that deals with the list of expenses provided by the user.
+     * @param {Array} List of expense items.
+     * @throws {InvalidArgumentException} If the expenses array is invalid, NaN, null, etc.
+     * @returns {*} expense_container
+     */
     const handleUserExpenses = (expenses) => {
         let expense_container = document.createElement("div");
 
@@ -395,7 +421,11 @@ function render_budget_overview() {
 
         return expense_container;
     }
-
+    /**
+     * Function that takes the return of handleUserExpenses() to append as a node.
+     * @param {Array} List of expense items.
+     * @returns {*} expense_container
+     */
     function prepareExpenses(expenseItems) {
         let table = handleUserExpenses(expenseItems);
         expense_view.appendChild(table);
