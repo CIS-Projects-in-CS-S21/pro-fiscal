@@ -1,7 +1,13 @@
+/**
+ * @namespace
+ */
 let monte_api = {};
+
 
 /**
  * Function that calls the monte carlo API and requests a simulation initiation
+ * @function start_sim
+ * @memberof monte_api
  * @param {object} input_data An object with the input members for the API
  * @returns {Promise} response
  * @throws {Error} if the response contains an failure status.
@@ -24,6 +30,8 @@ monte_api.start_sim = function(input_data){
 
 /**
  * Function that calls the monte carlo API and requests the simulation results
+ * @function
+ * @memberof monte_api
  * @returns {Promise} response
  * @throws {Error} if the response contains an failure status.
  */

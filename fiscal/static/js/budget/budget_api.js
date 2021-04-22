@@ -1,7 +1,12 @@
+/**
+ * @namespace
+ */
 let budget_api = {};
 
 /**
  * Function that fetches expense items from the database based on the currently logged in user.
+ * @function
+ * @memberof budget_api
  * @param {int} user_id ID of the user.
  * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
  * @returns {Array} Collection of budget items associated with the user.
@@ -36,6 +41,9 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
 }
 
 /**
+ * Function that creates an expense item
+ * @function
+ * @memberof budget_api
  * @param {*} data
  * @param {*} successHandler
  * @param {*} errorDOM
@@ -77,6 +85,9 @@ budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
 
 
 /**
+ * Function that updates an expense item
+ * @function
+ * @memberof budget_api
  * @param {*} data
  * @param {*} successHandler
  * @param {*} errorDOM
@@ -118,6 +129,9 @@ budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
 }
 
 /**
+ * Funciton that deletes an expense item
+ * @function
+ * @memberof budget_api
  * @param {*} data
  * @param {*} successHandler
  * @param {*} errorDOM

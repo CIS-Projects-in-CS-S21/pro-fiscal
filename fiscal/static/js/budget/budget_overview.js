@@ -29,58 +29,6 @@ const getExpenseData = (appendDOM, successHandler, errorDOM) => {
         })
 };
 
-/**
- * Function that creates and renders the form for adding an item.
- * @returns {Form} Returns an expense item form for the user to input.
- */
-function submit_form() {
-
-}
-
-/**
- * Function that adds an expense item to the database.
- * @param {Object} expense Item consisting of a user's ID, the purchase date, a description of the transaction, and the cost of the transaction
- * @returns {Object} Returns an expense item, but with additional information about its spending category as dictated by the Budget Classifier.
- * @throws Will throw an error if null or an empty expense object is inputted.
- * @throws Will throw an error if a user_id is not provided, NaN, null, etc.
- */
-function input_item(expense, successHandler, errorDOM) {
-
-}
-
-/**
- * Function that creates and renders the form for updating an item, preloading in existing data.
- * @param {Object} expense Item consisting of a user's ID, the purchase date, a description of the transaction, and the cost of the transaction
- * @returns {Form} Returns an expense item form for the user to update.
- */
-function render_update_form(expense) {
-
-}
-
-/**
- * Function that updates an existing expense item.
- * @param {int} expense_id ID of the expense item.
- * @param {Object} expense Item consisting of a purchase date, a description of the transaction, the cost of the transaction, and the spending category of the item.
- * @returns {Object} An updated expense item.
- * @throws {InvalidArgumentException} If expense_id is NaN, null, etc.
- * @throws Will throw an error if null or an empty expense object is inputted.
- * @throws Will throw an error if a user_id is not provided, NaN, null, etc.
- * @throws Will throw an error if the item associated with the given expense_id cannot be found.
- */
-function update_item(expense_id, expense) {
-
-}
-
-/**
- * Function that deletes the item with the given expense_id from the database.
- * @param {int} expense_id ID of the expense.
- * @throws {InvalidArgumentException} If expense_id is NaN, null, etc.
- * @throws Will throw an error if the expense item with the given expense_id cannot be found.
- */
-function delete_item(expense_id) {
-
-}
-
 function render_budget_overview() {
 
     // Need mechanism to disable pick list for creating expense item

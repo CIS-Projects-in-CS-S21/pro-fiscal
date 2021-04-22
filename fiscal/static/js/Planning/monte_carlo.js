@@ -1,5 +1,8 @@
-function render_future_value (forecast_data) {}
-
+/**
+ * Function to render the Monte Carlo Interface
+ * Contains private functions to render the individual sub-components.
+ * @returns {HTMLDivElement}
+ */
 function render_monte_interface(){
     function render_monte_form() {
 

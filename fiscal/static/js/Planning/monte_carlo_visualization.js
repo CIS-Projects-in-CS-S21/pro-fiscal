@@ -29,9 +29,15 @@ function parseDate(dateString) {
     return new Date(year, month, day);
 }
 
+/**
+ * @namespace
+ */
 let monte_vis = {};
+
 /**
  * Function that calls the monte carlo API and requests a simulation initiation
+ * @function
+ * @memberof monte_vis
  * @param {Array} input array of values pulled from a JSON object
  * @returns {Chart} A histogram based of a bar chart using the ChartJS library
  * @throws {Error} if the input array is null, has negative values, etc.
