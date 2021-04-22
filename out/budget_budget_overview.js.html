@@ -57,69 +57,30 @@ const getExpenseData = (appendDOM, successHandler, errorDOM) => {
         })
 };
 
-/**
- * Function that creates and renders the form for adding an item.
- * @returns {Form} Returns an expense item form for the user to input.
- */
-function submit_form() {
 
-}
 
 /**
- * Function that adds an expense item to the database.
- * @param {Object} expense Item consisting of a user's ID, the purchase date, a description of the transaction, and the cost of the transaction
- * @returns {Object} Returns an expense item, but with additional information about its spending category as dictated by the Budget Classifier.
- * @throws Will throw an error if null or an empty expense object is inputted.
- * @throws Will throw an error if a user_id is not provided, NaN, null, etc.
+ * Function to render the budget overview component.
+ * Contains private functions to render the individual sub-components
+ * @returns {HTMLDivElement}
  */
-function input_item(expense, successHandler, errorDOM) {
-
-}
-
-/**
- * Function that creates and renders the form for updating an item, preloading in existing data.
- * @param {Object} expense Item consisting of a user's ID, the purchase date, a description of the transaction, and the cost of the transaction
- * @returns {Form} Returns an expense item form for the user to update.
- */
-function render_update_form(expense) {
-
-}
-
-/**
- * Function that updates an existing expense item.
- * @param {int} expense_id ID of the expense item.
- * @param {Object} expense Item consisting of a purchase date, a description of the transaction, the cost of the transaction, and the spending category of the item.
- * @returns {Object} An updated expense item.
- * @throws {InvalidArgumentException} If expense_id is NaN, null, etc.
- * @throws Will throw an error if null or an empty expense object is inputted.
- * @throws Will throw an error if a user_id is not provided, NaN, null, etc.
- * @throws Will throw an error if the item associated with the given expense_id cannot be found.
- */
-function update_item(expense_id, expense) {
-
-}
-
-/**
- * Function that deletes the item with the given expense_id from the database.
- * @param {int} expense_id ID of the expense.
- * @throws {InvalidArgumentException} If expense_id is NaN, null, etc.
- * @throws Will throw an error if the expense item with the given expense_id cannot be found.
- */
-function delete_item(expense_id) {
-
-}
-
 function render_budget_overview() {
+    /**
+    * @namespace budget_overview
+    */
 
     // Need mechanism to disable pick list for creating expense item
     /**
      * Function that creates a form for a user's personal budget item inputs.
-     * @param {*} saveFunction
-     * @param {*} cancelFunction
-     * @param {*} disablePickList
+     * @name renderBudgetForm
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {function} saveFunction - Callback function to execute if the save button is clicked
+     * @param {function} cancelFunction - Callback function to execute if the cancel button is clicked
+     * @param {boolean} disablePickList
      * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
      */
-
     const renderBudgetForm = (saveFunction, cancelFunction, disablePickList) => {
         let form = {};
 
@@ -209,7 +170,11 @@ function render_budget_overview() {
 
     /**
      * Function that deals with the creation of an expense item by the user.
-     * @param {*} container
+     * @name handleCreateExpense
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {HTMLTableElement} container
      * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
      */
     const handleCreateExpense = (container) => {
@@ -282,7 +247,12 @@ function render_budget_overview() {
     };
     /**
      * Function that deals with the updating of an expense item by the user.
-     * @param {*} container
+     * @name handleExpenseUpdate
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {HTMLButtonElement} container - Update Button
+     * @param {int} expense_id - Primary key of the expense to update
      * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
      */
     const handleExpenseUpdate = (container, expense_id) => {
@@ -368,8 +338,12 @@ function render_budget_overview() {
     }
     /**
      * Function that deals with the deletion of an expense item by the user.
-     * @param {*} container
-     * @param {*} expense_id
+     * @name handleExpenseDelete
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {HTMLButtonElement} container - Delete button
+     * @param {int} expense_id - Primary key of the expense to delete
      * @throws {InvalidArgumentException} If any inputs are invalid, NaN, null, etc.
      */
     const handleExpenseDelete = (container, expense_id) => {
@@ -384,9 +358,13 @@ function render_budget_overview() {
     }
     /**
      * Function that deals with the list of expenses provided by the user.
-     * @param {Array} List of expense items.
+     * @name handleUserExpenses
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {Array} expenses - List of expense items.
      * @throws {InvalidArgumentException} If the expenses array is invalid, NaN, null, etc.
-     * @returns {*} expense_container
+     * @returns {HTMLDivElement} expense_container
      */
     const handleUserExpenses = (expenses) => {
         let expense_container = document.createElement("div");
@@ -451,8 +429,11 @@ function render_budget_overview() {
     }
     /**
      * Function that takes the return of handleUserExpenses() to append as a node.
-     * @param {Array} List of expense items.
-     * @returns {*} expense_container
+     * @name prepareExpenses
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {Array} expenseItems - List of expense items.
      */
     function prepareExpenses(expenseItems) {
         let table = handleUserExpenses(expenseItems);
@@ -507,13 +488,13 @@ function render_budget_overview() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#delete_item">delete_item</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#handleLoginSwitch">handleLoginSwitch</a></li><li><a href="global.html#input_item">input_item</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_update_form">render_update_form</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_item">update_item</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#userProfile">userProfile</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="budget_api.html">budget_api</a></li><li><a href="budget_overview.html">budget_overview</a></li><li><a href="monte_api.html">monte_api</a></li><li><a href="monte_carlo_interface.html">monte_carlo_interface</a></li><li><a href="monte_vis.html">monte_vis</a></li><li><a href="portfolio_api.html">portfolio_api</a></li><li><a href="portfolio_overview.html">portfolio_overview</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#createButton">createButton</a></li><li><a href="global.html#createTable">createTable</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#handleLoginSwitch">handleLoginSwitch</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#modalFW">modalFW</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_overview">render_budget_overview</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_monte_interface">render_monte_interface</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#routeFW">routeFW</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#userProfile">userProfile</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Apr 21 2021 17:46:07 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Apr 22 2021 11:14:36 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
