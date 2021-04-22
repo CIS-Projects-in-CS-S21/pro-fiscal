@@ -46,6 +46,9 @@ monte_vis.future_value_chart = function (array) {
 
     /**
      * Function that calls the monte carlo API and requests a simulation initiation
+     * @function
+     * @memberOf monte_vis
+     * @inner
      * @param {Array} input array of values pulled from a JSON object
      * @param {int} number of bins that is hard coded for the x-axis. This number determines the ranges that the values
      *              will fall into, contributing to their respective range frequencies

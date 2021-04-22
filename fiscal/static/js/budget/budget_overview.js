@@ -29,17 +29,30 @@ const getExpenseData = (appendDOM, successHandler, errorDOM) => {
         })
 };
 
+
+
+/**
+ * Function to render the budget overview component.
+ * Contains private functions to render the individual sub-components
+ * @returns {HTMLDivElement}
+ */
 function render_budget_overview() {
+    /**
+    * @namespace budget_overview
+    */
 
     // Need mechanism to disable pick list for creating expense item
     /**
      * Function that creates a form for a user's personal budget item inputs.
-     * @param {*} saveFunction
-     * @param {*} cancelFunction
-     * @param {*} disablePickList
+     * @name renderBudgetForm
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {function} saveFunction - Callback function to execute if the save button is clicked
+     * @param {function} cancelFunction - Callback function to execute if the cancel button is clicked
+     * @param {boolean} disablePickList
      * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
      */
-
     const renderBudgetForm = (saveFunction, cancelFunction, disablePickList) => {
         let form = {};
 
@@ -129,7 +142,11 @@ function render_budget_overview() {
 
     /**
      * Function that deals with the creation of an expense item by the user.
-     * @param {*} container
+     * @name handleCreateExpense
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {HTMLTableElement} container
      * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
      */
     const handleCreateExpense = (container) => {
@@ -202,7 +219,12 @@ function render_budget_overview() {
     };
     /**
      * Function that deals with the updating of an expense item by the user.
-     * @param {*} container
+     * @name handleExpenseUpdate
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {HTMLButtonElement} container - Update Button
+     * @param {int} expense_id - Primary key of the expense to update
      * @throws {InvalidArgumentException} If any inputs are invalid, null, etc.
      */
     const handleExpenseUpdate = (container, expense_id) => {
@@ -288,8 +310,12 @@ function render_budget_overview() {
     }
     /**
      * Function that deals with the deletion of an expense item by the user.
-     * @param {*} container
-     * @param {*} expense_id
+     * @name handleExpenseDelete
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {HTMLButtonElement} container - Delete button
+     * @param {int} expense_id - Primary key of the expense to delete
      * @throws {InvalidArgumentException} If any inputs are invalid, NaN, null, etc.
      */
     const handleExpenseDelete = (container, expense_id) => {
@@ -304,9 +330,13 @@ function render_budget_overview() {
     }
     /**
      * Function that deals with the list of expenses provided by the user.
-     * @param {Array} List of expense items.
+     * @name handleUserExpenses
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {Array} expenses - List of expense items.
      * @throws {InvalidArgumentException} If the expenses array is invalid, NaN, null, etc.
-     * @returns {*} expense_container
+     * @returns {HTMLDivElement} expense_container
      */
     const handleUserExpenses = (expenses) => {
         let expense_container = document.createElement("div");
@@ -371,8 +401,11 @@ function render_budget_overview() {
     }
     /**
      * Function that takes the return of handleUserExpenses() to append as a node.
-     * @param {Array} List of expense items.
-     * @returns {*} expense_container
+     * @name prepareExpenses
+     * @function
+     * @memberof budget_overview
+     * @inner
+     * @param {Array} expenseItems - List of expense items.
      */
     function prepareExpenses(expenseItems) {
         let table = handleUserExpenses(expenseItems);
