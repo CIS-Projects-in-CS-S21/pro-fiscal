@@ -26,9 +26,183 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from django.test import TestCase
+<pre><code class="python">from django.test import TestCase, Client
+from django.contrib.auth.models import User
+from rest_framework.test import APIRequestFactory, APIClient
+from utils.views import *
+from planning_tool.serializers import *
+from time import sleep
 
-# Create your tests here.</code></pre>
+
+class AccountManagementTest(TestCase):
+
+    &#34;&#34;&#34;
+    A class for testing the integration of django-rest-auth API endpoints
+    &#34;&#34;&#34;
+
+    def setup(self):
+        self.client = Client()
+
+    def test_Register_Invalid_Request(self):
+        resp = self.client.get(&#39;/rest-auth/registration/&#39;, format=&#39;json&#39;)
+        self.assertEqual(resp.status_code, 405, &#34;GET request not valid for registration&#34;)
+
+
+    def test_Register_Failed_Attempt(self):
+        fail_data = {
+            &#34;username&#34;: &#34;&#34;,
+            &#34;email&#34;: &#34;&#34;,
+            &#34;password1&#34;: &#34;&#34;,
+            &#34;password2&#34;: &#34;&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/registration/&#39;, fail_data)
+        self.assertEqual(resp.status_code, 400, &#34;Improper data for registration&#34;)
+
+    def test_Register_Success(self):
+        success_data = {
+            &#34;username&#34;: &#34;bob&#34;,
+            &#34;email&#34;: &#34;bob@example.com&#34;,
+            &#34;password1&#34;: &#34;bobspassword&#34;,
+            &#34;password2&#34;: &#34;bobspassword&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/registration/&#39;, success_data)
+        self.assertEqual(resp.status_code, 201, &#34;Proper data for registration&#34;)
+
+    def test_Login_Invalid_Request(self):
+        resp = self.client.get(&#39;/rest-auth/login/&#39;, format=&#39;json&#39;)
+        self.assertEqual(resp.status_code, 405, &#34;GET request not valid for login&#34;)
+
+    def test_Login_Failed_Attempt(self):
+        fail_data = {
+            &#34;username&#34;: &#34;&#34;,
+            &#34;email&#34;: &#34;&#34;,
+            &#34;password&#34;: &#34;&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/login/&#39;, fail_data)
+        self.assertEqual(resp.status_code, 400, &#34;Improper data for login&#34;)
+
+    def test_Login_Success(self):
+        User.objects.create_user(username=&#34;logintest&#34;, password=&#34;logintest&#34;)
+        success_data = {
+            &#34;username&#34;: &#34;logintest&#34;,
+            &#34;password&#34;: &#34;logintest&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/login/&#39;, success_data)
+        self.assertEqual(resp.status_code, 200, &#34;Proper data for login&#34;)
+
+    def test_Logout_Invalid_Request(self):
+        resp = self.client.get(&#39;/rest-auth/logout/&#39;, format=&#39;json&#39;)
+        self.assertEqual(resp.status_code, 405, &#34;GET request not valid for logout&#34;)
+
+
+    def test_Logout(self):
+        data = {}
+        resp = self.client.post(&#39;/rest-auth/logout/&#39;, data)
+        self.assertEqual(resp.status_code, 200, &#34;Should always logout&#34;)
+
+class MonteCarloAPITest(TestCase):
+    &#34;&#34;&#34;
+    Class for testing the Monte Carlo API
+    &#34;&#34;&#34;
+
+    def setUp(self):
+        self.user_attr = {
+            &#39;username&#39;: &#39;Test&#39;,
+            &#39;password&#39;: &#39;fiscaltest&#39;
+        }
+
+        self.user = User.objects.create(**self.user_attr)
+
+        self.sec1 = Security_Type.objects.create(type=&#34;Equities&#34;)
+        self.sec2 = Security_Type.objects.create(type=&#34;Fixed Income Securities&#34;)
+        self.acc = Account_Type.objects.create(type=&#34;IRA&#34;)
+
+        self.factory = APIRequestFactory()
+
+    def test_Bad_Request(self):
+        data = {}
+
+        request = self.factory.post(&#34;monte-carlo/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = Monte_carlo_API()
+        view.setup(request)
+        resp = view.post(request)
+        # print(resp.data)
+
+        self.assertEqual(resp.status_code, 400, &#34;Request with the wrong data should return 400&#34;)
+
+    def test_Good_Request(self):
+        port_data = {
+            &#39;user_id&#39;: 1,
+            &#39;account_type&#39;: self.acc,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+        }
+        port = Portfolio.objects.create(**port_data)
+
+        hold_data_1 = {
+            &#34;portfolio_id&#34;: 1,
+            &#34;security_type&#34;: self.sec1,
+            &#34;ticker&#34;: &#34;AAPL&#34;,
+            &#34;price&#34;: 100.0,
+            &#34;shares&#34;: 6,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+        }
+        Holding.objects.create(**hold_data_1)
+
+        hold_data_2 = {
+            &#34;portfolio_id&#34;: 1,
+            &#34;security_type&#34;: self.sec2,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 100,
+            &#34;shares&#34;: 4,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+        }
+        Holding.objects.create(**hold_data_2)
+
+        data = {&#34;retire_year&#34;: 2022,
+                &#34;end_year&#34;: 2023,
+                &#34;contribution&#34;: 20,
+                &#34;monthly_withdrawal&#34;: 5,
+                &#34;inflation&#34;: 0.02,
+                &#34;retirement_allocation&#34;: &#34;&#34;
+                }
+
+        request = self.factory.post(&#34;monte-carlo/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = Monte_carlo_API()
+        view.setup(request)
+        resp = view.post(request)
+        # print(resp.data)
+
+        self.assertEqual(resp.status_code, 202, &#34;Request with the valid data should return 202&#34;)
+
+        
+class UserInfoTest(TestCase):
+    def setUp(self):
+        User.objects.create_user(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;, email=&#34;test@test.com&#34;)
+
+        self.client = APIClient()
+        self.client.login(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+
+    def test_returns_correct_info(self):
+        expected_keys = [&#34;id&#34;, &#34;username&#34;, &#34;email&#34;, &#34;date_joined&#34;]
+        resp = self.client.get(&#39;/user-info/&#39;, format=&#39;json&#39;)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        for key in resp.data.keys():
+            self.assertIn(key, expected_keys, f&#34;Unexpected key found: {key}&#34;)
+
+    def test_unauthorized_user(self):
+        self.client.logout()
+        resp = self.client.get(&#39;/user-info/&#39;, format=&#39;json&#39;)
+        self.assertEquals(resp.status_code, status.HTTP_401_UNAUTHORIZED)</code></pre>
 </details>
 </section>
 <section>
@@ -38,6 +212,562 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="utils.tests.AccountManagementTest"><code class="flex name class">
+<span>class <span class="ident">AccountManagementTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class for testing the integration of django-rest-auth API endpoints</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AccountManagementTest(TestCase):
+
+    &#34;&#34;&#34;
+    A class for testing the integration of django-rest-auth API endpoints
+    &#34;&#34;&#34;
+
+    def setup(self):
+        self.client = Client()
+
+    def test_Register_Invalid_Request(self):
+        resp = self.client.get(&#39;/rest-auth/registration/&#39;, format=&#39;json&#39;)
+        self.assertEqual(resp.status_code, 405, &#34;GET request not valid for registration&#34;)
+
+
+    def test_Register_Failed_Attempt(self):
+        fail_data = {
+            &#34;username&#34;: &#34;&#34;,
+            &#34;email&#34;: &#34;&#34;,
+            &#34;password1&#34;: &#34;&#34;,
+            &#34;password2&#34;: &#34;&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/registration/&#39;, fail_data)
+        self.assertEqual(resp.status_code, 400, &#34;Improper data for registration&#34;)
+
+    def test_Register_Success(self):
+        success_data = {
+            &#34;username&#34;: &#34;bob&#34;,
+            &#34;email&#34;: &#34;bob@example.com&#34;,
+            &#34;password1&#34;: &#34;bobspassword&#34;,
+            &#34;password2&#34;: &#34;bobspassword&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/registration/&#39;, success_data)
+        self.assertEqual(resp.status_code, 201, &#34;Proper data for registration&#34;)
+
+    def test_Login_Invalid_Request(self):
+        resp = self.client.get(&#39;/rest-auth/login/&#39;, format=&#39;json&#39;)
+        self.assertEqual(resp.status_code, 405, &#34;GET request not valid for login&#34;)
+
+    def test_Login_Failed_Attempt(self):
+        fail_data = {
+            &#34;username&#34;: &#34;&#34;,
+            &#34;email&#34;: &#34;&#34;,
+            &#34;password&#34;: &#34;&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/login/&#39;, fail_data)
+        self.assertEqual(resp.status_code, 400, &#34;Improper data for login&#34;)
+
+    def test_Login_Success(self):
+        User.objects.create_user(username=&#34;logintest&#34;, password=&#34;logintest&#34;)
+        success_data = {
+            &#34;username&#34;: &#34;logintest&#34;,
+            &#34;password&#34;: &#34;logintest&#34;
+        }
+        resp = self.client.post(&#39;/rest-auth/login/&#39;, success_data)
+        self.assertEqual(resp.status_code, 200, &#34;Proper data for login&#34;)
+
+    def test_Logout_Invalid_Request(self):
+        resp = self.client.get(&#39;/rest-auth/logout/&#39;, format=&#39;json&#39;)
+        self.assertEqual(resp.status_code, 405, &#34;GET request not valid for logout&#34;)
+
+
+    def test_Logout(self):
+        data = {}
+        resp = self.client.post(&#39;/rest-auth/logout/&#39;, data)
+        self.assertEqual(resp.status_code, 200, &#34;Should always logout&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="utils.tests.AccountManagementTest.setup"><code class="name flex">
+<span>def <span class="ident">setup</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setup(self):
+    self.client = Client()</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Login_Failed_Attempt"><code class="name flex">
+<span>def <span class="ident">test_Login_Failed_Attempt</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Login_Failed_Attempt(self):
+    fail_data = {
+        &#34;username&#34;: &#34;&#34;,
+        &#34;email&#34;: &#34;&#34;,
+        &#34;password&#34;: &#34;&#34;
+    }
+    resp = self.client.post(&#39;/rest-auth/login/&#39;, fail_data)
+    self.assertEqual(resp.status_code, 400, &#34;Improper data for login&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Login_Invalid_Request"><code class="name flex">
+<span>def <span class="ident">test_Login_Invalid_Request</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Login_Invalid_Request(self):
+    resp = self.client.get(&#39;/rest-auth/login/&#39;, format=&#39;json&#39;)
+    self.assertEqual(resp.status_code, 405, &#34;GET request not valid for login&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Login_Success"><code class="name flex">
+<span>def <span class="ident">test_Login_Success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Login_Success(self):
+    User.objects.create_user(username=&#34;logintest&#34;, password=&#34;logintest&#34;)
+    success_data = {
+        &#34;username&#34;: &#34;logintest&#34;,
+        &#34;password&#34;: &#34;logintest&#34;
+    }
+    resp = self.client.post(&#39;/rest-auth/login/&#39;, success_data)
+    self.assertEqual(resp.status_code, 200, &#34;Proper data for login&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Logout"><code class="name flex">
+<span>def <span class="ident">test_Logout</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Logout(self):
+    data = {}
+    resp = self.client.post(&#39;/rest-auth/logout/&#39;, data)
+    self.assertEqual(resp.status_code, 200, &#34;Should always logout&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Logout_Invalid_Request"><code class="name flex">
+<span>def <span class="ident">test_Logout_Invalid_Request</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Logout_Invalid_Request(self):
+    resp = self.client.get(&#39;/rest-auth/logout/&#39;, format=&#39;json&#39;)
+    self.assertEqual(resp.status_code, 405, &#34;GET request not valid for logout&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Register_Failed_Attempt"><code class="name flex">
+<span>def <span class="ident">test_Register_Failed_Attempt</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Register_Failed_Attempt(self):
+    fail_data = {
+        &#34;username&#34;: &#34;&#34;,
+        &#34;email&#34;: &#34;&#34;,
+        &#34;password1&#34;: &#34;&#34;,
+        &#34;password2&#34;: &#34;&#34;
+    }
+    resp = self.client.post(&#39;/rest-auth/registration/&#39;, fail_data)
+    self.assertEqual(resp.status_code, 400, &#34;Improper data for registration&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Register_Invalid_Request"><code class="name flex">
+<span>def <span class="ident">test_Register_Invalid_Request</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Register_Invalid_Request(self):
+    resp = self.client.get(&#39;/rest-auth/registration/&#39;, format=&#39;json&#39;)
+    self.assertEqual(resp.status_code, 405, &#34;GET request not valid for registration&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.AccountManagementTest.test_Register_Success"><code class="name flex">
+<span>def <span class="ident">test_Register_Success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Register_Success(self):
+    success_data = {
+        &#34;username&#34;: &#34;bob&#34;,
+        &#34;email&#34;: &#34;bob@example.com&#34;,
+        &#34;password1&#34;: &#34;bobspassword&#34;,
+        &#34;password2&#34;: &#34;bobspassword&#34;
+    }
+    resp = self.client.post(&#39;/rest-auth/registration/&#39;, success_data)
+    self.assertEqual(resp.status_code, 201, &#34;Proper data for registration&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="utils.tests.MonteCarloAPITest"><code class="flex name class">
+<span>class <span class="ident">MonteCarloAPITest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for testing the Monte Carlo API</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MonteCarloAPITest(TestCase):
+    &#34;&#34;&#34;
+    Class for testing the Monte Carlo API
+    &#34;&#34;&#34;
+
+    def setUp(self):
+        self.user_attr = {
+            &#39;username&#39;: &#39;Test&#39;,
+            &#39;password&#39;: &#39;fiscaltest&#39;
+        }
+
+        self.user = User.objects.create(**self.user_attr)
+
+        self.sec1 = Security_Type.objects.create(type=&#34;Equities&#34;)
+        self.sec2 = Security_Type.objects.create(type=&#34;Fixed Income Securities&#34;)
+        self.acc = Account_Type.objects.create(type=&#34;IRA&#34;)
+
+        self.factory = APIRequestFactory()
+
+    def test_Bad_Request(self):
+        data = {}
+
+        request = self.factory.post(&#34;monte-carlo/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = Monte_carlo_API()
+        view.setup(request)
+        resp = view.post(request)
+        # print(resp.data)
+
+        self.assertEqual(resp.status_code, 400, &#34;Request with the wrong data should return 400&#34;)
+
+    def test_Good_Request(self):
+        port_data = {
+            &#39;user_id&#39;: 1,
+            &#39;account_type&#39;: self.acc,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+        }
+        port = Portfolio.objects.create(**port_data)
+
+        hold_data_1 = {
+            &#34;portfolio_id&#34;: 1,
+            &#34;security_type&#34;: self.sec1,
+            &#34;ticker&#34;: &#34;AAPL&#34;,
+            &#34;price&#34;: 100.0,
+            &#34;shares&#34;: 6,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+        }
+        Holding.objects.create(**hold_data_1)
+
+        hold_data_2 = {
+            &#34;portfolio_id&#34;: 1,
+            &#34;security_type&#34;: self.sec2,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 100,
+            &#34;shares&#34;: 4,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+        }
+        Holding.objects.create(**hold_data_2)
+
+        data = {&#34;retire_year&#34;: 2022,
+                &#34;end_year&#34;: 2023,
+                &#34;contribution&#34;: 20,
+                &#34;monthly_withdrawal&#34;: 5,
+                &#34;inflation&#34;: 0.02,
+                &#34;retirement_allocation&#34;: &#34;&#34;
+                }
+
+        request = self.factory.post(&#34;monte-carlo/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = Monte_carlo_API()
+        view.setup(request)
+        resp = view.post(request)
+        # print(resp.data)
+
+        self.assertEqual(resp.status_code, 202, &#34;Request with the valid data should return 202&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="utils.tests.MonteCarloAPITest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+    self.user_attr = {
+        &#39;username&#39;: &#39;Test&#39;,
+        &#39;password&#39;: &#39;fiscaltest&#39;
+    }
+
+    self.user = User.objects.create(**self.user_attr)
+
+    self.sec1 = Security_Type.objects.create(type=&#34;Equities&#34;)
+    self.sec2 = Security_Type.objects.create(type=&#34;Fixed Income Securities&#34;)
+    self.acc = Account_Type.objects.create(type=&#34;IRA&#34;)
+
+    self.factory = APIRequestFactory()</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.MonteCarloAPITest.test_Bad_Request"><code class="name flex">
+<span>def <span class="ident">test_Bad_Request</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Bad_Request(self):
+    data = {}
+
+    request = self.factory.post(&#34;monte-carlo/&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = Monte_carlo_API()
+    view.setup(request)
+    resp = view.post(request)
+    # print(resp.data)
+
+    self.assertEqual(resp.status_code, 400, &#34;Request with the wrong data should return 400&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.MonteCarloAPITest.test_Good_Request"><code class="name flex">
+<span>def <span class="ident">test_Good_Request</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_Good_Request(self):
+    port_data = {
+        &#39;user_id&#39;: 1,
+        &#39;account_type&#39;: self.acc,
+        &#34;name&#34;: &#34;My IRA&#34;,
+        &#34;balance&#34;: 200.00,
+        &#34;description&#34;: &#34;A useful description&#34;,
+    }
+    port = Portfolio.objects.create(**port_data)
+
+    hold_data_1 = {
+        &#34;portfolio_id&#34;: 1,
+        &#34;security_type&#34;: self.sec1,
+        &#34;ticker&#34;: &#34;AAPL&#34;,
+        &#34;price&#34;: 100.0,
+        &#34;shares&#34;: 6,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+    }
+    Holding.objects.create(**hold_data_1)
+
+    hold_data_2 = {
+        &#34;portfolio_id&#34;: 1,
+        &#34;security_type&#34;: self.sec2,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 100,
+        &#34;shares&#34;: 4,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+    }
+    Holding.objects.create(**hold_data_2)
+
+    data = {&#34;retire_year&#34;: 2022,
+            &#34;end_year&#34;: 2023,
+            &#34;contribution&#34;: 20,
+            &#34;monthly_withdrawal&#34;: 5,
+            &#34;inflation&#34;: 0.02,
+            &#34;retirement_allocation&#34;: &#34;&#34;
+            }
+
+    request = self.factory.post(&#34;monte-carlo/&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = Monte_carlo_API()
+    view.setup(request)
+    resp = view.post(request)
+    # print(resp.data)
+
+    self.assertEqual(resp.status_code, 202, &#34;Request with the valid data should return 202&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="utils.tests.UserInfoTest"><code class="flex name class">
+<span>class <span class="ident">UserInfoTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UserInfoTest(TestCase):
+    def setUp(self):
+        User.objects.create_user(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;, email=&#34;test@test.com&#34;)
+
+        self.client = APIClient()
+        self.client.login(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+
+    def test_returns_correct_info(self):
+        expected_keys = [&#34;id&#34;, &#34;username&#34;, &#34;email&#34;, &#34;date_joined&#34;]
+        resp = self.client.get(&#39;/user-info/&#39;, format=&#39;json&#39;)
+        self.assertEquals(resp.status_code, status.HTTP_200_OK)
+        for key in resp.data.keys():
+            self.assertIn(key, expected_keys, f&#34;Unexpected key found: {key}&#34;)
+
+    def test_unauthorized_user(self):
+        self.client.logout()
+        resp = self.client.get(&#39;/user-info/&#39;, format=&#39;json&#39;)
+        self.assertEquals(resp.status_code, status.HTTP_401_UNAUTHORIZED)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="utils.tests.UserInfoTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+    User.objects.create_user(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;, email=&#34;test@test.com&#34;)
+
+    self.client = APIClient()
+    self.client.login(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.UserInfoTest.test_returns_correct_info"><code class="name flex">
+<span>def <span class="ident">test_returns_correct_info</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_returns_correct_info(self):
+    expected_keys = [&#34;id&#34;, &#34;username&#34;, &#34;email&#34;, &#34;date_joined&#34;]
+    resp = self.client.get(&#39;/user-info/&#39;, format=&#39;json&#39;)
+    self.assertEquals(resp.status_code, status.HTTP_200_OK)
+    for key in resp.data.keys():
+        self.assertIn(key, expected_keys, f&#34;Unexpected key found: {key}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="utils.tests.UserInfoTest.test_unauthorized_user"><code class="name flex">
+<span>def <span class="ident">test_unauthorized_user</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_unauthorized_user(self):
+    self.client.logout()
+    resp = self.client.get(&#39;/user-info/&#39;, format=&#39;json&#39;)
+    self.assertEquals(resp.status_code, status.HTTP_401_UNAUTHORIZED)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -49,6 +779,40 @@
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="utils" href="index.html">utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="utils.tests.AccountManagementTest" href="#utils.tests.AccountManagementTest">AccountManagementTest</a></code></h4>
+<ul class="">
+<li><code><a title="utils.tests.AccountManagementTest.setup" href="#utils.tests.AccountManagementTest.setup">setup</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Login_Failed_Attempt" href="#utils.tests.AccountManagementTest.test_Login_Failed_Attempt">test_Login_Failed_Attempt</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Login_Invalid_Request" href="#utils.tests.AccountManagementTest.test_Login_Invalid_Request">test_Login_Invalid_Request</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Login_Success" href="#utils.tests.AccountManagementTest.test_Login_Success">test_Login_Success</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Logout" href="#utils.tests.AccountManagementTest.test_Logout">test_Logout</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Logout_Invalid_Request" href="#utils.tests.AccountManagementTest.test_Logout_Invalid_Request">test_Logout_Invalid_Request</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Register_Failed_Attempt" href="#utils.tests.AccountManagementTest.test_Register_Failed_Attempt">test_Register_Failed_Attempt</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Register_Invalid_Request" href="#utils.tests.AccountManagementTest.test_Register_Invalid_Request">test_Register_Invalid_Request</a></code></li>
+<li><code><a title="utils.tests.AccountManagementTest.test_Register_Success" href="#utils.tests.AccountManagementTest.test_Register_Success">test_Register_Success</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="utils.tests.MonteCarloAPITest" href="#utils.tests.MonteCarloAPITest">MonteCarloAPITest</a></code></h4>
+<ul class="">
+<li><code><a title="utils.tests.MonteCarloAPITest.setUp" href="#utils.tests.MonteCarloAPITest.setUp">setUp</a></code></li>
+<li><code><a title="utils.tests.MonteCarloAPITest.test_Bad_Request" href="#utils.tests.MonteCarloAPITest.test_Bad_Request">test_Bad_Request</a></code></li>
+<li><code><a title="utils.tests.MonteCarloAPITest.test_Good_Request" href="#utils.tests.MonteCarloAPITest.test_Good_Request">test_Good_Request</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="utils.tests.UserInfoTest" href="#utils.tests.UserInfoTest">UserInfoTest</a></code></h4>
+<ul class="">
+<li><code><a title="utils.tests.UserInfoTest.setUp" href="#utils.tests.UserInfoTest.setUp">setUp</a></code></li>
+<li><code><a title="utils.tests.UserInfoTest.test_returns_correct_info" href="#utils.tests.UserInfoTest.test_returns_correct_info">test_returns_correct_info</a></code></li>
+<li><code><a title="utils.tests.UserInfoTest.test_unauthorized_user" href="#utils.tests.UserInfoTest.test_unauthorized_user">test_unauthorized_user</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

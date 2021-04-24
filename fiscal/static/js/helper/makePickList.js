@@ -1,3 +1,8 @@
+/**
+ * Function to create a dropdown list of items that the user can select as an input
+ * @param {Array} optionList List of strings that corresponds to the user's options
+ * @returns {HTMLSelectElement} An element that enables users to select an item
+ */
 function makePickList(optionList) {
     let list = document.createElement("select");
     for (item in optionList) {

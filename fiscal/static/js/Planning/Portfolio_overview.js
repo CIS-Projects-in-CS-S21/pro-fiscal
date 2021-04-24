@@ -1,41 +1,3 @@
-/**
- * Function that retrieval of user's answers data.
- * @param {int} user_id the user identification number.
- * @returns {Array} Return arrays of user answers.
- * @throws {InvalidArgumentException} if user id is invalid.
- */
-function fetch_saved_answers(user_id) {
-
-}
-
-/**
- * Function that submit a user's questionnaire answers.
- * @param {int} user_id the user identification number.
- * @throws {InvalidArgumentException} if user id is invalid.
- */
-function submit_answer(user_id) {
-
-}
-
-/**
- * Function that updates the user's questionnaire answers.
- * @param {int} user_id the user identification number.
- * @returns {String} return answers to make changes and update.
- * @throws {InvalidArgumentException} if the user enters no value id.
- */
-function update_answers(user_id) {
-
-}
-
-/**
- * Function that clear the user's questionnaire answers.
- * @param {int} user_id the user identification number.
- * @throws {InvalidArgumentException} if the user enters no value id.
- */
-function clear_answers(user_id) {
-
-}
-
 function dud_function() {
     console.log("For testing purposes");
 }
@@ -43,9 +5,12 @@ function dud_function() {
 /**
  * Function to render the portfolio overview component.
  * Contains private functions to render the individual sub-components.
- * @returns {Object} div container for the component
+ * @returns {HTMLDivElement}
  */
 function render_portfolio_overview() {
+    /**
+     * @namespace portfolio_overview
+     */
     let all_portfolios = [];
 
     let error = document.createElement("div");
@@ -118,6 +83,15 @@ function render_portfolio_overview() {
         return holding_elem;
     }
 
+    /**
+     * Function to manage the components for creating a holding
+     * @name handleHoldingCreate
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {HTMLTableElement} portfolio_container - Holding table
+     * @param {int} list_id - Index into list of portfolios
+     */
     const handleHoldingCreate = (portfolio_container, list_id) => {
         let table_body = portfolio_container.getElementsByTagName("tbody")[0];
         let form = renderHoldingForm(function () {
@@ -207,6 +181,15 @@ function render_portfolio_overview() {
 
     }
 
+    /**
+     * Function to manage the components for updating a holding
+     * @name handleHoldingUpdate
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {HTMLButtonElement} parent_elem - the update button for this holding
+     * @param {int} holding_id - Primary key of the holding to update
+     */
     const handleHoldingUpdate = (parent_elem, holding_id) => {
         let row = parent_elem.parentElement.parentElement;
         let holdings_div = row.parentElement.parentElement.parentElement.parentElement;
@@ -310,6 +293,15 @@ function render_portfolio_overview() {
         row.remove();
     }
 
+    /**
+     * Function to manage deleting a holding
+     * @name handleHoldingDelete
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {HTMLButtonElement} parent_elem - The delete button for this holding
+     * @param {int} holding_id - Primary key of the holding to delete
+     */
     const handleHoldingDelete = (parent_elem, holding_id) => {
         function toDeleteHolding() {
             portfolio_api.delete_holding(holding_id, () => {
@@ -321,6 +313,16 @@ function render_portfolio_overview() {
         modal.confirm("Are you sure you want to delete this holding?", toDeleteHolding);
     }
 
+    /**
+     * Function to manage the components for updating a portfolio
+     * @name handlePortfolioUpdate
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {HTMLDivElement} elem - The portfolio container
+     * @param {object} portfolio
+     * @param {int } list_id - index into the list of portfolios
+     */
     const handlePortfolioUpdate = (elem, portfolio, list_id) => {
         const successFunc = (portfolio_item) => {
             modal.hideModal();
@@ -388,6 +390,13 @@ function render_portfolio_overview() {
         form.description.value = portfolio["description"];
     }
 
+    /**
+     * Function to manage the components for creating a new portfoliio
+     * @name handlePortfolioCreate
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     */
     const handlePortfolioCreate = () => {
         let form = renderPortfolioForm(
             "Create Portfolio",
@@ -399,10 +408,6 @@ function render_portfolio_overview() {
                     modal.hideModal();
                     handleSinglePortfolio(data);
                     renderPortfolioDashboard();
-                    /*
-                    portfolio_listing.insertBefore(renderCreateButton(), form.container);
-                    form.container.remove();
-                    */
                 }
 
                 let data = {};
@@ -433,24 +438,22 @@ function render_portfolio_overview() {
             },
             function () {
                 modal.hideModal();
-                /*
-                portfolio_listing.insertBefore(renderCreateButton(), form.container);
-                form.container.remove();
-                $('.portfolio-list').append(detached);
-                */
             }
         );
 
-
         modal.renderForm(form.container);
-
-        /*
-        portfolio_listing.insertBefore(form.container, parent_elem);
-        portfolio_listing.removeChild(parent_elem);
-        let detached = $('.collapsible-container').detach();
-        */
     }
 
+    /**
+     * Function to render a portfolio container sub-component
+     * @name renderPortfolioContents
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {object} portfolio_item - The portfolio data
+     * @param {int }list_id - index into the list of portfolios
+     * @returns {HTMLDivElement}
+     */
     const renderPortfolioContents = (portfolio_item, list_id) => {
 
         const createPortfolioContents = (portfolio_item) => {
@@ -622,6 +625,18 @@ function render_portfolio_overview() {
         });
     }
 
+    /**
+     * Function to render a holding form sub-component
+     * @name renderHoldingForm
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {function} saveFunc - function to be called if the save button is clicked
+     * @param {function} cancelFunc - function to be called if the cancel button is clicked
+     * @returns {{container: HTMLTableRowElement, security_type: HTMLSelectElement, ticker: HTMLInputElement,
+     * price: HTMLInputElement, shares: HTMLInputElement, purchase_date: HTMLInputElement,
+     * cost_basis: HTMLInputElement, save: function, cancel: function}}
+     */
     const renderHoldingForm = (saveFunc, cancelFunc) => {
         let form = {};
 
@@ -717,6 +732,18 @@ function render_portfolio_overview() {
         return form;
     }
 
+    /**
+     * Function to render a portfolio form sub-component
+     * @name renderPortfolioForm
+     * @function
+     * @memberof portfolio_overview
+     * @inner
+     * @param {string} formTitle
+     * @param {function} saveFunc - function to be called if the save button is clicked
+     * @param {function} cancelFunc - function to be called if the cancel button is clicked
+     * @returns {{container: HTMLDivElement, account_type: HTMLSelectElement, name: HTMLInputElement,
+     * balance: HTMLInputElement, description: HTMLTextAreaElement, submit: function}}
+     */
     const renderPortfolioForm = (formTitle, saveFunc, cancelFunc) => {
         let form = {};
 

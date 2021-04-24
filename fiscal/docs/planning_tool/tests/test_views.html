@@ -1,0 +1,1797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>planning_tool.tests.test_views API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>planning_tool.tests.test_views</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from django.test import TestCase
+from rest_framework.test import APIRequestFactory
+from planning_tool.views import *
+from planning_tool.serializers import *
+
+import datetime
+from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type
+from planning_tool.views import PortfolioList
+
+
+class PortfolioListViewTest(TestCase):
+
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#39;user&#39;: 1,
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: [],
+            &#34;balance_history&#34;: {}
+        }
+
+    def test_get_portfolioList_no_entries(self):
+        request = self.factory.get(&#34;portfolio/&#34;)
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(not resp.data, &#34;Response data should be empty&#34;)
+
+    def test_get_portfolioList_with_entries(self):
+        port = PortfolioSerializer(data=self.success_data)
+        port.is_valid()
+        port.save()
+
+        request = self.factory.get(&#34;portfolio/&#34;)
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(resp.data, &#34;Response data should not be empty&#34;)
+
+    def test_post_portfolioList_success(self):
+        request = self.factory.post(&#34;portfolio/&#34;, data=self.success_data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = self.success_data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201)
+
+    def test_post_portfolioList_fail(self):
+        data = {
+            &#34;user&#34;: None,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;balance&#34;: 0.00
+        }
+        request = self.factory.post(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400)
+
+    def test_get_success(self):
+        # Add the data to the test DB
+        new_port = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;Test data&#34;,
+            &#34;balance&#34;: 100.00,
+            &#34;account_type&#34;: self.acct_type,
+            &#34;description&#34;: &#34;This is how the returned data should look&#34;
+        }
+        port = Portfolio.objects.create(**new_port)
+
+        new_hold = {
+            &#34;portfolio&#34;: port,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2021-12-20&#34;
+        }
+        hold = Holding.objects.create(**new_hold)
+
+        data = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;balance&#34;: 0.00
+        }
+        request = self.factory.get(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        print(resp.data)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_post_success(self):
+        data = {
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: [],
+            &#34;balance_history&#34;: {}
+        }
+        request = self.factory.post(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201, resp.data)
+
+    def test_balance_history(self):
+        data = {
+            &#34;user_id&#34;: 1,
+            &#39;account_type_id&#39;: 1,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+        }
+        Portfolio.objects.create(**data)
+
+        for i in range(20, 30):
+            Balance_History.objects.create(**{&#34;portfolio_id&#34;: 1, &#34;balance&#34;: i})
+
+        request = self.factory.get(&#34;portfolio&#34;)
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertTrue(resp.data[0][&#34;balance_history&#34;], &#34;Balance History should not be empty&#34;)
+
+
+
+class PortfolioDetailViewTest(TestCase):
+
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#39;user&#39;: 1,
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: []
+        }
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+        self.port_1.save()
+
+        self.expected_data = {
+            &#34;id&#34;: 2,
+            &#34;user&#34;: 1,
+            &#34;name&#34;: &#34;Test data&#34;,
+            &#34;balance&#34;: 100.00,
+            &#34;account_type&#34;: &#34;IRA&#34;,
+            &#34;description&#34;: &#34;This is how the data should look&#34;,
+            &#34;holdings&#34;: [
+                {&#34;id&#34;: 1,
+                 &#34;portfolio&#34;: 2,
+                 &#34;security_type&#34;: &#34;Bond&#34;,
+                 &#34;ticker&#34;: &#34;GNMA&#34;,
+                 &#34;price&#34;: 50.0,
+                 &#34;shares&#34;: 2,
+                 &#34;cost_basis&#34;: 40.0,
+                 &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+                 }
+            ]
+        }
+    def test_get_success(self):
+        request = self.factory.get(&#34;portfolio/1&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_get_portfolioDetail_expected_format(self):
+        &#34;&#34;&#34;
+        Verify that a get call to the view returns data with the correct keys and expected formats
+        &#34;&#34;&#34;
+
+        # Add the data to the test DB
+        new_port = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;Test data&#34;,
+            &#34;balance&#34;: 100.00,
+            &#34;account_type&#34;: self.acct_type,
+            &#34;description&#34;: &#34;This is how the data should look&#34;
+        }
+        port = Portfolio.objects.create(**new_port)
+
+        new_hold = {
+            &#34;portfolio&#34;: port,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+        hold = Holding.objects.create(**new_hold)
+
+        # Get response and test against expected values
+        request = self.factory.get(&#34;portfolio/2&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 2)
+
+        ret_holdings = resp.data.pop(&#34;holdings&#34;)[0]
+        expected_holdings = self.expected_data.pop(&#34;holdings&#34;)[0]
+
+        self.assertEquals(resp.status_code, 200)
+        for field in self.expected_data.keys():
+            self.assertEquals(resp.data[field], self.expected_data[field], f&#34;Unexpected value in portfolio for {field}&#34;)
+        for field in expected_holdings.keys():
+            self.assertEquals(ret_holdings[field], expected_holdings[field], f&#34;Unexpected value in holding for {field}&#34;)
+
+    def test_put_portFolioDetail(self):
+        new_hold = {
+            &#34;portfolio_id&#34;: 1,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+        hold = Holding.objects.create(**new_hold)
+
+        data = {
+            &#39;user&#39;: 1,
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;Now its a 401k&#34;,
+            &#34;balance&#34;: 300.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: []
+
+        }
+
+        request = self.factory.put(&#34;portfolio/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 200, resp.data)
+        self.assertTrue(resp.data[&#34;holdings&#34;])
+
+    def test_delete_portFolioDetail(self):
+        request = self.factory.delete(&#34;portfolio/1&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.delete(request, 1)
+
+        self.assertEquals(resp.status_code, 204)
+        self.assertRaises(Portfolio.DoesNotExist)
+
+    def test_balance_history(self):
+        for i in range(20, 30):
+            Balance_History.objects.create(**{&#34;portfolio_id&#34;: 1, &#34;balance&#34;: i})
+
+        request = self.factory.get(&#34;portfolio/1&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertTrue(resp.data[&#34;balance_history&#34;], &#34;Balance History should not be empty&#34;)
+
+class HoldingListViewTest(TestCase):
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+        self.port_1.save()
+
+        self.factory = APIRequestFactory()
+
+    def test_post_holding_bad_date(self):
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2022-10-31&#34;
+        }
+
+        request = self.factory.post(&#34;holding/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400, resp.data)
+
+    def test_post_holding_success(self):
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-10-31&#34;
+        }
+
+        request = self.factory.post(&#34;holding/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201, resp.data)
+
+class HoldingDetailViewTest(TestCase):
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+        self.port_1.save()
+
+        self.factory = APIRequestFactory()
+
+    def test_put_holding_bad_date(self):
+        # add the holding to be updated
+        holding_data = {
+            &#34;portfolio&#34;: self.port_1,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+
+        Holding.objects.create(**holding_data)
+
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2022-10-31&#34;
+        }
+
+        request = self.factory.put(&#34;holding/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 400, resp.data)
+
+    def test_put_holding_success(self):
+        # add the holding to be updated
+        holding_data = {
+            &#34;portfolio&#34;: self.port_1,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+
+        Holding.objects.create(**holding_data)
+
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-10-31&#34;
+        }
+
+        request = self.factory.put(&#34;holding/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 200, resp.data)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="planning_tool.tests.test_views.HoldingDetailViewTest"><code class="flex name class">
+<span>class <span class="ident">HoldingDetailViewTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HoldingDetailViewTest(TestCase):
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+        self.port_1.save()
+
+        self.factory = APIRequestFactory()
+
+    def test_put_holding_bad_date(self):
+        # add the holding to be updated
+        holding_data = {
+            &#34;portfolio&#34;: self.port_1,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+
+        Holding.objects.create(**holding_data)
+
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2022-10-31&#34;
+        }
+
+        request = self.factory.put(&#34;holding/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 400, resp.data)
+
+    def test_put_holding_success(self):
+        # add the holding to be updated
+        holding_data = {
+            &#34;portfolio&#34;: self.port_1,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+
+        Holding.objects.create(**holding_data)
+
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-10-31&#34;
+        }
+
+        request = self.factory.put(&#34;holding/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 200, resp.data)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.tests.test_views.HoldingDetailViewTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+    self.acct_type = Account_Type(type=&#39;IRA&#39;)
+    self.acct_type.save()
+
+    self.sec_type = Security_Type(type=&#39;Bond&#39;)
+    self.sec_type.save()
+
+    self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+    self.user.save()
+
+    self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+    self.port_1.save()
+
+    self.factory = APIRequestFactory()</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.HoldingDetailViewTest.test_put_holding_bad_date"><code class="name flex">
+<span>def <span class="ident">test_put_holding_bad_date</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_put_holding_bad_date(self):
+    # add the holding to be updated
+    holding_data = {
+        &#34;portfolio&#34;: self.port_1,
+        &#34;security_type&#34;: self.sec_type,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+    }
+
+    Holding.objects.create(**holding_data)
+
+    data = {
+        &#34;portfolio&#34;: 1,
+        &#34;security_type&#34;: &#34;Bond&#34;,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2022-10-31&#34;
+    }
+
+    request = self.factory.put(&#34;holding/1&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = HoldingDetail()
+    view.setup(request)
+    resp = view.put(request, 1)
+
+    self.assertEquals(resp.status_code, 400, resp.data)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.HoldingDetailViewTest.test_put_holding_success"><code class="name flex">
+<span>def <span class="ident">test_put_holding_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_put_holding_success(self):
+    # add the holding to be updated
+    holding_data = {
+        &#34;portfolio&#34;: self.port_1,
+        &#34;security_type&#34;: self.sec_type,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+    }
+
+    Holding.objects.create(**holding_data)
+
+    data = {
+        &#34;portfolio&#34;: 1,
+        &#34;security_type&#34;: &#34;Bond&#34;,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2020-10-31&#34;
+    }
+
+    request = self.factory.put(&#34;holding/1&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = HoldingDetail()
+    view.setup(request)
+    resp = view.put(request, 1)
+
+    self.assertEquals(resp.status_code, 200, resp.data)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.tests.test_views.HoldingListViewTest"><code class="flex name class">
+<span>class <span class="ident">HoldingListViewTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HoldingListViewTest(TestCase):
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+        self.port_1.save()
+
+        self.factory = APIRequestFactory()
+
+    def test_post_holding_bad_date(self):
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2022-10-31&#34;
+        }
+
+        request = self.factory.post(&#34;holding/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400, resp.data)
+
+    def test_post_holding_success(self):
+        data = {
+            &#34;portfolio&#34;: 1,
+            &#34;security_type&#34;: &#34;Bond&#34;,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2020-10-31&#34;
+        }
+
+        request = self.factory.post(&#34;holding/&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = HoldingList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201, resp.data)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.tests.test_views.HoldingListViewTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+    self.acct_type = Account_Type(type=&#39;IRA&#39;)
+    self.acct_type.save()
+
+    self.sec_type = Security_Type(type=&#39;Bond&#39;)
+    self.sec_type.save()
+
+    self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+    self.user.save()
+
+    self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+    self.port_1.save()
+
+    self.factory = APIRequestFactory()</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.HoldingListViewTest.test_post_holding_bad_date"><code class="name flex">
+<span>def <span class="ident">test_post_holding_bad_date</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_holding_bad_date(self):
+    data = {
+        &#34;portfolio&#34;: 1,
+        &#34;security_type&#34;: &#34;Bond&#34;,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2022-10-31&#34;
+    }
+
+    request = self.factory.post(&#34;holding/&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = HoldingList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 400, resp.data)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.HoldingListViewTest.test_post_holding_success"><code class="name flex">
+<span>def <span class="ident">test_post_holding_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_holding_success(self):
+    data = {
+        &#34;portfolio&#34;: 1,
+        &#34;security_type&#34;: &#34;Bond&#34;,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2020-10-31&#34;
+    }
+
+    request = self.factory.post(&#34;holding/&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = HoldingList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 201, resp.data)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest"><code class="flex name class">
+<span>class <span class="ident">PortfolioDetailViewTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PortfolioDetailViewTest(TestCase):
+
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#39;user&#39;: 1,
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: []
+        }
+
+        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+        self.port_1.save()
+
+        self.expected_data = {
+            &#34;id&#34;: 2,
+            &#34;user&#34;: 1,
+            &#34;name&#34;: &#34;Test data&#34;,
+            &#34;balance&#34;: 100.00,
+            &#34;account_type&#34;: &#34;IRA&#34;,
+            &#34;description&#34;: &#34;This is how the data should look&#34;,
+            &#34;holdings&#34;: [
+                {&#34;id&#34;: 1,
+                 &#34;portfolio&#34;: 2,
+                 &#34;security_type&#34;: &#34;Bond&#34;,
+                 &#34;ticker&#34;: &#34;GNMA&#34;,
+                 &#34;price&#34;: 50.0,
+                 &#34;shares&#34;: 2,
+                 &#34;cost_basis&#34;: 40.0,
+                 &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+                 }
+            ]
+        }
+    def test_get_success(self):
+        request = self.factory.get(&#34;portfolio/1&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_get_portfolioDetail_expected_format(self):
+        &#34;&#34;&#34;
+        Verify that a get call to the view returns data with the correct keys and expected formats
+        &#34;&#34;&#34;
+
+        # Add the data to the test DB
+        new_port = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;Test data&#34;,
+            &#34;balance&#34;: 100.00,
+            &#34;account_type&#34;: self.acct_type,
+            &#34;description&#34;: &#34;This is how the data should look&#34;
+        }
+        port = Portfolio.objects.create(**new_port)
+
+        new_hold = {
+            &#34;portfolio&#34;: port,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+        hold = Holding.objects.create(**new_hold)
+
+        # Get response and test against expected values
+        request = self.factory.get(&#34;portfolio/2&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 2)
+
+        ret_holdings = resp.data.pop(&#34;holdings&#34;)[0]
+        expected_holdings = self.expected_data.pop(&#34;holdings&#34;)[0]
+
+        self.assertEquals(resp.status_code, 200)
+        for field in self.expected_data.keys():
+            self.assertEquals(resp.data[field], self.expected_data[field], f&#34;Unexpected value in portfolio for {field}&#34;)
+        for field in expected_holdings.keys():
+            self.assertEquals(ret_holdings[field], expected_holdings[field], f&#34;Unexpected value in holding for {field}&#34;)
+
+    def test_put_portFolioDetail(self):
+        new_hold = {
+            &#34;portfolio_id&#34;: 1,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+        }
+        hold = Holding.objects.create(**new_hold)
+
+        data = {
+            &#39;user&#39;: 1,
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;Now its a 401k&#34;,
+            &#34;balance&#34;: 300.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: []
+
+        }
+
+        request = self.factory.put(&#34;portfolio/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 200, resp.data)
+        self.assertTrue(resp.data[&#34;holdings&#34;])
+
+    def test_delete_portFolioDetail(self):
+        request = self.factory.delete(&#34;portfolio/1&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.delete(request, 1)
+
+        self.assertEquals(resp.status_code, 204)
+        self.assertRaises(Portfolio.DoesNotExist)
+
+    def test_balance_history(self):
+        for i in range(20, 30):
+            Balance_History.objects.create(**{&#34;portfolio_id&#34;: 1, &#34;balance&#34;: i})
+
+        request = self.factory.get(&#34;portfolio/1&#34;)
+        request.user = self.user
+
+        view = PortfolioDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertTrue(resp.data[&#34;balance_history&#34;], &#34;Balance History should not be empty&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+    self.acct_type = Account_Type(type=&#39;IRA&#39;)
+    self.acct_type.save()
+
+    self.sec_type = Security_Type(type=&#39;Bond&#39;)
+    self.sec_type.save()
+
+    self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+    self.user.save()
+
+    self.factory = APIRequestFactory()
+
+    self.success_data = {
+        &#39;user&#39;: 1,
+        &#39;account_type&#39;: &#34;IRA&#34;,
+        &#34;name&#34;: &#34;My IRA&#34;,
+        &#34;balance&#34;: 200.00,
+        &#34;description&#34;: &#34;A useful description&#34;,
+        &#34;holdings&#34;: []
+    }
+
+    self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name=&#34;My IRA&#34;, balance=100.00)
+    self.port_1.save()
+
+    self.expected_data = {
+        &#34;id&#34;: 2,
+        &#34;user&#34;: 1,
+        &#34;name&#34;: &#34;Test data&#34;,
+        &#34;balance&#34;: 100.00,
+        &#34;account_type&#34;: &#34;IRA&#34;,
+        &#34;description&#34;: &#34;This is how the data should look&#34;,
+        &#34;holdings&#34;: [
+            {&#34;id&#34;: 1,
+             &#34;portfolio&#34;: 2,
+             &#34;security_type&#34;: &#34;Bond&#34;,
+             &#34;ticker&#34;: &#34;GNMA&#34;,
+             &#34;price&#34;: 50.0,
+             &#34;shares&#34;: 2,
+             &#34;cost_basis&#34;: 40.0,
+             &#34;purchase_date&#34;: &#34;2020-12-20&#34;
+             }
+        ]
+    }</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest.test_balance_history"><code class="name flex">
+<span>def <span class="ident">test_balance_history</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_balance_history(self):
+    for i in range(20, 30):
+        Balance_History.objects.create(**{&#34;portfolio_id&#34;: 1, &#34;balance&#34;: i})
+
+    request = self.factory.get(&#34;portfolio/1&#34;)
+    request.user = self.user
+
+    view = PortfolioDetail()
+    view.setup(request)
+    resp = view.get(request, 1)
+
+    self.assertTrue(resp.data[&#34;balance_history&#34;], &#34;Balance History should not be empty&#34;)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest.test_delete_portFolioDetail"><code class="name flex">
+<span>def <span class="ident">test_delete_portFolioDetail</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_delete_portFolioDetail(self):
+    request = self.factory.delete(&#34;portfolio/1&#34;)
+    request.user = self.user
+
+    view = PortfolioDetail()
+    view.setup(request)
+    resp = view.delete(request, 1)
+
+    self.assertEquals(resp.status_code, 204)
+    self.assertRaises(Portfolio.DoesNotExist)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest.test_get_portfolioDetail_expected_format"><code class="name flex">
+<span>def <span class="ident">test_get_portfolioDetail_expected_format</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Verify that a get call to the view returns data with the correct keys and expected formats</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_portfolioDetail_expected_format(self):
+    &#34;&#34;&#34;
+    Verify that a get call to the view returns data with the correct keys and expected formats
+    &#34;&#34;&#34;
+
+    # Add the data to the test DB
+    new_port = {
+        &#34;user&#34;: self.user,
+        &#34;name&#34;: &#34;Test data&#34;,
+        &#34;balance&#34;: 100.00,
+        &#34;account_type&#34;: self.acct_type,
+        &#34;description&#34;: &#34;This is how the data should look&#34;
+    }
+    port = Portfolio.objects.create(**new_port)
+
+    new_hold = {
+        &#34;portfolio&#34;: port,
+        &#34;security_type&#34;: self.sec_type,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+    }
+    hold = Holding.objects.create(**new_hold)
+
+    # Get response and test against expected values
+    request = self.factory.get(&#34;portfolio/2&#34;)
+    request.user = self.user
+
+    view = PortfolioDetail()
+    view.setup(request)
+    resp = view.get(request, 2)
+
+    ret_holdings = resp.data.pop(&#34;holdings&#34;)[0]
+    expected_holdings = self.expected_data.pop(&#34;holdings&#34;)[0]
+
+    self.assertEquals(resp.status_code, 200)
+    for field in self.expected_data.keys():
+        self.assertEquals(resp.data[field], self.expected_data[field], f&#34;Unexpected value in portfolio for {field}&#34;)
+    for field in expected_holdings.keys():
+        self.assertEquals(ret_holdings[field], expected_holdings[field], f&#34;Unexpected value in holding for {field}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest.test_get_success"><code class="name flex">
+<span>def <span class="ident">test_get_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_success(self):
+    request = self.factory.get(&#34;portfolio/1&#34;)
+    request.user = self.user
+
+    view = PortfolioDetail()
+    view.setup(request)
+    resp = view.get(request, 1)
+
+    self.assertEquals(resp.status_code, 200)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioDetailViewTest.test_put_portFolioDetail"><code class="name flex">
+<span>def <span class="ident">test_put_portFolioDetail</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_put_portFolioDetail(self):
+    new_hold = {
+        &#34;portfolio_id&#34;: 1,
+        &#34;security_type&#34;: self.sec_type,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: datetime.datetime(2020, 12, 20)
+    }
+    hold = Holding.objects.create(**new_hold)
+
+    data = {
+        &#39;user&#39;: 1,
+        &#39;account_type&#39;: &#34;IRA&#34;,
+        &#34;name&#34;: &#34;Now its a 401k&#34;,
+        &#34;balance&#34;: 300.00,
+        &#34;description&#34;: &#34;A useful description&#34;,
+        &#34;holdings&#34;: []
+
+    }
+
+    request = self.factory.put(&#34;portfolio/1&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = PortfolioDetail()
+    view.setup(request)
+    resp = view.put(request, 1)
+
+    self.assertEquals(resp.status_code, 200, resp.data)
+    self.assertTrue(resp.data[&#34;holdings&#34;])</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest"><code class="flex name class">
+<span>class <span class="ident">PortfolioListViewTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PortfolioListViewTest(TestCase):
+
+    def setUp(self):
+        self.acct_type = Account_Type(type=&#39;IRA&#39;)
+        self.acct_type.save()
+
+        self.sec_type = Security_Type(type=&#39;Bond&#39;)
+        self.sec_type.save()
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#39;user&#39;: 1,
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: [],
+            &#34;balance_history&#34;: {}
+        }
+
+    def test_get_portfolioList_no_entries(self):
+        request = self.factory.get(&#34;portfolio/&#34;)
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(not resp.data, &#34;Response data should be empty&#34;)
+
+    def test_get_portfolioList_with_entries(self):
+        port = PortfolioSerializer(data=self.success_data)
+        port.is_valid()
+        port.save()
+
+        request = self.factory.get(&#34;portfolio/&#34;)
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(resp.data, &#34;Response data should not be empty&#34;)
+
+    def test_post_portfolioList_success(self):
+        request = self.factory.post(&#34;portfolio/&#34;, data=self.success_data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = self.success_data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201)
+
+    def test_post_portfolioList_fail(self):
+        data = {
+            &#34;user&#34;: None,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;balance&#34;: 0.00
+        }
+        request = self.factory.post(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400)
+
+    def test_get_success(self):
+        # Add the data to the test DB
+        new_port = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;Test data&#34;,
+            &#34;balance&#34;: 100.00,
+            &#34;account_type&#34;: self.acct_type,
+            &#34;description&#34;: &#34;This is how the returned data should look&#34;
+        }
+        port = Portfolio.objects.create(**new_port)
+
+        new_hold = {
+            &#34;portfolio&#34;: port,
+            &#34;security_type&#34;: self.sec_type,
+            &#34;ticker&#34;: &#34;GNMA&#34;,
+            &#34;price&#34;: 50.0,
+            &#34;shares&#34;: 2,
+            &#34;cost_basis&#34;: 40.0,
+            &#34;purchase_date&#34;: &#34;2021-12-20&#34;
+        }
+        hold = Holding.objects.create(**new_hold)
+
+        data = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;balance&#34;: 0.00
+        }
+        request = self.factory.get(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        print(resp.data)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_post_success(self):
+        data = {
+            &#39;account_type&#39;: &#34;IRA&#34;,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+            &#34;holdings&#34;: [],
+            &#34;balance_history&#34;: {}
+        }
+        request = self.factory.post(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201, resp.data)
+
+    def test_balance_history(self):
+        data = {
+            &#34;user_id&#34;: 1,
+            &#39;account_type_id&#39;: 1,
+            &#34;name&#34;: &#34;My IRA&#34;,
+            &#34;balance&#34;: 200.00,
+            &#34;description&#34;: &#34;A useful description&#34;,
+        }
+        Portfolio.objects.create(**data)
+
+        for i in range(20, 30):
+            Balance_History.objects.create(**{&#34;portfolio_id&#34;: 1, &#34;balance&#34;: i})
+
+        request = self.factory.get(&#34;portfolio&#34;)
+        request.user = self.user
+
+        view = PortfolioList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertTrue(resp.data[0][&#34;balance_history&#34;], &#34;Balance History should not be empty&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+    self.acct_type = Account_Type(type=&#39;IRA&#39;)
+    self.acct_type.save()
+
+    self.sec_type = Security_Type(type=&#39;Bond&#39;)
+    self.sec_type.save()
+
+    self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+    self.user.save()
+
+    self.factory = APIRequestFactory()
+
+    self.success_data = {
+        &#39;user&#39;: 1,
+        &#39;account_type&#39;: &#34;IRA&#34;,
+        &#34;name&#34;: &#34;My IRA&#34;,
+        &#34;balance&#34;: 200.00,
+        &#34;description&#34;: &#34;A useful description&#34;,
+        &#34;holdings&#34;: [],
+        &#34;balance_history&#34;: {}
+    }</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_balance_history"><code class="name flex">
+<span>def <span class="ident">test_balance_history</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_balance_history(self):
+    data = {
+        &#34;user_id&#34;: 1,
+        &#39;account_type_id&#39;: 1,
+        &#34;name&#34;: &#34;My IRA&#34;,
+        &#34;balance&#34;: 200.00,
+        &#34;description&#34;: &#34;A useful description&#34;,
+    }
+    Portfolio.objects.create(**data)
+
+    for i in range(20, 30):
+        Balance_History.objects.create(**{&#34;portfolio_id&#34;: 1, &#34;balance&#34;: i})
+
+    request = self.factory.get(&#34;portfolio&#34;)
+    request.user = self.user
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.get(request)
+
+    self.assertTrue(resp.data[0][&#34;balance_history&#34;], &#34;Balance History should not be empty&#34;)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_get_portfolioList_no_entries"><code class="name flex">
+<span>def <span class="ident">test_get_portfolioList_no_entries</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_portfolioList_no_entries(self):
+    request = self.factory.get(&#34;portfolio/&#34;)
+    request.user = self.user
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.get(request)
+
+    self.assertEquals(resp.status_code, 200)
+    self.assertTrue(not resp.data, &#34;Response data should be empty&#34;)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_get_portfolioList_with_entries"><code class="name flex">
+<span>def <span class="ident">test_get_portfolioList_with_entries</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_portfolioList_with_entries(self):
+    port = PortfolioSerializer(data=self.success_data)
+    port.is_valid()
+    port.save()
+
+    request = self.factory.get(&#34;portfolio/&#34;)
+    request.user = self.user
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.get(request)
+
+    self.assertEquals(resp.status_code, 200)
+    self.assertTrue(resp.data, &#34;Response data should not be empty&#34;)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_get_success"><code class="name flex">
+<span>def <span class="ident">test_get_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_success(self):
+    # Add the data to the test DB
+    new_port = {
+        &#34;user&#34;: self.user,
+        &#34;name&#34;: &#34;Test data&#34;,
+        &#34;balance&#34;: 100.00,
+        &#34;account_type&#34;: self.acct_type,
+        &#34;description&#34;: &#34;This is how the returned data should look&#34;
+    }
+    port = Portfolio.objects.create(**new_port)
+
+    new_hold = {
+        &#34;portfolio&#34;: port,
+        &#34;security_type&#34;: self.sec_type,
+        &#34;ticker&#34;: &#34;GNMA&#34;,
+        &#34;price&#34;: 50.0,
+        &#34;shares&#34;: 2,
+        &#34;cost_basis&#34;: 40.0,
+        &#34;purchase_date&#34;: &#34;2021-12-20&#34;
+    }
+    hold = Holding.objects.create(**new_hold)
+
+    data = {
+        &#34;user&#34;: self.user,
+        &#34;name&#34;: &#34;This Will Not Work&#34;,
+        &#34;balance&#34;: 0.00
+    }
+    request = self.factory.get(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.get(request)
+
+    print(resp.data)
+
+    self.assertEquals(resp.status_code, 200)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_post_portfolioList_fail"><code class="name flex">
+<span>def <span class="ident">test_post_portfolioList_fail</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_portfolioList_fail(self):
+    data = {
+        &#34;user&#34;: None,
+        &#34;name&#34;: &#34;This Will Not Work&#34;,
+        &#34;balance&#34;: 0.00
+    }
+    request = self.factory.post(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 400)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_post_portfolioList_success"><code class="name flex">
+<span>def <span class="ident">test_post_portfolioList_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_portfolioList_success(self):
+    request = self.factory.post(&#34;portfolio/&#34;, data=self.success_data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = self.success_data
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 201)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.tests.test_views.PortfolioListViewTest.test_post_success"><code class="name flex">
+<span>def <span class="ident">test_post_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_success(self):
+    data = {
+        &#39;account_type&#39;: &#34;IRA&#34;,
+        &#34;name&#34;: &#34;My IRA&#34;,
+        &#34;balance&#34;: 200.00,
+        &#34;description&#34;: &#34;A useful description&#34;,
+        &#34;holdings&#34;: [],
+        &#34;balance_history&#34;: {}
+    }
+    request = self.factory.post(&#34;portfolio/&#34;, data=data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = PortfolioList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 201, resp.data)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="planning_tool.tests" href="index.html">planning_tool.tests</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="planning_tool.tests.test_views.HoldingDetailViewTest" href="#planning_tool.tests.test_views.HoldingDetailViewTest">HoldingDetailViewTest</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.tests.test_views.HoldingDetailViewTest.setUp" href="#planning_tool.tests.test_views.HoldingDetailViewTest.setUp">setUp</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.HoldingDetailViewTest.test_put_holding_bad_date" href="#planning_tool.tests.test_views.HoldingDetailViewTest.test_put_holding_bad_date">test_put_holding_bad_date</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.HoldingDetailViewTest.test_put_holding_success" href="#planning_tool.tests.test_views.HoldingDetailViewTest.test_put_holding_success">test_put_holding_success</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.tests.test_views.HoldingListViewTest" href="#planning_tool.tests.test_views.HoldingListViewTest">HoldingListViewTest</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.tests.test_views.HoldingListViewTest.setUp" href="#planning_tool.tests.test_views.HoldingListViewTest.setUp">setUp</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.HoldingListViewTest.test_post_holding_bad_date" href="#planning_tool.tests.test_views.HoldingListViewTest.test_post_holding_bad_date">test_post_holding_bad_date</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.HoldingListViewTest.test_post_holding_success" href="#planning_tool.tests.test_views.HoldingListViewTest.test_post_holding_success">test_post_holding_success</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest" href="#planning_tool.tests.test_views.PortfolioDetailViewTest">PortfolioDetailViewTest</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest.setUp" href="#planning_tool.tests.test_views.PortfolioDetailViewTest.setUp">setUp</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest.test_balance_history" href="#planning_tool.tests.test_views.PortfolioDetailViewTest.test_balance_history">test_balance_history</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest.test_delete_portFolioDetail" href="#planning_tool.tests.test_views.PortfolioDetailViewTest.test_delete_portFolioDetail">test_delete_portFolioDetail</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest.test_get_portfolioDetail_expected_format" href="#planning_tool.tests.test_views.PortfolioDetailViewTest.test_get_portfolioDetail_expected_format">test_get_portfolioDetail_expected_format</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest.test_get_success" href="#planning_tool.tests.test_views.PortfolioDetailViewTest.test_get_success">test_get_success</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioDetailViewTest.test_put_portFolioDetail" href="#planning_tool.tests.test_views.PortfolioDetailViewTest.test_put_portFolioDetail">test_put_portFolioDetail</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.tests.test_views.PortfolioListViewTest" href="#planning_tool.tests.test_views.PortfolioListViewTest">PortfolioListViewTest</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.setUp" href="#planning_tool.tests.test_views.PortfolioListViewTest.setUp">setUp</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_balance_history" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_balance_history">test_balance_history</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_get_portfolioList_no_entries" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_get_portfolioList_no_entries">test_get_portfolioList_no_entries</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_get_portfolioList_with_entries" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_get_portfolioList_with_entries">test_get_portfolioList_with_entries</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_get_success" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_get_success">test_get_success</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_post_portfolioList_fail" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_post_portfolioList_fail">test_post_portfolioList_fail</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_post_portfolioList_success" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_post_portfolioList_success">test_post_portfolioList_success</a></code></li>
+<li><code><a title="planning_tool.tests.test_views.PortfolioListViewTest.test_post_success" href="#planning_tool.tests.test_views.PortfolioListViewTest.test_post_success">test_post_success</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

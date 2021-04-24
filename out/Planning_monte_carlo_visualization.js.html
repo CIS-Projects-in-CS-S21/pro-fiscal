@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Planning/monte_carlo_visualization.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Planning/monte_carlo_visualization.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Helper function for Charting that calculates the difference between the start date and the days that the portfolio's value was updated.
+ * @param {Array} dateData Array of Dates for a Portfolio
+ * @returns {Array} Number of Days since the start of the Portfolio
+ */
+function calculate_days_after(dateData) {
+    const start_date = new Date(dateData[0]);
+    let daysAfter = [];
+
+    for (let i = 0; i &lt; dateData.length; i++) {
+        let difference = days_after_update(new Date(dateData[i]), start_date);
+        daysAfter.push(difference);
+    }
+
+    return daysAfter;
+}
+
+/**
+ * Helper function that parses dates in 'YYYY-MM-DD' string format to a date object
+ * @param dateString
+ * @returns {Date}
+ */
+function parseDate(dateString) {
+    let arr = dateString.split('-');
+    let year = parseInt(arr[0]);
+    let month = parseInt(arr[1]) - 1;
+    let day = parseInt(arr[2]);
+
+    return new Date(year, month, day);
+}
+
+/**
+ * @namespace
+ */
+let monte_vis = {};
+
+/**
+ * Function that calls the monte carlo API and requests a simulation initiation
+ * @function
+ * @memberof monte_vis
+ * @param {Array} input array of values pulled from a JSON object
+ * @returns {Chart} A histogram based of a bar chart using the ChartJS library
+ * @throws {Error} if the input array is null, has negative values, etc.
+ */
+monte_vis.future_value_chart = function (array) {
+
+    /**
+     * Function that calls the monte carlo API and requests a simulation initiation
+     * @function
+     * @memberOf monte_vis
+     * @inner
+     * @param {Array} input array of values pulled from a JSON object
+     * @param {int} number of bins that is hard coded for the x-axis. This number determines the ranges that the values
+     *              will fall into, contributing to their respective range frequencies
+     * @returns {Array} array of bin values/ranges
+     * @throws {Error} if any of the inputs array are null, negative, etc.
+     */
+    createHistogram = function (array, numOfBins) {
+
+        const obj = []
+
+        const low = Math.min(...array)
+        const high = Math.max(...array)
+        const range = high - low;
+        let lastStart = null;
+
+        for (i = 0; i &lt; numOfBins; i++) {
+            const start = lastStart || Math.floor((i === 0 ? low : low + Math.floor(i * range / numOfBins) + 1) / 100) * 100
+
+
+            const end = Math.ceil((i === numOfBins ? high : low + Math.ceil((i + 1) * range / numOfBins)) / 100) * 100
+
+            lastStart = end;
+
+
+            obj.push({
+                label: `${start}`,
+                val: array.filter(a => (a > start &amp;&amp; a &lt; end)).length,
+            })
+        }
+
+        return obj
+    }
+
+    const histo = createHistogram(array, 40)
+
+
+    var labels = histo.map(function (e) {
+        // return '$' + e.label;
+        return e.label;
+    });
+
+    var data = histo.map(function (e) {
+        return e.val;
+    });
+
+    // console.log(labels);
+    // console.log(data);
+
+    var ctx = document.getElementById("myChart");
+    monte_vis.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                backgroundColor: 'rgb(0, 63, 92)',
+                data: data,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Future Value (in Thousands of Dollars)',
+                            fontSize: 16
+                        },
+                        ticks: {
+                            fontSize: 14,
+                            callback: function(value, index, values){
+                                return '$' + value / 1000;
+                            }
+                        }
+                }],
+                yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Count of Values per Range',
+                            fontSize: 16
+                        },
+                        ticks: {
+                            fontSize: 14
+                        }
+                }]
+            }
+        }
+    })
+    // console.log(monte_vis.chart)
+
+    // Change styling specific to monte carlo visualization
+    let chart_container = document.getElementById("chart-container");
+    chart_container.style = "width: 80%; height: 60vh;";
+
+    // Used to remove chart from page when user navigates away
+    function removeChart() {
+            monte_vis.chart.destroy();
+            // reset chart sizing
+            chart_container.style = "";
+        }
+
+    window.addEventListener('hashchange', removeChart);
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="budget_api.html">budget_api</a></li><li><a href="budget_overview.html">budget_overview</a></li><li><a href="monte_api.html">monte_api</a></li><li><a href="monte_carlo_interface.html">monte_carlo_interface</a></li><li><a href="monte_vis.html">monte_vis</a></li><li><a href="portfolio_api.html">portfolio_api</a></li><li><a href="portfolio_overview.html">portfolio_overview</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#createButton">createButton</a></li><li><a href="global.html#createTable">createTable</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#handleLoginSwitch">handleLoginSwitch</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#modalFW">modalFW</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_overview">render_budget_overview</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_monte_interface">render_monte_interface</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#routeFW">routeFW</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#userProfile">userProfile</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Apr 22 2021 11:14:36 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

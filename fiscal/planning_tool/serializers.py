@@ -82,6 +82,11 @@ class BalanceHistorySerializer(serializers.ModelSerializer):
     """
 
     class Meta:
+        """
+        Attributes:
+            model (__class__): The Balance_History model class
+            fields (list): A list of the fields in the Balance History model
+        """
         model = Balance_History
         fields = ['id', 'portfolio', 'balance', 'date']
 
