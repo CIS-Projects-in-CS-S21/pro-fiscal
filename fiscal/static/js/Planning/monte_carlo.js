@@ -1,6 +1,20 @@
-function render_future_value (forecast_data) {}
-
+/**
+ * Function to render the Monte Carlo Interface.
+ * Contains private functions to render the individual sub-components.
+ * @returns {HTMLDivElement}
+ */
 function render_monte_interface(){
+    /**
+     * @namespace monte_carlo_interface
+     */
+
+    /**
+     * Function to render the simulation form component
+     * @function
+     * @memberof monte_carlo_interface
+     * @inner
+     * @returns {HTMLDivElement}
+     */
     function render_monte_form() {
 
         const submitFunction = () => {
@@ -173,6 +187,13 @@ function render_monte_interface(){
         return elem;
     }
 
+    /**
+     * Function to render the get results button and attach associated behavior
+     * @function
+     * @memberof monte_carlo_interface
+     * @inner
+     * @returns {HTMLButtonElement}
+     */
     function render_get_results() {
         const results_handler = () => {
             let status_code;

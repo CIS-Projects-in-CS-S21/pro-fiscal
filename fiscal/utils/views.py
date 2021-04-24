@@ -220,6 +220,12 @@ class Monte_carlo_API(APIView):
 
 
 def initiate_sim(valid_data):
+    """
+    Initiate a monte carlo simulation and store the results in the database
+
+    Arguments:
+        valid_data (dict): A dictionary of validated input parameters for PortfolioSim
+    """
     retire_year = valid_data["retire_year"]
     end_year = valid_data["end_year"]
     inflation = valid_data["inflation"]

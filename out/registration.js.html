@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: registration.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: registration.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Set of functions that handles the interactions with the splash page for user registration and login.
+ */
+function handleLoginSwitch() {
+
+    /**
+     * Function that renders the initial splash page encountered by users who are not logged in.
+     */
+    const firstPageLoad = () => {
+        const userForm = document.querySelector(".user-form");
+        const loginForm = loginInterface();
+        userForm.innerHTML = '';
+        userForm.appendChild(loginForm);
+        const form = document.querySelector("#basic-form");
+        console.log(form)
+        if (form) {
+            form.addEventListener("submit", handleLogin)
+        }
+    }
+
+    /**
+     * Function that handles the functionality of the register page and switching back to the login page.
+     */
+    const toRegister = () => {
+        const updatableForm = document.querySelector('.message');
+        const userForm = document.querySelector(".user-form");
+
+        if (updatableForm) {
+            const registerForm = register();
+            userForm.innerHTML = '';
+            userForm.appendChild(registerForm)
+            const toLoginDom = document.querySelector(".to-login");
+            toLoginDom.addEventListener("click", toLogin);
+        }
+
+        const form = document.querySelector("#basic-form");
+        if (form) {
+            form.addEventListener("submit", handleRegister)
+        }
+
+        //$('user-form').animate({height: "toggle", opacity: "toggle"}, "fast");
+
+    }
+
+    /**
+     * Function that makes the request to create the account with the entered credentials.
+     * @param {Event} e Event that takes place upon submitting the registration form. 
+     */
+    const handleRegister = async (e) => {
+        e.preventDefault();
+
+        resetErrors();
+
+        const form = document.querySelector("#basic-form");
+        const username = form.querySelectorAll("input")[0].value;
+        const email = form.querySelectorAll("input")[1].value;
+        const password = form.querySelectorAll("input")[2].value;
+        const confirmPassword = form.querySelectorAll("input")[3].value;
+        const data = { username: username, email: email, password1: password, password2: confirmPassword }
+        const response = await fetch("/rest-auth/registration/", {
+            method: "POST",
+            headers: {
+                "Content-Type": 'application/json',
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        const resp_data = await response.json();
+        if (response.ok) { // A successful request will likely return 201, but we should check for other statuses
+
+            const key = resp_data.key;
+            //save the key
+            localStorage.setItem("key", key);
+            console.log(username);
+            window.location.replace("/")
+        } else {
+            console.log(resp_data);
+            errors = cleanedErrors(resp_data);
+            for (prop in errors) {
+                errorField = document.getElementById(prop);
+                errorField.innerText = errors[prop];
+            }
+        }
+
+        function resetErrors() {
+            ids = ["username", "email", "password1", "password2", "general_error"];
+            for (var i = 0; i &lt; ids.length; i++) {
+                document.getElementById(ids[i]).innerText = "";
+            }
+        }
+
+        function cleanedErrors(data) {
+            cleaned = {};
+            for (prop in data) {
+                if (prop === "username") {
+                    cleaned.username = data[prop];
+                } else if (prop === "email") {
+                    cleaned.email = data[prop];
+                } else if (prop === "password1") {
+                    cleaned.password1 = data[prop];
+                } else if (prop === "password2") {
+                    cleaned.password2 = data[prop];
+                }
+                else {
+                    cleaned.general_error = data[prop];
+                }
+            }
+            return cleaned;
+        }
+    }
+
+    /**
+     * Function to obtain a cookie with a given name
+     * @param {string} name The name of the cookie
+     * @returns {string} The string corresponding to the name of the cookie in regards to the csrf token
+     */
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie &amp;&amp; document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i &lt; cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    /**
+     * Function that handles the user's login request.
+     * @param {Event} e Event that takes place upon submitting the Login form.
+     */
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        resetErrors();
+
+        const form = document.querySelector("#basic-form");
+        const username = form.querySelectorAll("input")[0].value;
+        const email = form.querySelectorAll("input")[1].value;
+        const password = form.querySelectorAll("input")[2].value;
+        const data = { username: username, password: password }
+        const response = await fetch("/rest-auth/login/", {
+            method: "POST",
+            headers: {
+                "Content-Type": 'application/json',
+                "Accept": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify(data)
+        })
+
+        const resp_data = await response.json();
+        if (response.ok) {
+            const key = resp_data.key;
+            //save the key
+            localStorage.setItem("key", key);
+            window.location.replace("/")
+        } else {
+            errors = cleanedErrors(resp_data);
+            for (prop in errors) {
+                errorField = document.getElementById(prop);
+                errorField.innerText = errors[prop];
+            }
+        }
+
+        function resetErrors() {
+            ids = ["username", "email", "password", "general_error"];
+            for (var i = 0; i &lt; ids.length; i++) {
+                document.getElementById(ids[i]).innerText = "";
+            }
+        }
+
+        function cleanedErrors(data) {
+            cleaned = {};
+            for (prop in data) {
+                console.log(prop);
+                if (prop === "username") {
+                    cleaned.username = data[prop];
+                } else if (prop === "email") {
+                    cleaned.email = data[prop];
+                } else if (prop === "password") {
+                    cleaned.password = data[prop];
+                } else {
+                    cleaned.general_error = data[prop];
+                }
+            }
+            return cleaned;
+        }
+    }
+
+    /**
+     * Function that handles the functionality of the login page and switching back to the register page.
+     */
+    const toLogin = () => {
+        const updatableForm = document.querySelector('.message');
+        const userForm = document.querySelector(".user-form");
+
+        if (updatableForm) {
+            //render login form
+            const loginForm = loginInterface();
+            userForm.innerHTML = '';
+            userForm.appendChild(loginForm)
+            const toRegisterDom = document.querySelector(".to-register");
+            toRegisterDom.addEventListener("click", toRegister);
+
+        }
+        const form = document.querySelector("#basic-form");
+        if (form) {
+            form.addEventListener("submit", handleLogin)
+        }
+
+        //$('user-form').animate({height: "toggle", opacity: "toggle"}, "fast");
+    }
+
+    /**
+     * Function that swaps the default page to the registration page
+     */
+    const switchPages = () => {
+        const toRegisterDom = document.querySelector(".to-register");
+        toRegisterDom.addEventListener("click", toRegister);
+
+    }
+
+    firstPageLoad();
+    switchPages();
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="budget_api.html">budget_api</a></li><li><a href="budget_overview.html">budget_overview</a></li><li><a href="monte_api.html">monte_api</a></li><li><a href="monte_carlo_interface.html">monte_carlo_interface</a></li><li><a href="monte_vis.html">monte_vis</a></li><li><a href="portfolio_api.html">portfolio_api</a></li><li><a href="portfolio_overview.html">portfolio_overview</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#createButton">createButton</a></li><li><a href="global.html#createTable">createTable</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#handleLoginSwitch">handleLoginSwitch</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#modalFW">modalFW</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_overview">render_budget_overview</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_monte_interface">render_monte_interface</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#routeFW">routeFW</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#userProfile">userProfile</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Apr 22 2021 11:14:36 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

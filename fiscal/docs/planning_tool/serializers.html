@@ -27,25 +27,49 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from rest_framework import serializers
-# from planning_tool.models import Portfolio, Holding
+from django.contrib.auth.models import User
+from planning_tool.models import Portfolio, Holding, Security_Type, Account_Type, Balance_History
 
-class PortfolioSerializer(serializers.ModelSerializer):
+
+class Security_TypeSerializer(serializers.ModelSerializer):
     &#34;&#34;&#34;
-    A class to serialize and deserialize Portfolio instances
+    A class to serialize and deserialize Security_Type instances to and from JSON data
     &#34;&#34;&#34;
 
     class Meta:
         &#34;&#34;&#34;
         Attributes:
-            model (__class__): The Portfolio model class
-            fields (list): A list of the fields in the Portfolio model
+            model (__class__): The Holding model class
+            fields (list): A list of the fields in the Security_Type model
         &#34;&#34;&#34;
-        pass
+        model = Security_Type
+        fields = [&#39;id&#39;, &#39;type&#39;]
+
+
+class Account_TypeSerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+    A class to serialize and deserialize Account_Type instances to and from JSON data
+    &#34;&#34;&#34;
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The Holding model class
+            fields (list): A list of the fields in the Account_Type model
+        &#34;&#34;&#34;
+        model = Account_Type
+        fields = [&#39;id&#39;, &#39;type&#39;]
+
 
 class HoldingSerializer(serializers.ModelSerializer):
     &#34;&#34;&#34;
-    A class to serialize and deserialize Holding instances
+    A class to serialize and deserialize Holding instances to and from JSON data
+
+    Attributes:
+        security_type (Serializer): field for the reversely related security type
     &#34;&#34;&#34;
+
+    security_type = serializers.SlugRelatedField(slug_field=&#34;type&#34;, queryset=Security_Type.objects.all(), allow_null=True)
 
     class Meta:
         &#34;&#34;&#34;
@@ -53,7 +77,65 @@ class HoldingSerializer(serializers.ModelSerializer):
             model (__class__): The Holding model class
             fields (list): A list of the fields in the Holding model
         &#34;&#34;&#34;
-        pass</code></pre>
+        model = Holding
+        fields = [&#39;id&#39;, &#39;portfolio&#39;, &#39;security_type&#39;, &#39;ticker&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;purchase_date&#39;, &#39;cost_basis&#39;]
+
+
+class PortfolioSerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+    A class to serialize and deserialize Portfolio instances to and from JSON data
+
+    Attributes:
+        holdings (Serializer): Field for the reversely related holdings
+        balance_history (Serializer): Field for the reversely related balance history
+        account_type (Serializer): Field for the reversely related account type
+    &#34;&#34;&#34;
+
+    holdings = serializers.PrimaryKeyRelatedField(many=True, read_only=True, allow_null=True)
+    balance_history = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    account_type = serializers.SlugRelatedField(slug_field=&#39;type&#39;, queryset=Account_Type.objects.all(), allow_null=True)
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The Portfolio model class
+            fields (list): A list of the fields in the Portfolio model
+        &#34;&#34;&#34;
+        model = Portfolio
+        fields = [&#39;id&#39;, &#39;user&#39;, &#39;account_type&#39;, &#39;name&#39;, &#39;description&#39;, &#39;balance&#39;, &#39;date&#39;, &#39;balance_history&#39;, &#39;holdings&#39;]
+
+
+class BalanceHistorySerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+        A class to serialize and deserialize Balance_History instances to and from JSON data
+    &#34;&#34;&#34;
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The Balance_History model class
+            fields (list): A list of the fields in the Balance History model
+        &#34;&#34;&#34;
+        model = Balance_History
+        fields = [&#39;id&#39;, &#39;portfolio&#39;, &#39;balance&#39;, &#39;date&#39;]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+    A class to serialize and deserialize User instances to and from JSON data
+
+    Attributes:
+        portfolio_accounts (Serializer): Field for the reversely related portfolio accounts
+    &#34;&#34;&#34;
+    portfolio_accounts = serializers.PrimaryKeyRelatedField(many=True, queryset=Portfolio.objects.all(), allow_null=True)
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The User model class
+            fields (list): A list of the fields in the User model
+        &#34;&#34;&#34;
+        model = User
+        fields = [&#39;id&#39;, &#39;username&#39;, &#39;portfolio_accounts&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -65,20 +147,120 @@ class HoldingSerializer(serializers.ModelSerializer):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="planning_tool.serializers.Account_TypeSerializer"><code class="flex name class">
+<span>class <span class="ident">Account_TypeSerializer</span></span>
+<span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class to serialize and deserialize Account_Type instances to and from JSON data</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Account_TypeSerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+    A class to serialize and deserialize Account_Type instances to and from JSON data
+    &#34;&#34;&#34;
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The Holding model class
+            fields (list): A list of the fields in the Account_Type model
+        &#34;&#34;&#34;
+        model = Account_Type
+        fields = [&#39;id&#39;, &#39;type&#39;]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.serializers.ModelSerializer</li>
+<li>rest_framework.serializers.Serializer</li>
+<li>rest_framework.serializers.BaseSerializer</li>
+<li>rest_framework.fields.Field</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.serializers.Account_TypeSerializer.Meta"><code class="name">var <span class="ident">Meta</span></code></dt>
+<dd>
+<div class="desc"><h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>__class__</code></dt>
+<dd>The Holding model class</dd>
+<dt><strong><code>fields</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the fields in the Account_Type model</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.serializers.BalanceHistorySerializer"><code class="flex name class">
+<span>class <span class="ident">BalanceHistorySerializer</span></span>
+<span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class to serialize and deserialize Balance_History instances to and from JSON data</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BalanceHistorySerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+        A class to serialize and deserialize Balance_History instances to and from JSON data
+    &#34;&#34;&#34;
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The Balance_History model class
+            fields (list): A list of the fields in the Balance History model
+        &#34;&#34;&#34;
+        model = Balance_History
+        fields = [&#39;id&#39;, &#39;portfolio&#39;, &#39;balance&#39;, &#39;date&#39;]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.serializers.ModelSerializer</li>
+<li>rest_framework.serializers.Serializer</li>
+<li>rest_framework.serializers.BaseSerializer</li>
+<li>rest_framework.fields.Field</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.serializers.BalanceHistorySerializer.Meta"><code class="name">var <span class="ident">Meta</span></code></dt>
+<dd>
+<div class="desc"><h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>__class__</code></dt>
+<dd>The Balance_History model class</dd>
+<dt><strong><code>fields</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the fields in the Balance History model</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
 <dt id="planning_tool.serializers.HoldingSerializer"><code class="flex name class">
 <span>class <span class="ident">HoldingSerializer</span></span>
 <span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A class to serialize and deserialize Holding instances</p></div>
+<div class="desc"><p>A class to serialize and deserialize Holding instances to and from JSON data</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>security_type</code></strong> :&ensp;<code>Serializer</code></dt>
+<dd>field for the reversely related security type</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class HoldingSerializer(serializers.ModelSerializer):
     &#34;&#34;&#34;
-    A class to serialize and deserialize Holding instances
+    A class to serialize and deserialize Holding instances to and from JSON data
+
+    Attributes:
+        security_type (Serializer): field for the reversely related security type
     &#34;&#34;&#34;
+
+    security_type = serializers.SlugRelatedField(slug_field=&#34;type&#34;, queryset=Security_Type.objects.all(), allow_null=True)
 
     class Meta:
         &#34;&#34;&#34;
@@ -86,7 +268,8 @@ class HoldingSerializer(serializers.ModelSerializer):
             model (__class__): The Holding model class
             fields (list): A list of the fields in the Holding model
         &#34;&#34;&#34;
-        pass</code></pre>
+        model = Holding
+        fields = [&#39;id&#39;, &#39;portfolio&#39;, &#39;security_type&#39;, &#39;ticker&#39;, &#39;price&#39;, &#39;shares&#39;, &#39;purchase_date&#39;, &#39;cost_basis&#39;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -114,23 +297,41 @@ class HoldingSerializer(serializers.ModelSerializer):
 <span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A class to serialize and deserialize Portfolio instances</p></div>
+<div class="desc"><p>A class to serialize and deserialize Portfolio instances to and from JSON data</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>holdings</code></strong> :&ensp;<code>Serializer</code></dt>
+<dd>Field for the reversely related holdings</dd>
+<dt><strong><code>balance_history</code></strong> :&ensp;<code>Serializer</code></dt>
+<dd>Field for the reversely related balance history</dd>
+<dt><strong><code>account_type</code></strong> :&ensp;<code>Serializer</code></dt>
+<dd>Field for the reversely related account type</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PortfolioSerializer(serializers.ModelSerializer):
     &#34;&#34;&#34;
-    A class to serialize and deserialize Portfolio instances
+    A class to serialize and deserialize Portfolio instances to and from JSON data
+
+    Attributes:
+        holdings (Serializer): Field for the reversely related holdings
+        balance_history (Serializer): Field for the reversely related balance history
+        account_type (Serializer): Field for the reversely related account type
     &#34;&#34;&#34;
 
+    holdings = serializers.PrimaryKeyRelatedField(many=True, read_only=True, allow_null=True)
+    balance_history = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    account_type = serializers.SlugRelatedField(slug_field=&#39;type&#39;, queryset=Account_Type.objects.all(), allow_null=True)
     class Meta:
         &#34;&#34;&#34;
         Attributes:
             model (__class__): The Portfolio model class
             fields (list): A list of the fields in the Portfolio model
         &#34;&#34;&#34;
-        pass</code></pre>
+        model = Portfolio
+        fields = [&#39;id&#39;, &#39;user&#39;, &#39;account_type&#39;, &#39;name&#39;, &#39;description&#39;, &#39;balance&#39;, &#39;date&#39;, &#39;balance_history&#39;, &#39;holdings&#39;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -153,6 +354,105 @@ class HoldingSerializer(serializers.ModelSerializer):
 </dd>
 </dl>
 </dd>
+<dt id="planning_tool.serializers.Security_TypeSerializer"><code class="flex name class">
+<span>class <span class="ident">Security_TypeSerializer</span></span>
+<span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class to serialize and deserialize Security_Type instances to and from JSON data</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Security_TypeSerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+    A class to serialize and deserialize Security_Type instances to and from JSON data
+    &#34;&#34;&#34;
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The Holding model class
+            fields (list): A list of the fields in the Security_Type model
+        &#34;&#34;&#34;
+        model = Security_Type
+        fields = [&#39;id&#39;, &#39;type&#39;]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.serializers.ModelSerializer</li>
+<li>rest_framework.serializers.Serializer</li>
+<li>rest_framework.serializers.BaseSerializer</li>
+<li>rest_framework.fields.Field</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.serializers.Security_TypeSerializer.Meta"><code class="name">var <span class="ident">Meta</span></code></dt>
+<dd>
+<div class="desc"><h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>__class__</code></dt>
+<dd>The Holding model class</dd>
+<dt><strong><code>fields</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the fields in the Security_Type model</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.serializers.UserSerializer"><code class="flex name class">
+<span>class <span class="ident">UserSerializer</span></span>
+<span>(</span><span>instance=None, data=rest_framework.fields.empty, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class to serialize and deserialize User instances to and from JSON data</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>portfolio_accounts</code></strong> :&ensp;<code>Serializer</code></dt>
+<dd>Field for the reversely related portfolio accounts</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UserSerializer(serializers.ModelSerializer):
+    &#34;&#34;&#34;
+    A class to serialize and deserialize User instances to and from JSON data
+
+    Attributes:
+        portfolio_accounts (Serializer): Field for the reversely related portfolio accounts
+    &#34;&#34;&#34;
+    portfolio_accounts = serializers.PrimaryKeyRelatedField(many=True, queryset=Portfolio.objects.all(), allow_null=True)
+
+    class Meta:
+        &#34;&#34;&#34;
+        Attributes:
+            model (__class__): The User model class
+            fields (list): A list of the fields in the User model
+        &#34;&#34;&#34;
+        model = User
+        fields = [&#39;id&#39;, &#39;username&#39;, &#39;portfolio_accounts&#39;]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.serializers.ModelSerializer</li>
+<li>rest_framework.serializers.Serializer</li>
+<li>rest_framework.serializers.BaseSerializer</li>
+<li>rest_framework.fields.Field</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.serializers.UserSerializer.Meta"><code class="name">var <span class="ident">Meta</span></code></dt>
+<dd>
+<div class="desc"><h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>__class__</code></dt>
+<dd>The User model class</dd>
+<dt><strong><code>fields</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of the fields in the User model</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -170,6 +470,18 @@ class HoldingSerializer(serializers.ModelSerializer):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="planning_tool.serializers.Account_TypeSerializer" href="#planning_tool.serializers.Account_TypeSerializer">Account_TypeSerializer</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.serializers.Account_TypeSerializer.Meta" href="#planning_tool.serializers.Account_TypeSerializer.Meta">Meta</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.serializers.BalanceHistorySerializer" href="#planning_tool.serializers.BalanceHistorySerializer">BalanceHistorySerializer</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.serializers.BalanceHistorySerializer.Meta" href="#planning_tool.serializers.BalanceHistorySerializer.Meta">Meta</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="planning_tool.serializers.HoldingSerializer" href="#planning_tool.serializers.HoldingSerializer">HoldingSerializer</a></code></h4>
 <ul class="">
 <li><code><a title="planning_tool.serializers.HoldingSerializer.Meta" href="#planning_tool.serializers.HoldingSerializer.Meta">Meta</a></code></li>
@@ -179,6 +491,18 @@ class HoldingSerializer(serializers.ModelSerializer):
 <h4><code><a title="planning_tool.serializers.PortfolioSerializer" href="#planning_tool.serializers.PortfolioSerializer">PortfolioSerializer</a></code></h4>
 <ul class="">
 <li><code><a title="planning_tool.serializers.PortfolioSerializer.Meta" href="#planning_tool.serializers.PortfolioSerializer.Meta">Meta</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.serializers.Security_TypeSerializer" href="#planning_tool.serializers.Security_TypeSerializer">Security_TypeSerializer</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.serializers.Security_TypeSerializer.Meta" href="#planning_tool.serializers.Security_TypeSerializer.Meta">Meta</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.serializers.UserSerializer" href="#planning_tool.serializers.UserSerializer">UserSerializer</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.serializers.UserSerializer.Meta" href="#planning_tool.serializers.UserSerializer.Meta">Meta</a></code></li>
 </ul>
 </li>
 </ul>

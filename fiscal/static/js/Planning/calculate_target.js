@@ -1,18 +1,8 @@
-/*
-function currencyValidation(value) { // Literally here for unit testing. Comment out when not unit testing.
-    var regex = /^[0-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/;
-    
-    if (regex.test(value)) {
-        return value;
-    }
-    return null;
-}
-*/
-
 /**
  * 
  * @param {JSON} params Object that contains three separate values used to calculate the present value the user wants so
  * that they can attain the desired future value.
+ * @throws Will throw an error if any param values taken are undefined, NaN, negative, etc.
  * @returns {float} Denotes the present value required to attain future value.
  */
 function wealth_target_calculate(params) {
@@ -30,9 +20,8 @@ function wealth_target_calculate(params) {
         return null;
     }
 
-    const finalValue = target_wealth / ((1 + annual_return) ** num_years);
+    const finalValue = target_wealth / ((1 + (annual_return / 100)) ** num_years);
 
     return finalValue;
 }
-
 // module.exports = wealth_target_calculate;

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: helper/routeFW.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: helper/routeFW.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The different configurations of the Routing Framework.
+ * @typedef {Object} RouteParameters
+ * @property {Array} routeArray - List of links to access throughout the website.
+ * @property {string} contentID - Div component to render the components of the different pages in.
+ * @property {string} startLink - Link that the user will start out in.
+ */
+
+/**
+ * A function that changes which components are rendered onto the page based on the page's hash.
+ * @function
+ * @param {RouteParameters} params The parameter object containing information about how to route the different pages.
+ */
+function routeFW(params) {
+    let contentID = params.contentID || "content";
+    let startLink = params.startLink || "#/home";
+
+    if (!params.routeArray || params.routeArray[0]) {
+        alert("Invalid array 'routeArray' used for parameter object.");
+        return;
+    }
+
+    const routingTable = params.routeArray;
+
+    function inject(item) {
+        let target = document.getElementById(contentID);
+        target.innerHTML = "";
+        target.appendChild(item);
+    }
+
+    function parsePath(path) {
+        let obj = {
+            param: "",
+            funcName: path
+        };
+
+        let n = path.lastIndexOf("/");
+
+        if (n > 1) {
+            obj.param = path.substring(n + 1);
+            obj.funcName = path.substring(0, n);
+        }
+
+        return obj;
+    }
+
+    function route() {
+        let path = location.hash;
+
+        let unknown;
+        let pathObj = parsePath(path);
+
+        if (!routingTable[pathObj.funcName]) {
+            unknown = document.createElement("div");
+            unknown.innerHTML = "&lt;p>This page has not been developed yet. Please look forward to it once we finish development on it.&lt;/p>";
+        } else if (pathObj.param.length > 0) {
+            unknown = routingTable[pathObj.funcName](pathObj.param);
+        } else {
+            unknown = routingTable[pathObj.funcName]();
+        }
+
+        inject(unknown);
+    }
+
+    window.addEventListener('hashchange', route);
+    location.hash = "Test";
+    location.hash = startLink;
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="budget_api.html">budget_api</a></li><li><a href="budget_overview.html">budget_overview</a></li><li><a href="monte_api.html">monte_api</a></li><li><a href="monte_carlo_interface.html">monte_carlo_interface</a></li><li><a href="monte_vis.html">monte_vis</a></li><li><a href="portfolio_api.html">portfolio_api</a></li><li><a href="portfolio_overview.html">portfolio_overview</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add_new_loan">add_new_loan</a></li><li><a href="global.html#calculate_days_after">calculate_days_after</a></li><li><a href="global.html#calculate_expected_payment">calculate_expected_payment</a></li><li><a href="global.html#clear_answers">clear_answers</a></li><li><a href="global.html#createButton">createButton</a></li><li><a href="global.html#createTable">createTable</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#fetch_saved_answers">fetch_saved_answers</a></li><li><a href="global.html#fetch_user_debts">fetch_user_debts</a></li><li><a href="global.html#filter_glossary_items">filter_glossary_items</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#getExpenseData">getExpenseData</a></li><li><a href="global.html#handleLoginSwitch">handleLoginSwitch</a></li><li><a href="global.html#loginInterface">loginInterface</a></li><li><a href="global.html#logoutInterface">logoutInterface</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#modalFW">modalFW</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#read_glossary_from_json_file">read_glossary_from_json_file</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#remove_loan">remove_loan</a></li><li><a href="global.html#render_analysis_result">render_analysis_result</a></li><li><a href="global.html#render_budget_overview">render_budget_overview</a></li><li><a href="global.html#render_budget_visualization">render_budget_visualization</a></li><li><a href="global.html#render_diversification">render_diversification</a></li><li><a href="global.html#render_growth">render_growth</a></li><li><a href="global.html#render_guide">render_guide</a></li><li><a href="global.html#render_monte_interface">render_monte_interface</a></li><li><a href="global.html#render_payment_chart">render_payment_chart</a></li><li><a href="global.html#render_portfolio_diversification">render_portfolio_diversification</a></li><li><a href="global.html#render_portfolio_growth">render_portfolio_growth</a></li><li><a href="global.html#render_portfolio_overview">render_portfolio_overview</a></li><li><a href="global.html#render_wealthTarget_interface">render_wealthTarget_interface</a></li><li><a href="global.html#routeFW">routeFW</a></li><li><a href="global.html#submit_answer">submit_answer</a></li><li><a href="global.html#submit_form">submit_form</a></li><li><a href="global.html#update_answers">update_answers</a></li><li><a href="global.html#update_form">update_form</a></li><li><a href="global.html#update_loan">update_loan</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#userProfile">userProfile</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li><li><a href="global.html#wealth_target_calculate">wealth_target_calculate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Apr 22 2021 11:14:36 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

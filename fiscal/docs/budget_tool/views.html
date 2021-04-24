@@ -26,13 +26,25 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from rest_framework.views import APIView
+<pre><code class="python">import decimal
+
+from budget_tool.models import Expense
+from budget_tool.serializers import ExpenseSerializer
+
+from django.http import Http404
+from rest_framework import status, permissions
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from modules.classifier.classifier import Classifier
 
 class ExpenseList(APIView):
     &#34;&#34;&#34;
     List all expenses, or create a new one
     &#34;&#34;&#34;
-
+    permission_classes = [permissions.IsAuthenticated]
+    
     def get(self, request):
         &#34;&#34;&#34;
         Get the list of expenses
@@ -43,7 +55,11 @@ class ExpenseList(APIView):
         Returns:
             Response: list of expenses in JSON format
         &#34;&#34;&#34;
-        pass
+        expense = Expense.objects.filter(user=request.user)
+        expense_serializer = ExpenseSerializer(expense, many=True)
+
+        &#34;&#34;&#34;expense[&#34;amount&#34;] = expense_serializer.data&#34;&#34;&#34;
+        return Response(expense_serializer.data)
 
     def post(self, request):
         &#34;&#34;&#34;
@@ -55,12 +71,30 @@ class ExpenseList(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass
+        request.data[&#34;user&#34;] = request.user.pk
+        # gather data for the classifier 
+        new_example = {}
+        new_example[&#34;description&#34;] = request.data[&#34;description&#34;]
+        new_example[&#34;amount&#34;] = request.data[&#34;amount&#34;]
+        new_example[&#34;transaction_date&#34;] = request.data[&#34;transaction_date&#34;]
+        request.data[&#34;category&#34;] = Classifier().classify(new_example)
+
+        expense_serializer = ExpenseSerializer(data=request.data)
+        if expense_serializer.is_valid():
+            expense_serializer.save()
+            return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ExpenseDetail(APIView):
     &#34;&#34;&#34;
     Get, update, or delete an individual expense
     &#34;&#34;&#34;
+    permission_classes = [permissions.IsAuthenticated]
+    def get_object(self, key):
+        try:
+            return Expense.objects.get(pk=key)
+        except Expense.DoesNotExist:
+            raise Http404
 
     def get(self, request, key):
         &#34;&#34;&#34;
@@ -73,33 +107,53 @@ class ExpenseDetail(APIView):
         Returns:
             Response: JSON formatted data
         &#34;&#34;&#34;
-        pass
+        expense = self.get_object(key)
+        expense_serializer = ExpenseSerializer(expense)
 
-    def put(self, request, key):
+        exp_data = expense_serializer.data
+
+        # return from model is a string, must be converted
+        exp_data[&#34;amount&#34;] = decimal.Decimal(exp_data[&#34;amount&#34;])
+
+        return Response(exp_data)
+
+    def put(self, request, pk):
         &#34;&#34;&#34;
         Update the specified expense
 
         Args:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the expense
+            pk (int): The primary key of the expense
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass
+        # request.data[&#34;expense_id&#34;] = pk
+        request.data[&#34;user&#34;] = request.user.pk
 
-    def delete(self, request, key):
+        # expense_serializer = ExpenseSerializer(data=request.data)
+        expense = self.get_object(pk)
+        expense_serializer = ExpenseSerializer(expense, data=request.data)
+
+        if expense_serializer.is_valid():
+            expense_serializer.save()
+            return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
         &#34;&#34;&#34;
         Delete the specified expense
 
         Args:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the expense
+            pk (int): The primary key of the expense
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass</code></pre>
+        expense = self.get_object(pk)
+        expense.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
 </details>
 </section>
 <section>
@@ -127,6 +181,12 @@ keyword arguments, and other things.</p></div>
     &#34;&#34;&#34;
     Get, update, or delete an individual expense
     &#34;&#34;&#34;
+    permission_classes = [permissions.IsAuthenticated]
+    def get_object(self, key):
+        try:
+            return Expense.objects.get(pk=key)
+        except Expense.DoesNotExist:
+            raise Http404
 
     def get(self, request, key):
         &#34;&#34;&#34;
@@ -139,43 +199,70 @@ keyword arguments, and other things.</p></div>
         Returns:
             Response: JSON formatted data
         &#34;&#34;&#34;
-        pass
+        expense = self.get_object(key)
+        expense_serializer = ExpenseSerializer(expense)
 
-    def put(self, request, key):
+        exp_data = expense_serializer.data
+
+        # return from model is a string, must be converted
+        exp_data[&#34;amount&#34;] = decimal.Decimal(exp_data[&#34;amount&#34;])
+
+        return Response(exp_data)
+
+    def put(self, request, pk):
         &#34;&#34;&#34;
         Update the specified expense
 
         Args:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the expense
+            pk (int): The primary key of the expense
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass
+        # request.data[&#34;expense_id&#34;] = pk
+        request.data[&#34;user&#34;] = request.user.pk
 
-    def delete(self, request, key):
+        # expense_serializer = ExpenseSerializer(data=request.data)
+        expense = self.get_object(pk)
+        expense_serializer = ExpenseSerializer(expense, data=request.data)
+
+        if expense_serializer.is_valid():
+            expense_serializer.save()
+            return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
         &#34;&#34;&#34;
         Delete the specified expense
 
         Args:
             request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the expense
+            pk (int): The primary key of the expense
 
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass</code></pre>
+        expense = self.get_object(pk)
+        expense.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>rest_framework.views.APIView</li>
 <li>django.views.generic.base.View</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="budget_tool.views.ExpenseDetail.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="budget_tool.views.ExpenseDetail.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self, request, key)</span>
+<span>def <span class="ident">delete</span></span>(<span>self, request, pk)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete the specified expense</p>
@@ -183,7 +270,7 @@ keyword arguments, and other things.</p></div>
 <dl>
 <dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
 <dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
+<dt><strong><code>pk</code></strong> :&ensp;<code>int</code></dt>
 <dd>The primary key of the expense</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -195,18 +282,20 @@ keyword arguments, and other things.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete(self, request, key):
+<pre><code class="python">def delete(self, request, pk):
     &#34;&#34;&#34;
     Delete the specified expense
 
     Args:
         request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the expense
+        pk (int): The primary key of the expense
 
     Returns:
         Response: JSON formatted data and HTTP status
     &#34;&#34;&#34;
-    pass</code></pre>
+    expense = self.get_object(pk)
+    expense.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)</code></pre>
 </details>
 </dd>
 <dt id="budget_tool.views.ExpenseDetail.get"><code class="name flex">
@@ -241,11 +330,35 @@ keyword arguments, and other things.</p></div>
     Returns:
         Response: JSON formatted data
     &#34;&#34;&#34;
-    pass</code></pre>
+    expense = self.get_object(key)
+    expense_serializer = ExpenseSerializer(expense)
+
+    exp_data = expense_serializer.data
+
+    # return from model is a string, must be converted
+    exp_data[&#34;amount&#34;] = decimal.Decimal(exp_data[&#34;amount&#34;])
+
+    return Response(exp_data)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.views.ExpenseDetail.get_object"><code class="name flex">
+<span>def <span class="ident">get_object</span></span>(<span>self, key)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_object(self, key):
+    try:
+        return Expense.objects.get(pk=key)
+    except Expense.DoesNotExist:
+        raise Http404</code></pre>
 </details>
 </dd>
 <dt id="budget_tool.views.ExpenseDetail.put"><code class="name flex">
-<span>def <span class="ident">put</span></span>(<span>self, request, key)</span>
+<span>def <span class="ident">put</span></span>(<span>self, request, pk)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Update the specified expense</p>
@@ -253,7 +366,7 @@ keyword arguments, and other things.</p></div>
 <dl>
 <dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
 <dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
+<dt><strong><code>pk</code></strong> :&ensp;<code>int</code></dt>
 <dd>The primary key of the expense</dd>
 </dl>
 <h2 id="returns">Returns</h2>
@@ -265,18 +378,28 @@ keyword arguments, and other things.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def put(self, request, key):
+<pre><code class="python">def put(self, request, pk):
     &#34;&#34;&#34;
     Update the specified expense
 
     Args:
         request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the expense
+        pk (int): The primary key of the expense
 
     Returns:
         Response: JSON formatted data and HTTP status
     &#34;&#34;&#34;
-    pass</code></pre>
+    # request.data[&#34;expense_id&#34;] = pk
+    request.data[&#34;user&#34;] = request.user.pk
+
+    # expense_serializer = ExpenseSerializer(data=request.data)
+    expense = self.get_object(pk)
+    expense_serializer = ExpenseSerializer(expense, data=request.data)
+
+    if expense_serializer.is_valid():
+        expense_serializer.save()
+        return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
 </dd>
 </dl>
@@ -297,7 +420,8 @@ keyword arguments, and other things.</p></div>
     &#34;&#34;&#34;
     List all expenses, or create a new one
     &#34;&#34;&#34;
-
+    permission_classes = [permissions.IsAuthenticated]
+    
     def get(self, request):
         &#34;&#34;&#34;
         Get the list of expenses
@@ -308,7 +432,11 @@ keyword arguments, and other things.</p></div>
         Returns:
             Response: list of expenses in JSON format
         &#34;&#34;&#34;
-        pass
+        expense = Expense.objects.filter(user=request.user)
+        expense_serializer = ExpenseSerializer(expense, many=True)
+
+        &#34;&#34;&#34;expense[&#34;amount&#34;] = expense_serializer.data&#34;&#34;&#34;
+        return Response(expense_serializer.data)
 
     def post(self, request):
         &#34;&#34;&#34;
@@ -320,13 +448,32 @@ keyword arguments, and other things.</p></div>
         Returns:
             Response: JSON formatted data and HTTP status
         &#34;&#34;&#34;
-        pass</code></pre>
+        request.data[&#34;user&#34;] = request.user.pk
+        # gather data for the classifier 
+        new_example = {}
+        new_example[&#34;description&#34;] = request.data[&#34;description&#34;]
+        new_example[&#34;amount&#34;] = request.data[&#34;amount&#34;]
+        new_example[&#34;transaction_date&#34;] = request.data[&#34;transaction_date&#34;]
+        request.data[&#34;category&#34;] = Classifier().classify(new_example)
+
+        expense_serializer = ExpenseSerializer(data=request.data)
+        if expense_serializer.is_valid():
+            expense_serializer.save()
+            return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>rest_framework.views.APIView</li>
 <li>django.views.generic.base.View</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="budget_tool.views.ExpenseList.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="budget_tool.views.ExpenseList.get"><code class="name flex">
@@ -358,7 +505,11 @@ keyword arguments, and other things.</p></div>
     Returns:
         Response: list of expenses in JSON format
     &#34;&#34;&#34;
-    pass</code></pre>
+    expense = Expense.objects.filter(user=request.user)
+    expense_serializer = ExpenseSerializer(expense, many=True)
+
+    &#34;&#34;&#34;expense[&#34;amount&#34;] = expense_serializer.data&#34;&#34;&#34;
+    return Response(expense_serializer.data)</code></pre>
 </details>
 </dd>
 <dt id="budget_tool.views.ExpenseList.post"><code class="name flex">
@@ -390,7 +541,19 @@ keyword arguments, and other things.</p></div>
     Returns:
         Response: JSON formatted data and HTTP status
     &#34;&#34;&#34;
-    pass</code></pre>
+    request.data[&#34;user&#34;] = request.user.pk
+    # gather data for the classifier 
+    new_example = {}
+    new_example[&#34;description&#34;] = request.data[&#34;description&#34;]
+    new_example[&#34;amount&#34;] = request.data[&#34;amount&#34;]
+    new_example[&#34;transaction_date&#34;] = request.data[&#34;transaction_date&#34;]
+    request.data[&#34;category&#34;] = Classifier().classify(new_example)
+
+    expense_serializer = ExpenseSerializer(data=request.data)
+    if expense_serializer.is_valid():
+        expense_serializer.save()
+        return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
 </dd>
 </dl>
@@ -416,6 +579,8 @@ keyword arguments, and other things.</p></div>
 <ul class="">
 <li><code><a title="budget_tool.views.ExpenseDetail.delete" href="#budget_tool.views.ExpenseDetail.delete">delete</a></code></li>
 <li><code><a title="budget_tool.views.ExpenseDetail.get" href="#budget_tool.views.ExpenseDetail.get">get</a></code></li>
+<li><code><a title="budget_tool.views.ExpenseDetail.get_object" href="#budget_tool.views.ExpenseDetail.get_object">get_object</a></code></li>
+<li><code><a title="budget_tool.views.ExpenseDetail.permission_classes" href="#budget_tool.views.ExpenseDetail.permission_classes">permission_classes</a></code></li>
 <li><code><a title="budget_tool.views.ExpenseDetail.put" href="#budget_tool.views.ExpenseDetail.put">put</a></code></li>
 </ul>
 </li>
@@ -423,6 +588,7 @@ keyword arguments, and other things.</p></div>
 <h4><code><a title="budget_tool.views.ExpenseList" href="#budget_tool.views.ExpenseList">ExpenseList</a></code></h4>
 <ul class="">
 <li><code><a title="budget_tool.views.ExpenseList.get" href="#budget_tool.views.ExpenseList.get">get</a></code></li>
+<li><code><a title="budget_tool.views.ExpenseList.permission_classes" href="#budget_tool.views.ExpenseList.permission_classes">permission_classes</a></code></li>
 <li><code><a title="budget_tool.views.ExpenseList.post" href="#budget_tool.views.ExpenseList.post">post</a></code></li>
 </ul>
 </li>

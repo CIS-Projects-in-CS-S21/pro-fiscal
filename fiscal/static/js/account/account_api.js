@@ -36,16 +36,6 @@ account_api.getUserInfo = function (successHandler, errorDOM) {
 }
 
 /**
- if (!response.ok) {
-                response.text().then(text => {
-                    errorText = text;
-                    errorDOM.innerText = errorText;
-                    throw new Error(errorText);
-                });
-            }
- */
-
-/**
  * Function that updates the user's username.
  * @param {Object} data Username to be sent to request user information.
  * @param {function} successHandler Callback function to handle the data.

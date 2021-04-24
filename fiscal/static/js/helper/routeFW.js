@@ -1,3 +1,16 @@
+/**
+ * The different configurations of the Routing Framework.
+ * @typedef {Object} RouteParameters
+ * @property {Array} routeArray - List of links to access throughout the website.
+ * @property {string} contentID - Div component to render the components of the different pages in.
+ * @property {string} startLink - Link that the user will start out in.
+ */
+
+/**
+ * A function that changes which components are rendered onto the page based on the page's hash.
+ * @function
+ * @param {RouteParameters} params The parameter object containing information about how to route the different pages.
+ */
 function routeFW(params) {
     let contentID = params.contentID || "content";
     let startLink = params.startLink || "#/home";
