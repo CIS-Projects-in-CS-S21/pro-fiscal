@@ -30,10 +30,9 @@ class ExpenseList(APIView):
         expense = Expense.objects.filter(user=request.user)
         expense_serializer = ExpenseSerializer(expense, many=True)
 
-        """expense["amount"] = expense_serializer.data"""
         return Response(expense_serializer.data)
 
-    def post(self, request):
+    def post(self, request, format='application/json'):
         """
         Add a new expense
 
@@ -44,15 +43,14 @@ class ExpenseList(APIView):
             Response: JSON formatted data and HTTP status
         """
         request.data["user"] = request.user.pk
-        # gather data for the classifier 
-        new_example = {}
-        new_example["description"] = request.data["description"]
-        new_example["amount"] = request.data["amount"]
-        new_example["transaction_date"] = request.data["transaction_date"]
-        request.data["category"] = Classifier().classify(new_example)
-
         expense_serializer = ExpenseSerializer(data=request.data)
         if expense_serializer.is_valid():
+            # gather data for the classifier
+            new_example = {}
+            new_example["description"] = expense_serializer.validated_data["description"]
+            new_example["amount"] = expense_serializer.validated_data["amount"]
+            new_example["transaction_date"] = expense_serializer.validated_data["transaction_date"]
+            expense_serializer.validated_data["category"] = Classifier().classify(new_example)
             expense_serializer.save()
             return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
         return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -100,16 +98,14 @@ class ExpenseDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
-        # request.data["expense_id"] = pk
         request.data["user"] = request.user.pk
 
-        # expense_serializer = ExpenseSerializer(data=request.data)
         expense = self.get_object(pk)
         expense_serializer = ExpenseSerializer(expense, data=request.data)
 
         if expense_serializer.is_valid():
             expense_serializer.save()
-            return Response(expense_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(expense_serializer.data, status=status.HTTP_200_OK)
         return Response(expense_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):

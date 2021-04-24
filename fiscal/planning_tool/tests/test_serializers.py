@@ -1,53 +1,60 @@
 from django.test import TestCase
 from planning_tool.serializers import *
-
+import datetime
 
 class SerializerTest(TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.sample_date = datetime.date(2021, 3, 23)
 
-    def setUp(self):
-        self.acct_type = Account_Type(type='IRA')
-        self.acct_type.save()
-        self.sec_type = Security_Type(type="Stock")
-        self.sec_type.save()
+        cls.acct_type = Account_Type(type='IRA')
+        cls.acct_type.save()
+        cls.sec_type = Security_Type(type="Stock")
+        cls.sec_type.save()
 
-        self.user_attr = {
+        cls.user_attr = {
             'username': 'Test',
             'password': 'fiscaltest'
         }
 
-        self.user = User.objects.create(**self.user_attr)
+        cls.user = User.objects.create(**cls.user_attr)
 
-        self.acct_attr = {
+        cls.acct_attr = {
             'id': None,
-            'user': self.user,
-            'account_type': self.acct_type,
+            'user': cls.user,
+            'account_type': cls.acct_type,
             'name': "MyTestAccount",
             'description': "Just a Test",
             'balance': 100.00,
+            'date': None
         }
 
-        self.acct = Portfolio.objects.create(**self.acct_attr)
+        cls.acct = Portfolio.objects.create(**cls.acct_attr)
 
-        self.holding_attr = {
+        cls.holding_attr = {
             'id': None,
-            'portfolio': self.acct,
-            'security_type': self.sec_type,
+            'portfolio': cls.acct,
+            'security_type': cls.sec_type,
             'ticker': "GOOG",
             'price': 1000.00,
             'shares': 20,
-            'cost_basis': None,
-            'purchase_date': None
+            'cost_basis': 800.00,
+            'purchase_date': cls.sample_date
         }
 
-        self.holding = Holding.objects.create(**self.holding_attr)
+        cls.sample_date = datetime.date(2021,3, 23)
 
-        self.user_serializer = UserSerializer(instance=self.user)
-        self.port_serializer = PortfolioSerializer(instance=self.acct)
-        self.holding_serializer = HoldingSerializer(instance=self.holding)
+        cls.holding = Holding.objects.create(**cls.holding_attr)
+
+        cls.user_serializer = UserSerializer(instance=cls.user)
+        cls.port_serializer = PortfolioSerializer(instance=cls.acct)
+        cls.holding_serializer = HoldingSerializer(instance=cls.holding)
+
 
     def test_portfolio_validity(self):
         data = {
-            'user': 1,
+            'user': self.user.id,
             'account_type': None,
             "name": "My 401k",
             "balance": 200.00,
@@ -58,19 +65,20 @@ class SerializerTest(TestCase):
 
     def test_portfolio_create(self):
         data = {
-            'user': 1,
+            'user': self.user.id,
             'account_type': None,
             "name": "My 401k",
             "balance": 200.00,
             "holdings": []
         }
         serializer = PortfolioSerializer(data=data)
-        serializer.is_valid()
-        self.assertTrue(serializer.save(), serializer.errors)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertTrue(serializer.save())
 
     def test_portfolio_update(self):
         data = {
-            'user': 1,
+            'user': self.user.id,
             'account_type': None,
             "name": "My 401k",
             "balance": 200.00,
@@ -78,7 +86,7 @@ class SerializerTest(TestCase):
         }
         existing_portfolio = Portfolio.objects.first()
         serializer = PortfolioSerializer(existing_portfolio, data=data)
-        serializer.is_valid()
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(serializer.save(), serializer.errors)
 
     def test_portfolio_contains_expected_fields(self):
@@ -88,11 +96,12 @@ class SerializerTest(TestCase):
 
     def test_holding_validity(self):
         data = {
-            'portfolio': 1,
+            'portfolio': self.acct.id,
             'security_type': None,
             'ticker': 'GNMA',
             'price': 1000.00,
-            'shares': 1.5
+            'shares': 1.5,
+            'purchase_date': self.sample_date
         }
 
         serializer = HoldingSerializer(data=data)
@@ -100,27 +109,29 @@ class SerializerTest(TestCase):
 
     def test_holding_create(self):
         data = {
-            'portfolio': 1,
+            'portfolio': self.acct.id,
             'security_type': None,
             'ticker': 'GNMA',
             'price': 1000.00,
-            'shares': 1.5
+            'shares': 1.5,
+            'purchase_date': self.sample_date
         }
         serializer = HoldingSerializer(data=data)
-        serializer.is_valid()
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(serializer.save(), serializer.errors)
 
     def test_holding_update(self):
         data = {
-            'portfolio': 1,
+            'portfolio': self.acct.id,
             'security_type': None,
             'ticker': 'GNMA',
             'price': 1000.00,
-            'shares': 1.5
+            'shares': 1.5,
+            'purchase_date': self.sample_date
         }
         existing_holding = Holding.objects.first()
         serializer = HoldingSerializer(existing_holding, data=data)
-        serializer.is_valid()
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertTrue(serializer.save(), serializer.errors)
 
     def test_holding_contains_expected_fields(self):

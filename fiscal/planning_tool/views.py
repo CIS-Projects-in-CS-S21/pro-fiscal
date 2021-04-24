@@ -300,6 +300,7 @@ class HoldingDetail(APIView):
         Returns:
             Response: JSON formatted data and HTTP status
         """
+        
         holding = self.get_object(pk)
         holding_serializer = HoldingSerializer(holding, data=request.data)
         if holding_serializer.is_valid():

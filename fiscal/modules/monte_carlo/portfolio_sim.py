@@ -117,13 +117,12 @@ class PortfolioSim:
 
             results[i] = values.sum()
 
-            # self.__sim_results.append(round(values.sum(), 2))
-
+        # remove outliers
         std_dev = np.std(results)
         mean = np.mean(results)
         max_devs = 3
         no_outliers = results[abs(results) - mean < max_devs * std_dev]
-        self.__sim_results = [round(x, 2) for x in no_outliers]
+        self.__sim_results = [round(float(x), 2) for x in no_outliers]
 
     def get_results(self):
         """
