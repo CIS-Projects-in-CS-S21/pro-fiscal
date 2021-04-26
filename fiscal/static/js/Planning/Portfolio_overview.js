@@ -165,6 +165,8 @@ function render_portfolio_overview() {
                         holdings.remove();
                         holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
                         portfolio_container.appendChild(holdings);
+                        // TODO: Does not update portfolio balance
+                        renderPortfolioContents(all_portfolios[list_id], list_id);
                     },
                     error);
             } else {
@@ -266,6 +268,8 @@ function render_portfolio_overview() {
                         holdings_div.remove();
                         holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
                         elem.appendChild(holdings_div);
+                        // TODO: Does not update portfolio balance
+                        renderPortfolioContents(all_portfolios[list_id], list_id);
                     },
                     error);
             } else {
@@ -303,6 +307,7 @@ function render_portfolio_overview() {
         function toDeleteHolding() {
             portfolio_api.delete_holding(holding_id, () => {
                 row.remove();
+                render()
             }, error);
         }
 
@@ -423,13 +428,13 @@ function render_portfolio_overview() {
                     errors.push(errorMsg);
                 }
 
-                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
-                    let errorMsg = "Your entered balance is either empty or not a number";
-                    errors.push(errorMsg);
-                } else if (currencyValidation(form.balance.value) === null) {
-                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
-                    errors.push(errorMsg);
-                }
+                // if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
+                //     let errorMsg = "Your entered balance is either empty or not a number";
+                //     errors.push(errorMsg);
+                // } else if (currencyValidation(form.balance.value) === null) {
+                //     let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
+                //     errors.push(errorMsg);
+                // }
 
                 if (errors.length === 0) {
                     portfolio_api.create_portfolio(data, successFunc, error);
@@ -481,7 +486,7 @@ function render_portfolio_overview() {
             // On click functions for updates and deletions
             const updatePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
-                oldBalance = parseFloat(portfolio_item["balance"]);
+                let oldBalance = parseFloat(portfolio_item["balance"]);
                 handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
             }
 
@@ -770,6 +775,7 @@ function render_portfolio_overview() {
         form.balance.min = "0.01";
         form.balance.step = "0.01";
         form.balance.classList.add("form-control");
+        form.balance.disabled = true;
 
         let description_label = document.createElement("label");
         description_label.innerText = "Description";

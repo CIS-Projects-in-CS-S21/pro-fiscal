@@ -221,7 +221,7 @@ portfolio_api.add_holding = function (data, successHandler, error_elem) {
             status = true;
             return response.json();
         }).then((data) => {
-            console.log(data);
+            // console.log(data);
             successHandler(data);
         }
         ).catch(error => {
