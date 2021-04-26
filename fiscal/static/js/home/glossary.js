@@ -1,19 +1,67 @@
 /**
- * Function that displays a list of finance terms for the user to look up.
- * @param {Array} glossary takes in an array of JSON Objects that are essentially glossary terms.
- * @returns {Element} - Rendered component an Array containing the list of glossary terms and their definitions.
- * @throws {InvalidArgumentException} If expense is not an array, contains no items, null, etc.
+ * Function that displays a list of finance terms read from a file.
+ * @returns {HTMLDivElement} - Rendered component of a list of glossary terms.
  */
-function read_glossary_from_json_file (glossary) {
+function render_glossary() {
+    const getGlossaryData = () => {
+        let terms = "";
 
-}
+        fetch("/static/json/glossary.json")
+            .then(response => {
+                return response.json();
+            })
+            .then((data) => {
+                terms = data;
+            })
+            .then(() => {
+                // Do all the interface stuff here
+                handleTerms(terms);
+            })
+    };
 
- /**
- * Function that given an Array of glossary terms and their definitions as a rendered component, filters items by their category.
- * @param {Array} glossary takes in an array of JSON Objects that are glossary terms.
- * @returns {Array} - JSON object of grouped glossary values based on category.
- * @throws {InvalidArgumentException} - If expense is not an array, contains no items, null, etc.
- */
-function filter_glossary_items (glossary) {
+    const createContents = (item) => {
+        let elem = document.createElement("div");
+        elem.classList.add("portfolio-content");
 
+        let definition = document.createElement("p");
+        definition.classList.add("padded_paragraph");
+        definition.innerText = "Definition: " + item["definition"];
+
+        elem.appendChild(definition);
+
+        return elem;
+    }
+
+    const handleTerms = (glossary) => {
+        for (let i = 0; i < glossary.length; i++) {
+            let glossary_button = document.createElement("button");
+            glossary_button.type = "button";
+            glossary_button.classList.add("collapsible-overview");
+
+            let item = glossary[i];
+
+            glossary_button.innerText = item["term"];
+
+            let contents = createContents(item);
+
+            glossaryDiv.appendChild(glossary_button);
+            glossaryDiv.appendChild(contents);
+
+            glossary_button.addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    }
+
+    let glossaryDiv = document.createElement("div");
+
+    getGlossaryData();
+
+    return glossaryDiv;
 }

@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "term": "Portfolio",
+        "definition": "In personal finance, a Portfolio is a collection of an individual's investments (such as stocks and bonds)."
+    },
+    {
+        "id": 2,
+        "term": "Holding",
+        "definition": "A holding is an individual financial piece of an individual's investments."
+    },
+    {
+        "id": 3,
+        "term": "Account Types",
+        "definition": "The Account Types reflect the different categories of an individual's Portfolios. Currently, Fiscal supports the following categories: IRA, 401K, Savings, and Brokerage."
+    },
+    {
+        "id": 4,
+        "term": "Security Types",
+        "definition": "The Security Types are the different types of categories that an individual Holding can fall under. The categories that Fiscal currently supports are: Equity, Fixed Income Securities, Cash and Cash Equivalents, Real Estate, Derivatives, and Other types of Securities."
+    },
+    {
+        "id": 5,
+        "term": "Ticker (Symbol)",
+        "definition": "A Ticker Symbol is a unique identifier associated with a particular stock in the stock market."
+    },
+    {
+        "id": 6,
+        "term": "Cost Basis",
+        "definition": "The Cost Basis is the original value of an asset that an individual paid upon purchasing the asset, primarily used to determine the individual's profit or deficit while keeping the asset."
+    },
+    {
+        "id": 7,
+        "term": "Monte Carlo Simulation",
+        "definition": "A Monte Carlo Simulation is a model used to predict a range of different outcomes under the assumption that different circumstances can interfere with the simulation. With Fiscal, the Monte Carlo Simulation is used to determine the value of the user's portfolios, and the user's activity would affect the range of future values."
+    },
+    {
+        "id": 8,
+        "term": "Wealth Target Calculator",
+        "definition": "The Wealth Target aims to determine how much the user needs to have in order to attain a specific wealth target goal, with the user inputting the number of years for the user's financial assets to grow, the annual rate in which the user's finances will grow, and the goal that the user wants to aim for."
+    }
+]

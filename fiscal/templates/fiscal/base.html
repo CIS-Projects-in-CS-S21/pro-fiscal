@@ -131,7 +131,7 @@
                                 <a class="nav-link" href="#/profile">Profile</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Glossary</a>
+                                <a class="nav-link" href="#/glossary">Glossary</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">How to Use</a>
@@ -180,6 +180,7 @@
 
 
     <script src="{% static 'js/home.js' %}"></script>
+    <script src="{% static 'js/home/glossary.js' %}"></script>
 
     <script src="{% static 'js/account/register.js' %}"></script>
     <script src="{% static 'js/account/login.js' %}"></script>
@@ -241,6 +242,7 @@
         var myRoutes = [];
 
         myRoutes['#/home'] = home;
+        myRoutes['#/glossary'] = render_glossary;
         myRoutes['#/profile'] = userProfile;
         myRoutes['#/logout'] = logoutInterface;
         myRoutes['#/portfolio-overview'] = render_portfolio_overview;
