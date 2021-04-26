@@ -7,7 +7,7 @@
     {
         "id": 2,
         "term": "Holding",
-        "definition": "A holding is an individual financial piece of an individual's investments."
+        "definition": "A holding is a singular financial investment that makes up part of an individual's portfolio."
     },
     {
         "id": 3,
@@ -27,7 +27,7 @@
     {
         "id": 6,
         "term": "Cost Basis",
-        "definition": "The Cost Basis is the original value of an asset that an individual paid upon purchasing the asset, primarily used to determine the individual's profit or deficit while keeping the asset."
+        "definition": "The Cost Basis is the original value of an asset that an individual paid upon purchasing the asset, primarily used to determine the individual's gains or losses while keeping the asset."
     },
     {
         "id": 7,

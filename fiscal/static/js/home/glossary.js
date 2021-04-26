@@ -21,7 +21,7 @@ function render_glossary() {
 
     const createContents = (item) => {
         let elem = document.createElement("div");
-        elem.classList.add("portfolio-content");
+        elem.classList.add("glossary-content");
 
         let definition = document.createElement("p");
         definition.classList.add("padded_paragraph");
@@ -36,7 +36,7 @@ function render_glossary() {
         for (let i = 0; i < glossary.length; i++) {
             let glossary_button = document.createElement("button");
             glossary_button.type = "button";
-            glossary_button.classList.add("collapsible-overview");
+            glossary_button.classList.add("collapsible-term");
 
             let item = glossary[i];
 
