@@ -55,12 +55,12 @@ class PlanningToolAPITest(TestCase):
     def test_new_portfolio_failure(self):
         data = {
             'account_type': "IRA",
-            "name": "My IRA",
+            "name": "",
             "description": "A useful description"
         }
         resp = self.client.post('/planning/portfolio/', data, format='json')
         self.assertEquals(resp.status_code, status.HTTP_400_BAD_REQUEST, resp.data)
-        self.assertTrue(resp.data["balance"], "There should be an error message for balance")
+        self.assertTrue(resp.data["name"], "There should be an error message for name")
 
     def test_update_portfolio_success(self):
         data = {
