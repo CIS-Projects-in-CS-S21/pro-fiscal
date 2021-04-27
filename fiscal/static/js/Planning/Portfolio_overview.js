@@ -11,12 +11,11 @@ function render_portfolio_overview() {
     /**
      * @namespace portfolio_overview
      */
-    let all_portfolios = [];
+    let all_portfolios = {};
 
     let error = document.createElement("div");
     error.classList.add("error");
 
-    let numPortfolios = 0;
     let portfolioBalanceSum = 0;
 
     let portfolioDashboard = document.createElement("div");
@@ -500,7 +499,6 @@ function render_portfolio_overview() {
                         error);
                     portfolioBalanceSum -= oldBalance;
                     renderPortfolioDashboard();
-                    numPortfolios--;
                 }
 
                 modal.confirm("Are you sure you want to delete this portfolio?", toDeletePortfolio);
@@ -562,7 +560,7 @@ function render_portfolio_overview() {
 
     const handleUserPortfolios = (portfolios) => {
         // called when all the portfolios are being rendered, clear the list
-        all_portfolios = [];
+        all_portfolios = {};
         portfolioBalanceSum = 0;
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
@@ -573,7 +571,7 @@ function render_portfolio_overview() {
 
     const handleSinglePortfolio = (portfolio_item) => {
         // Only call this when a new account is being added
-        all_portfolios.push(portfolio_item);
+        all_portfolios[portfolio_item.id] = portfolio_item
 
         let menuContainer = document.createElement("div");
         menuContainer.classList.add("collapsible-container");
@@ -584,7 +582,7 @@ function render_portfolio_overview() {
 
         portfolio_button.innerText = portfolio_item["name"];
 
-        let portfolio_contents = renderPortfolioContents(portfolio_item, numPortfolios++);
+        let portfolio_contents = renderPortfolioContents(portfolio_item, portfolio_item.id);
 
         menuContainer.appendChild(portfolio_button);
         menuContainer.appendChild(portfolio_contents);
@@ -847,8 +845,6 @@ function render_portfolio_overview() {
 
     const render = () => {
         portfolio_listing.innerHTML = "";
-        all_portfolios = [];
-        numPortfolios = 0;
 
         account_types = [];
         security_types = [];
