@@ -60,7 +60,7 @@ portfolio_api.get_portfolio = function (portfolio_id) {
 
     fetch("/planning/portfolio/" + portfolio_id, init)
         .then(response => {
-            console.log(response);
+            // console.log(response);
             return response.json();
         }).catch((error) => {
             console.error(error);
@@ -140,7 +140,7 @@ portfolio_api.update_portfolio = function (data, successHandler, error_elem) {
             status = true
             return response.json();
         }).then((data) => {
-            console.log(data);
+            // console.log(data);
             successHandler(data);
         }
         ).catch(error => {

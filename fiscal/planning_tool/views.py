@@ -110,7 +110,9 @@ class PortfolioList(APIView):
         portfolio_serializer = PortfolioSerializer(data=request.data)
         if portfolio_serializer.is_valid():
             portfolio_serializer.save()
-            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+            portfolio = portfolio_serializer.data
+            portfolio["balance"] = decimal.Decimal(portfolio["balance"])
+            return Response(portfolio, status=status.HTTP_201_CREATED)
         return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
