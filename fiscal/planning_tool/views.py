@@ -1,6 +1,8 @@
 import decimal
 import datetime
 
+from django.db.models import F
+
 from planning_tool.serializers import *
 
 from django.http import Http404
@@ -53,6 +55,13 @@ def fetch_holdings(portfolio_data):
 
     return holding_serializer.data
 
+def update_balance(portfolio_id, value):
+    port = Portfolio.objects.get(id=portfolio_id)
+    old_balance = port.balance
+    port.balance = F('balance') + value
+    port.save()
+
+    Balance_History.objects.update_or_create(date=datetime.date.today(), portfolio=port, defaults={'balance': old_balance})
 
 class PortfolioList(APIView):
     """
@@ -97,10 +106,13 @@ class PortfolioList(APIView):
             Response: JSON formatted data and HTTP status
         """
         request.data["user"] = request.user.pk
+        request.data["balance"] = 0
         portfolio_serializer = PortfolioSerializer(data=request.data)
         if portfolio_serializer.is_valid():
             portfolio_serializer.save()
-            return Response(portfolio_serializer.data, status=status.HTTP_201_CREATED)
+            portfolio = portfolio_serializer.data
+            portfolio["balance"] = decimal.Decimal(portfolio["balance"])
+            return Response(portfolio, status=status.HTTP_201_CREATED)
         return Response(portfolio_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -168,8 +180,8 @@ class PortfolioDetail(APIView):
         """
         old_data = self.get_object(pk)
         date = datetime.date.today()
-        new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
-        new_history.save()
+        # new_history = Balance_History(portfolio=old_data, balance=old_data.balance, date=date)
+        # new_history.save()
 
         request.data["user"] = request.user.pk
         request.data["date"] = date
@@ -233,6 +245,9 @@ class HoldingList(APIView):
         if holding_serializer.is_valid():
                 input_date = holding_serializer.validated_data["purchase_date"]
                 if input_date <= datetime.date.today():
+                    update_balance(holding_serializer.validated_data["portfolio"].id,
+                                   holding_serializer.validated_data["shares"] *
+                                   holding_serializer.validated_data["price"])
                     holding_serializer.save()
                     return Response(holding_serializer.data, status=status.HTTP_201_CREATED)
                 else:
@@ -258,7 +273,7 @@ class HoldingDetail(APIView):
              key (int): The primary key for the database record
 
         Returns:
-            Portfolio: An instance of the Holding model class
+            Holding: An instance of the Holding model class
 
         Raises:
             Http404: If the specified database record is not found
@@ -306,6 +321,9 @@ class HoldingDetail(APIView):
         if holding_serializer.is_valid():
             input_date = holding_serializer.validated_data["purchase_date"]
             if input_date <= datetime.date.today():
+                net = ((holding_serializer.validated_data["shares"] * holding_serializer.validated_data["price"])
+                       - (holding.shares * holding.price))
+                update_balance(holding_serializer.validated_data["portfolio"].id, net)
                 holding_serializer.save()
                 return Response(holding_serializer.data, status=status.HTTP_200_OK)
             else:
@@ -325,6 +343,7 @@ class HoldingDetail(APIView):
             Response: JSON formatted data and HTTP status
         """
         holding = self.get_object(pk)
+        update_balance(holding.portfolio_id, -(holding.shares * holding.price))
         holding.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
