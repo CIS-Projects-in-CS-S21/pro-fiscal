@@ -24,6 +24,16 @@ function render_portfolio_overview() {
     let portfolio_listing = document.createElement("div");
     portfolio_listing.classList.add("portfolio-list");
 
+    function togglePortfolioContainer(btn) {
+        btn.classList.toggle("active");
+        let content = btn.nextElementSibling;
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    }
+
     const handleHoldings = (holding) => {
         let holding_elem = document.createElement("div");
         holding_elem.classList.add("holding-data");
@@ -90,7 +100,7 @@ function render_portfolio_overview() {
      * @function
      * @memberof portfolio_overview
      * @inner
-     * @param {HTMLTableElement} portfolio_container - Holding table
+     * @param {HTMLDivElement} portfolio_container
      * @param {int} list_id - Index into list of portfolios
      */
     const handleHoldingCreate = (portfolio_container, list_id) => {
@@ -160,10 +170,13 @@ function render_portfolio_overview() {
                 portfolio_api.add_holding(data,
                     (new_data) => {
                         all_portfolios[list_id]["holdings"].push(new_data);
-                        let holdings = table_body.parentElement.parentElement;
-                        holdings.remove();
-                        holdings = handleHoldings(all_portfolios[list_id]["holdings"]);
-                        portfolio_container.appendChild(holdings);
+                        let net = (new_data.shares * new_data.price);
+                        all_portfolios[list_id]["balance"] += net;
+                        let contents = renderPortfolioContents(all_portfolios[list_id], list_id);
+                        portfolio_container.parentElement.insertBefore(contents, portfolio_container);
+                        portfolio_container.remove();
+                        togglePortfolioContainer(contents.previousSibling);
+                        renderPortfolioDashboard();
                     },
                     error);
             } else {
@@ -262,9 +275,14 @@ function render_portfolio_overview() {
                 portfolio_api.update_holding(data,
                     (new_data) => {
                         all_portfolios[list_id]["holdings"][i] = new_data;
-                        holdings_div.remove();
-                        holdings_div = handleHoldings(all_portfolios[list_id]["holdings"]);
-                        elem.appendChild(holdings_div);
+                        let net = (new_data.shares * new_data.price) - (holding.shares * holding.price);
+                        all_portfolios[list_id]["balance"] += net;
+                        let contents = renderPortfolioContents(all_portfolios[list_id], list_id);
+                        elem.parentElement.insertBefore(contents, elem);
+                        elem.remove();
+                        togglePortfolioContainer(contents.previousSibling);
+                        renderPortfolioDashboard();
+
                     },
                     error);
             } else {
@@ -301,11 +319,29 @@ function render_portfolio_overview() {
     const handleHoldingDelete = (parent_elem, holding_id) => {
         function toDeleteHolding() {
             portfolio_api.delete_holding(holding_id, () => {
-                row.remove();
+                let net = (holding.shares * holding.price);
+                all_portfolios[list_id]["balance"] -= net;
+                all_portfolios[list_id]["holdings"].pop(i);
+                let contents = renderPortfolioContents(all_portfolios[list_id], list_id);
+                elem.parentElement.insertBefore(contents, elem);
+                elem.remove();
+                togglePortfolioContainer(contents.previousSibling);
+                renderPortfolioDashboard();
             }, error);
         }
 
         let row = parent_elem.parentElement.parentElement;
+        let holdings_div = row.parentElement.parentElement.parentElement.parentElement;
+        let elem = holdings_div.parentElement;
+        let list_id = elem["list_id"];
+        let holdings = all_portfolios[list_id]["holdings"];
+        let i;
+        for (i = 0; i < holdings.length; i++) {
+            if (holdings[i]["id"] === holding_id) {
+                break;
+            }
+        }
+        let holding = holdings[i];
         modal.confirm("Are you sure you want to delete this holding?", toDeleteHolding);
     }
 
@@ -324,7 +360,7 @@ function render_portfolio_overview() {
             modal.hideModal();
             all_portfolios[list_id] = portfolio_item;
             let new_contents = renderPortfolioContents(portfolio_item, list_id);
-            portfolioBalanceSum -= parseFloat(oldBalance);
+            // portfolioBalanceSum -= parseFloat(oldBalance);
             renderPortfolioDashboard();
             // add the updated data to the collapsible button
             elem.previousSibling.innerText = portfolio_item["name"];
@@ -351,18 +387,9 @@ function render_portfolio_overview() {
                     errors.push(errorMsg);
                 }
 
-                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
-                    let errorMsg = "Your entered balance is either empty or not a number.";
-                    errors.push(errorMsg);
-                } else if (currencyValidation(form.balance.value) === null) {
-                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
-                    errors.push(errorMsg);
-                }
-
                 if (errors.length === 0) {
                     data["name"] = form.name.value;
                     data["account_type"] = form.account_type.value;
-                    data["balance"] = parseFloat(form.balance.value);
                     data["description"] = form.description.value;
 
                     portfolio_api.update_portfolio(data, successFunc, error);
@@ -386,7 +413,6 @@ function render_portfolio_overview() {
 
         form.name.value = portfolio["name"];
         form.account_type.value = portfolio["account_type"];
-        form.balance.value = portfolio["balance"];
         form.description.value = portfolio["description"];
     }
 
@@ -413,20 +439,11 @@ function render_portfolio_overview() {
                 let data = {};
                 data["name"] = form.name.value;
                 data["account_type"] = form.account_type.value;
-                data["balance"] = parseFloat(form.balance.value);
                 data["description"] = form.description.value;
 
                 let errors = [];
                 if (form.name.value === undefined || form.name.value === '') {
                     let errorMsg = "You need to add a Name to your Portfolio";
-                    errors.push(errorMsg);
-                }
-
-                if (form.balance.value === undefined || form.balance.value === '' || isNaN(form.balance.value)) {
-                    let errorMsg = "Your entered balance is either empty or not a number";
-                    errors.push(errorMsg);
-                } else if (currencyValidation(form.balance.value) === null) {
-                    let errorMsg = "Your entered balance has too many decimal places, or your balance is a negative number.";
                     errors.push(errorMsg);
                 }
 
@@ -475,18 +492,15 @@ function render_portfolio_overview() {
             let balance = document.createElement("p");
             balance.classList.add("padded_paragraph");
             balance.innerText = "Balance: $" + parseFloat(portfolio_item["balance"]).toFixed(2);
-            portfolioBalanceSum += parseFloat(portfolio_item["balance"]);
 
             // On click functions for updates and deletions
             const updatePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
-                oldBalance = parseFloat(portfolio_item["balance"]);
                 handlePortfolioUpdate(elem, portfolio, elem["list_id"]);
             }
 
             const deletePortfolioHandler = () => {
                 let portfolio = all_portfolios[elem["list_id"]];
-                let oldBalance = portfolio["balance"];
 
                 function toDeletePortfolio() {
                     portfolio_api.delete_portfolio(portfolio["id"],
@@ -495,10 +509,12 @@ function render_portfolio_overview() {
                             elem.previousSibling.remove();
                             // remove div
                             elem.remove();
+                            all_portfolios.pop(elem["list_id"]);
+                            numPortfolios--;
+                            renderPortfolioDashboard();
                         },
                         error);
-                    portfolioBalanceSum -= oldBalance;
-                    renderPortfolioDashboard();
+
                 }
 
                 modal.confirm("Are you sure you want to delete this portfolio?", toDeletePortfolio);
@@ -589,17 +605,21 @@ function render_portfolio_overview() {
         portfolio_listing.appendChild(menuContainer);
 
         portfolio_button.addEventListener("click", function () {
-            this.classList.toggle("active");
-            let content = this.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
-        });
+                this.classList.toggle("active");
+                let content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
     }
 
     const renderPortfolioDashboard = () => {
+        portfolioBalanceSum = 0;
+        for(let i = 0; i < all_portfolios.length; i++){
+            portfolioBalanceSum += all_portfolios[i]["balance"];
+        }
         portfolioDashboard.innerHTML = "";
 
         let title = document.createElement("h3");
@@ -761,14 +781,6 @@ function render_portfolio_overview() {
         form.account_type = makePickList(type_options);
         form.account_type.classList.add("form-control");
 
-        let balance_label = document.createElement("label");
-        balance_label.innerText = "Balance";
-        form.balance = document.createElement("input");
-        form.balance.type = "number";
-        form.balance.min = "0.01";
-        form.balance.step = "0.01";
-        form.balance.classList.add("form-control");
-
         let description_label = document.createElement("label");
         description_label.innerText = "Description";
         form.description = document.createElement("textarea");
@@ -810,8 +822,6 @@ function render_portfolio_overview() {
         form.container.appendChild(form.name);
         form.container.appendChild(account_type_label);
         form.container.appendChild(form.account_type);
-        form.container.appendChild(balance_label);
-        form.container.appendChild(form.balance);
         form.container.appendChild(description_label);
         form.container.appendChild(form.description);
         form.container.appendChild(document.createElement("br"));
@@ -831,14 +841,15 @@ function render_portfolio_overview() {
 
         let createPortfolio = createButton({
             type: "btn-success",
-            text: "Create Portfolio"
+            text: "Create Portfolio",
+            onclickhandler: handlePortfolioCreate
         });
 
         createPortfolio.classList.add("portfolio-creator");
 
-        createPortfolio.addEventListener("click", () => {
-            handlePortfolioCreate(createPortfolio);
-        });
+        // createPortfolio.addEventListener("click", () => {
+        //     handlePortfolioCreate(createPortfolio);
+        // });
 
         return createPortfolio;
     }
