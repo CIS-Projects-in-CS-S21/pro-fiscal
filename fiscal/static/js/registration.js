@@ -12,7 +12,7 @@ function handleLoginSwitch() {
         userForm.innerHTML = '';
         userForm.appendChild(loginForm);
         const form = document.querySelector("#basic-form");
-        console.log(form)
+        // console.log(form)
         if (form) {
             form.addEventListener("submit", handleLogin)
         }
@@ -71,10 +71,10 @@ function handleLoginSwitch() {
             const key = resp_data.key;
             //save the key
             localStorage.setItem("key", key);
-            console.log(username);
+            // console.log(username);
             window.location.replace("/")
         } else {
-            console.log(resp_data);
+            // console.log(resp_data);
             errors = cleanedErrors(resp_data);
             for (prop in errors) {
                 errorField = document.getElementById(prop);
@@ -149,7 +149,6 @@ function handleLoginSwitch() {
             headers: {
                 "Content-Type": 'application/json',
                 "Accept": "application/json",
-                "X-CSRFToken": getCookie("csrftoken")
             },
             body: JSON.stringify(data)
         })
@@ -178,7 +177,7 @@ function handleLoginSwitch() {
         function cleanedErrors(data) {
             cleaned = {};
             for (prop in data) {
-                console.log(prop);
+                // console.log(prop);
                 if (prop === "username") {
                     cleaned.username = data[prop];
                 } else if (prop === "email") {
