@@ -10,8 +10,7 @@ function loginInterface() {
 
             <user-form class="user-login-form">
                 <p id="general_error" class="error"></p>
-                <input type="text" placeholder="username"/><span id="username" class="error"></span>
-                <input type="text" placeholder="email"/><span id="email" class="error"></span>
+                <input type="text" placeholder="username"/><span id="username" class="error"></span>                
                 <input type="password" placeholder="password"/><span id="password" class="error"></span>
                 <button>Login</button>
                 <p class="No-password">Forgot Password ?</p>

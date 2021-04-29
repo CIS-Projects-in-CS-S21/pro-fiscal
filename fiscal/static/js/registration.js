@@ -141,9 +141,8 @@ function handleLoginSwitch() {
 
         const form = document.querySelector("#basic-form");
         const username = form.querySelectorAll("input")[0].value;
-        const email = form.querySelectorAll("input")[1].value;
-        const password = form.querySelectorAll("input")[2].value;
-        const data = { username: username, password: password }
+        const password = form.querySelectorAll("input")[1].value;
+        const data = { 'username': username, 'password': password }
         const response = await fetch("/rest-auth/login/", {
             method: "POST",
             headers: {
@@ -168,7 +167,7 @@ function handleLoginSwitch() {
         }
 
         function resetErrors() {
-            ids = ["username", "email", "password", "general_error"];
+            ids = ["username", "password", "general_error"];
             for (var i = 0; i < ids.length; i++) {
                 document.getElementById(ids[i]).innerText = "";
             }
@@ -180,8 +179,6 @@ function handleLoginSwitch() {
                 // console.log(prop);
                 if (prop === "username") {
                     cleaned.username = data[prop];
-                } else if (prop === "email") {
-                    cleaned.email = data[prop];
                 } else if (prop === "password") {
                     cleaned.password = data[prop];
                 } else {
