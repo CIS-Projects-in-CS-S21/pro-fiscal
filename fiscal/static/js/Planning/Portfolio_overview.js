@@ -509,8 +509,7 @@ function render_portfolio_overview() {
                             elem.previousSibling.remove();
                             // remove div
                             elem.remove();
-                            all_portfolios.pop(elem["list_id"]);
-                            numPortfolios--;
+                            delete all_portfolios[elem["list_id"]];
                             renderPortfolioDashboard();
                         },
                         error);
@@ -577,7 +576,6 @@ function render_portfolio_overview() {
     const handleUserPortfolios = (portfolios) => {
         // called when all the portfolios are being rendered, clear the list
         all_portfolios = {};
-        portfolioBalanceSum = 0;
         for (let i = 0; i < portfolios.length; i++) {
             handleSinglePortfolio(portfolios[i]);
         }
@@ -617,8 +615,8 @@ function render_portfolio_overview() {
 
     const renderPortfolioDashboard = () => {
         portfolioBalanceSum = 0;
-        for(let i = 0; i < all_portfolios.length; i++){
-            portfolioBalanceSum += all_portfolios[i]["balance"];
+        for(let id in all_portfolios){
+            portfolioBalanceSum += all_portfolios[id]["balance"];
         }
         portfolioDashboard.innerHTML = "";
 
