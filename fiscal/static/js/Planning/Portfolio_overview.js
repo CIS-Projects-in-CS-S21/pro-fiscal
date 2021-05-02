@@ -319,9 +319,18 @@ function render_portfolio_overview() {
     const handleHoldingDelete = (parent_elem, holding_id) => {
         function toDeleteHolding() {
             portfolio_api.delete_holding(holding_id, () => {
+                let list_id = elem["list_id"];
+                let holdings = all_portfolios[list_id]["holdings"];
+                let i;
+                for (i = 0; i < holdings.length; i++) {
+                    if (holdings[i]["id"] === holding_id) {
+                        break;
+                    }
+                }
+                let holding = holdings[i];
                 let net = (holding.shares * holding.price);
                 all_portfolios[list_id]["balance"] -= net;
-                all_portfolios[list_id]["holdings"].pop(i);
+                all_portfolios[list_id]["holdings"].splice(i,1);
                 let contents = renderPortfolioContents(all_portfolios[list_id], list_id);
                 elem.parentElement.insertBefore(contents, elem);
                 elem.remove();
@@ -333,15 +342,6 @@ function render_portfolio_overview() {
         let row = parent_elem.parentElement.parentElement;
         let holdings_div = row.parentElement.parentElement.parentElement.parentElement;
         let elem = holdings_div.parentElement;
-        let list_id = elem["list_id"];
-        let holdings = all_portfolios[list_id]["holdings"];
-        let i;
-        for (i = 0; i < holdings.length; i++) {
-            if (holdings[i]["id"] === holding_id) {
-                break;
-            }
-        }
-        let holding = holdings[i];
         modal.confirm("Are you sure you want to delete this holding?", toDeleteHolding);
     }
 
