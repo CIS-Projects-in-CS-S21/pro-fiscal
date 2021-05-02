@@ -12,7 +12,7 @@ function handleLoginSwitch() {
         userForm.innerHTML = '';
         userForm.appendChild(loginForm);
         const form = document.querySelector("#basic-form");
-        console.log(form)
+        // console.log(form)
         if (form) {
             form.addEventListener("submit", handleLogin)
         }
@@ -71,10 +71,10 @@ function handleLoginSwitch() {
             const key = resp_data.key;
             //save the key
             localStorage.setItem("key", key);
-            console.log(username);
+            // console.log(username);
             window.location.replace("/")
         } else {
-            console.log(resp_data);
+            // console.log(resp_data);
             errors = cleanedErrors(resp_data);
             for (prop in errors) {
                 errorField = document.getElementById(prop);
@@ -141,15 +141,13 @@ function handleLoginSwitch() {
 
         const form = document.querySelector("#basic-form");
         const username = form.querySelectorAll("input")[0].value;
-        const email = form.querySelectorAll("input")[1].value;
-        const password = form.querySelectorAll("input")[2].value;
-        const data = { username: username, password: password }
+        const password = form.querySelectorAll("input")[1].value;
+        const data = { 'username': username, 'password': password }
         const response = await fetch("/rest-auth/login/", {
             method: "POST",
             headers: {
                 "Content-Type": 'application/json',
                 "Accept": "application/json",
-                "X-CSRFToken": getCookie("csrftoken")
             },
             body: JSON.stringify(data)
         })
@@ -169,7 +167,7 @@ function handleLoginSwitch() {
         }
 
         function resetErrors() {
-            ids = ["username", "email", "password", "general_error"];
+            ids = ["username", "password", "general_error"];
             for (var i = 0; i < ids.length; i++) {
                 document.getElementById(ids[i]).innerText = "";
             }
@@ -178,11 +176,9 @@ function handleLoginSwitch() {
         function cleanedErrors(data) {
             cleaned = {};
             for (prop in data) {
-                console.log(prop);
+                // console.log(prop);
                 if (prop === "username") {
                     cleaned.username = data[prop];
-                } else if (prop === "email") {
-                    cleaned.email = data[prop];
                 } else if (prop === "password") {
                     cleaned.password = data[prop];
                 } else {
