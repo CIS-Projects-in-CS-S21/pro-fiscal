@@ -96,9 +96,13 @@ function render_portfolio_growth() {
             balanceData[i] = item["balance_history"]["balance"]
 
             // add the current balance and date
-            dateData[i].push(item["date"]);
-            balanceData[i].push(item["balance"]);
-
+            if(dateData[i][dateData[i].length - 1] == item["date"]){
+                balanceData[i][balanceData[i].length - 1] = item["balance"];
+            }
+            else {
+                dateData[i].push(item["date"]);
+                balanceData[i].push(item["balance"]);
+            }
         }
 
     }
