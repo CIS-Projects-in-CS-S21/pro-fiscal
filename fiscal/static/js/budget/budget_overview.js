@@ -321,6 +321,13 @@ function render_budget_overview() {
     const handleExpenseDelete = (container, expense_id) => {
         function toDeleteExpense() {
             budget_api.deleteExpenseItem(expense_id, () => {
+                let i;
+                for (i = 0; i < all_expenses.length; i++) {
+                    if (all_expenses[i]["id"] === expense_id) {
+                        break;
+                    }
+                }
+                all_expenses.splice(i,1);
                 row.remove();
             }, errorDOM);
         }
