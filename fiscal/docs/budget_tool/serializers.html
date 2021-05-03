@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from rest_framework import serializers
-# from budget_tool.models import Expense
+from budget_tool.models import Expense
 
 class ExpenseSerializer(serializers.ModelSerializer):
     &#34;&#34;&#34;
@@ -40,7 +40,8 @@ class ExpenseSerializer(serializers.ModelSerializer):
             model (__class__): The Expense model class
             fields (list): A list of the fields in the Expense model
         &#34;&#34;&#34;
-        pass</code></pre>
+        model = Expense
+        fields = [&#39;id&#39;, &#39;user&#39;, &#39;amount&#39;, &#39;transaction_date&#39;, &#39;description&#39;, &#39;category&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -73,7 +74,8 @@ class ExpenseSerializer(serializers.ModelSerializer):
             model (__class__): The Expense model class
             fields (list): A list of the fields in the Expense model
         &#34;&#34;&#34;
-        pass</code></pre>
+        model = Expense
+        fields = [&#39;id&#39;, &#39;user&#39;, &#39;amount&#39;, &#39;transaction_date&#39;, &#39;description&#39;, &#39;category&#39;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

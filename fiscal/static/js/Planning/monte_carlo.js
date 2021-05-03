@@ -1,6 +1,20 @@
-function render_future_value (forecast_data) {}
-
+/**
+ * Function to render the Monte Carlo Interface.
+ * Contains private functions to render the individual sub-components.
+ * @returns {HTMLDivElement}
+ */
 function render_monte_interface(){
+    /**
+     * @namespace monte_carlo_interface
+     */
+
+    /**
+     * Function to render the simulation form component
+     * @function
+     * @memberof monte_carlo_interface
+     * @inner
+     * @returns {HTMLDivElement}
+     */
     function render_monte_form() {
 
         const submitFunction = () => {
@@ -31,10 +45,10 @@ function render_monte_interface(){
                 form_error.innerHTML += "Please enter valid currency amount for withdrawal <br>";
             }
             if (!isNaN(inflationRate)) {
-                input_data["inflation"] = inflationRate;
+                input_data["inflation"] = inflationRate / 100;
             } else {
                 valid = false;
-                form_error.innerHTML += "Please enter valid decimal for inflation rate <br>";
+                form_error.innerHTML += "Please enter valid percent for inflation rate <br>";
             }
             if (retire_year.match(/^\d{4}$/)) {
                 let years = parseInt(retire_year);
@@ -98,12 +112,12 @@ function render_monte_interface(){
         }
 
         const inputNames = [
-            {inputText: "Enter the amount that you will save each month before retirement: ", inputId: "AnnualDeposit"},
+            {inputText: "Enter the amount that you will save each month before retirement (dollars): ", inputId: "AnnualDeposit"},
             {
-                inputText: "Enter the amount that you need to withdraw in each month during retirement: ",
+                inputText: "Enter the amount that you need to withdraw in each month during retirement (dollars) ",
                 inputId: "incomeToBeWithdrawn"
             },
-            {inputText: "Enter your assumption for the future value of inflation rate: ", inputId: "inflation"},
+            {inputText: "Enter your assumption for the future value of inflation rate (percent): ", inputId: "inflation"},
             {inputText: "Enter the year you plan to retire: ", inputId: "retire-year"},
             {inputText: "Enter the year you would like to project future values for: ", inputId: "Years"}
         ]
@@ -173,6 +187,13 @@ function render_monte_interface(){
         return elem;
     }
 
+    /**
+     * Function to render the get results button and attach associated behavior
+     * @function
+     * @memberof monte_carlo_interface
+     * @inner
+     * @returns {HTMLButtonElement}
+     */
     function render_get_results() {
         const results_handler = () => {
             let status_code;

@@ -1,5 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
+from rest_framework.authtoken.models import Token
 from rest_framework import status
 from planning_tool.models import *
 
@@ -18,6 +19,7 @@ class PlanningToolAPITest(TestCase):
         cls.sec_type.save()
 
         cls.user = User.objects.create_user(username="Test", password="fiscaltest", email="test@test.com")
+        cls.token = Token.objects.create(user=cls.user)
 
         cls.port_1 = Portfolio(user=cls.user, account_type=cls.acct_type, name="My IRA", balance=100.00)
         cls.port_1.save()
@@ -28,10 +30,10 @@ class PlanningToolAPITest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.client.login(username="Test", password="fiscaltest")
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
     def test_get_portfolios_no_login(self):
-        self.client.logout()
+        self.client.credentials()
         resp = self.client.get('/planning/portfolio/', format='json')
         self.assertEquals(resp.status_code, status.HTTP_401_UNAUTHORIZED, "User should not be able to access API unless logged in")
 
@@ -53,12 +55,12 @@ class PlanningToolAPITest(TestCase):
     def test_new_portfolio_failure(self):
         data = {
             'account_type': "IRA",
-            "name": "My IRA",
+            "name": "",
             "description": "A useful description"
         }
         resp = self.client.post('/planning/portfolio/', data, format='json')
         self.assertEquals(resp.status_code, status.HTTP_400_BAD_REQUEST, resp.data)
-        self.assertTrue(resp.data["balance"], "There should be an error message for balance")
+        self.assertTrue(resp.data["name"], "There should be an error message for name")
 
     def test_update_portfolio_success(self):
         data = {
@@ -68,16 +70,16 @@ class PlanningToolAPITest(TestCase):
             "description": "A useful description"
         }
 
-        resp = self.client.put('/planning/portfolio/1', data, format='json')
+        resp = self.client.put('/planning/portfolio/' + str(self.port_1.id), data, format='json')
         self.assertEquals(resp.status_code, status.HTTP_200_OK, resp.data)
 
-    def test_update_portfolio_success(self):
+    def test_update_portfolio_failure(self):
         data = {
             'account_type': "IRA",
             "name": "My IRA",
             "description": "A useful description"
         }
 
-        resp = self.client.put('/planning/portfolio/1', data, format='json')
+        resp = self.client.put('/planning/portfolio/' + str(self.port_1.id), data, format='json')
         self.assertEquals(resp.status_code, status.HTTP_400_BAD_REQUEST, resp.data)
         self.assertTrue(resp.data["balance"], "There should be an error message for balance")

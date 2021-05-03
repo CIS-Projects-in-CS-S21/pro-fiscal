@@ -1,6 +1,6 @@
 /**
- * 
- * @param {String} className Class Name for the elements for the function to disable form inputs for future dates
+ * Function used to disable date inputs from the future
+ * @param {string} className Class Name for the elements for the function to disable form inputs for future dates
  */
 function formMaxDate (className) {
     $(function () {

@@ -10,20 +10,22 @@ from planning_tool.views import PortfolioList
 
 class PortfolioListViewTest(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.acct_type = Account_Type(type='IRA')
+        cls.acct_type.save()
+
+        cls.sec_type = Security_Type(type='Bond')
+        cls.sec_type.save()
+
+        cls.user = User(username="Test", password="fiscaltest")
+        cls.user.save()
+        
     def setUp(self):
-        self.acct_type = Account_Type(type='IRA')
-        self.acct_type.save()
-
-        self.sec_type = Security_Type(type='Bond')
-        self.sec_type.save()
-
-        self.user = User(username="Test", password="fiscaltest")
-        self.user.save()
-
         self.factory = APIRequestFactory()
 
         self.success_data = {
-            'user': 1,
+            'user': self.user.id,
             'account_type': "IRA",
             "name": "My IRA",
             "balance": 200.00,
@@ -45,8 +47,10 @@ class PortfolioListViewTest(TestCase):
 
     def test_get_portfolioList_with_entries(self):
         port = PortfolioSerializer(data=self.success_data)
-        port.is_valid()
-        port.save()
+        if port.is_valid():
+            port.save()
+        else:
+            raise ValueError
 
         request = self.factory.get("portfolio/")
         request.user = self.user
@@ -120,8 +124,6 @@ class PortfolioListViewTest(TestCase):
         view.setup(request)
         resp = view.get(request)
 
-        print(resp.data)
-
         self.assertEquals(resp.status_code, 200)
 
     def test_post_success(self):
@@ -145,16 +147,16 @@ class PortfolioListViewTest(TestCase):
 
     def test_balance_history(self):
         data = {
-            "user_id": 1,
-            'account_type_id': 1,
+            "user_id": self.user.id,
+            'account_type_id': self.acct_type.id,
             "name": "My IRA",
             "balance": 200.00,
             "description": "A useful description",
         }
-        Portfolio.objects.create(**data)
+        port = Portfolio.objects.create(**data)
 
         for i in range(20, 30):
-            Balance_History.objects.create(**{"portfolio_id": 1, "balance": i})
+            Balance_History.objects.create(**{"portfolio_id": port.id, "balance": i})
 
         request = self.factory.get("portfolio")
         request.user = self.user
@@ -168,21 +170,23 @@ class PortfolioListViewTest(TestCase):
 
 
 class PortfolioDetailViewTest(TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.acct_type = Account_Type(type='IRA')
+        cls.acct_type.save()
 
-    def setUp(self):
-        self.acct_type = Account_Type(type='IRA')
-        self.acct_type.save()
+        cls.sec_type = Security_Type(type='Bond')
+        cls.sec_type.save()
 
-        self.sec_type = Security_Type(type='Bond')
-        self.sec_type.save()
+        cls.user = User(username="Test", password="fiscaltest")
+        cls.user.save()
 
-        self.user = User(username="Test", password="fiscaltest")
-        self.user.save()
-
+    def setUp(self):        
         self.factory = APIRequestFactory()
 
         self.success_data = {
-            'user': 1,
+            'user': self.user.id,
             'account_type': "IRA",
             "name": "My IRA",
             "balance": 200.00,
@@ -193,32 +197,13 @@ class PortfolioDetailViewTest(TestCase):
         self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name="My IRA", balance=100.00)
         self.port_1.save()
 
-        self.expected_data = {
-            "id": 2,
-            "user": 1,
-            "name": "Test data",
-            "balance": 100.00,
-            "account_type": "IRA",
-            "description": "This is how the data should look",
-            "holdings": [
-                {"id": 1,
-                 "portfolio": 2,
-                 "security_type": "Bond",
-                 "ticker": "GNMA",
-                 "price": 50.0,
-                 "shares": 2,
-                 "cost_basis": 40.0,
-                 "purchase_date": "2020-12-20"
-                 }
-            ]
-        }
     def test_get_success(self):
-        request = self.factory.get("portfolio/1")
+        request = self.factory.get("portfolio/" + str(self.port_1.id))
         request.user = self.user
 
         view = PortfolioDetail()
         view.setup(request)
-        resp = view.get(request, 1)
+        resp = view.get(request, self.port_1.id)
 
         self.assertEquals(resp.status_code, 200)
 
@@ -248,26 +233,46 @@ class PortfolioDetailViewTest(TestCase):
         }
         hold = Holding.objects.create(**new_hold)
 
+        expected_data = {
+            "id": port.id,
+            "user": self.user.id,
+            "name": "Test data",
+            "balance": 100.00,
+            "account_type": "IRA",
+            "description": "This is how the data should look",
+            "holdings": [
+                {"id": hold.id,
+                 "portfolio": port.id,
+                 "security_type": "Bond",
+                 "ticker": "GNMA",
+                 "price": 50.0,
+                 "shares": 2,
+                 "cost_basis": 40.0,
+                 "purchase_date": "2020-12-20"
+                 }
+            ]
+        }
+
         # Get response and test against expected values
-        request = self.factory.get("portfolio/2")
+        request = self.factory.get("portfolio/" + str(port.id))
         request.user = self.user
 
         view = PortfolioDetail()
         view.setup(request)
-        resp = view.get(request, 2)
+        resp = view.get(request, port.id)
 
         ret_holdings = resp.data.pop("holdings")[0]
-        expected_holdings = self.expected_data.pop("holdings")[0]
+        expected_holdings = expected_data.pop("holdings")[0]
 
         self.assertEquals(resp.status_code, 200)
-        for field in self.expected_data.keys():
-            self.assertEquals(resp.data[field], self.expected_data[field], f"Unexpected value in portfolio for {field}")
+        for field in expected_data.keys():
+            self.assertEquals(resp.data[field], expected_data[field], f"Unexpected value in portfolio for {field}")
         for field in expected_holdings.keys():
             self.assertEquals(ret_holdings[field], expected_holdings[field], f"Unexpected value in holding for {field}")
 
-    def test_put_portFolioDetail(self):
+    def test_put_portFolioDetail_success(self):
         new_hold = {
-            "portfolio_id": 1,
+            "portfolio_id": self.port_1.id,
             "security_type": self.sec_type,
             "ticker": "GNMA",
             "price": 50.0,
@@ -278,7 +283,7 @@ class PortfolioDetailViewTest(TestCase):
         hold = Holding.objects.create(**new_hold)
 
         data = {
-            'user': 1,
+            'user': self.user.id,
             'account_type': "IRA",
             "name": "Now its a 401k",
             "balance": 300.00,
@@ -287,60 +292,66 @@ class PortfolioDetailViewTest(TestCase):
 
         }
 
-        request = self.factory.put("portfolio/1")
+        request = self.factory.put("portfolio/" + str(self.port_1.id))
         request.user = self.user
         request.data = data
 
         view = PortfolioDetail()
         view.setup(request)
-        resp = view.put(request, 1)
+        resp = view.put(request, self.port_1.id)
 
         self.assertEquals(resp.status_code, 200, resp.data)
         self.assertTrue(resp.data["holdings"])
 
     def test_delete_portFolioDetail(self):
-        request = self.factory.delete("portfolio/1")
+        port_to_delete = Portfolio(user=self.user, account_type=self.acct_type, name="Delete This", balance=100.00)
+        port_to_delete.save()
+
+        request = self.factory.delete("portfolio/" + str(port_to_delete.id))
         request.user = self.user
 
         view = PortfolioDetail()
         view.setup(request)
-        resp = view.delete(request, 1)
+        resp = view.delete(request, port_to_delete.id)
 
         self.assertEquals(resp.status_code, 204)
         self.assertRaises(Portfolio.DoesNotExist)
 
     def test_balance_history(self):
         for i in range(20, 30):
-            Balance_History.objects.create(**{"portfolio_id": 1, "balance": i})
+            Balance_History.objects.create(**{"portfolio_id": self.port_1.id, "balance": i})
 
-        request = self.factory.get("portfolio/1")
+        request = self.factory.get("portfolio/" + str(self.port_1.id))
         request.user = self.user
 
         view = PortfolioDetail()
         view.setup(request)
-        resp = view.get(request, 1)
+        resp = view.get(request, self.port_1.id)
 
         self.assertTrue(resp.data["balance_history"], "Balance History should not be empty")
 
 class HoldingListViewTest(TestCase):
-    def setUp(self):
-        self.acct_type = Account_Type(type='IRA')
-        self.acct_type.save()
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.acct_type = Account_Type(type='IRA')
+        cls.acct_type.save()
 
-        self.sec_type = Security_Type(type='Bond')
-        self.sec_type.save()
+        cls.sec_type = Security_Type(type='Bond')
+        cls.sec_type.save()
 
-        self.user = User(username="Test", password="fiscaltest")
-        self.user.save()
+        cls.user = User(username="Test", password="fiscaltest")
+        cls.user.save()
 
-        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name="My IRA", balance=100.00)
-        self.port_1.save()
-
+        cls.port_1 = Portfolio(user=cls.user, account_type=cls.acct_type, name="My IRA", balance=100.00)
+        cls.port_1.save()
+        
+    def setUp(self):        
         self.factory = APIRequestFactory()
 
     def test_post_holding_bad_date(self):
         data = {
-            "portfolio": 1,
+            "portfolio": self.port_1.id,
             "security_type": "Bond",
             "ticker": "GNMA",
             "price": 50.0,
@@ -361,7 +372,7 @@ class HoldingListViewTest(TestCase):
 
     def test_post_holding_success(self):
         data = {
-            "portfolio": 1,
+            "portfolio": self.port_1.id,
             "security_type": "Bond",
             "ticker": "GNMA",
             "price": 50.0,
@@ -381,19 +392,22 @@ class HoldingListViewTest(TestCase):
         self.assertEquals(resp.status_code, 201, resp.data)
 
 class HoldingDetailViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.acct_type = Account_Type(type='IRA')
+        cls.acct_type.save()
+
+        cls.sec_type = Security_Type(type='Bond')
+        cls.sec_type.save()
+
+        cls.user = User(username="Test", password="fiscaltest")
+        cls.user.save()
+
+        cls.port_1 = Portfolio(user=cls.user, account_type=cls.acct_type, name="My IRA", balance=100.00)
+        cls.port_1.save()
+
     def setUp(self):
-        self.acct_type = Account_Type(type='IRA')
-        self.acct_type.save()
-
-        self.sec_type = Security_Type(type='Bond')
-        self.sec_type.save()
-
-        self.user = User(username="Test", password="fiscaltest")
-        self.user.save()
-
-        self.port_1 = Portfolio(user=self.user, account_type=self.acct_type, name="My IRA", balance=100.00)
-        self.port_1.save()
-
         self.factory = APIRequestFactory()
 
     def test_put_holding_bad_date(self):
@@ -408,7 +422,7 @@ class HoldingDetailViewTest(TestCase):
             "purchase_date": datetime.datetime(2020, 12, 20)
         }
 
-        Holding.objects.create(**holding_data)
+        hold = Holding.objects.create(**holding_data)
 
         data = {
             "portfolio": 1,
@@ -420,13 +434,13 @@ class HoldingDetailViewTest(TestCase):
             "purchase_date": "2022-10-31"
         }
 
-        request = self.factory.put("holding/1")
+        request = self.factory.put("holding/" + str(hold.id))
         request.user = self.user
         request.data = data
 
         view = HoldingDetail()
         view.setup(request)
-        resp = view.put(request, 1)
+        resp = view.put(request, hold.id)
 
         self.assertEquals(resp.status_code, 400, resp.data)
 
@@ -442,10 +456,10 @@ class HoldingDetailViewTest(TestCase):
             "purchase_date": datetime.datetime(2020, 12, 20)
         }
 
-        Holding.objects.create(**holding_data)
+        hold = Holding.objects.create(**holding_data)
 
         data = {
-            "portfolio": 1,
+            "portfolio": self.port_1.id,
             "security_type": "Bond",
             "ticker": "GNMA",
             "price": 50.0,
@@ -454,12 +468,12 @@ class HoldingDetailViewTest(TestCase):
             "purchase_date": "2020-10-31"
         }
 
-        request = self.factory.put("holding/1")
+        request = self.factory.put("holding/" + str(hold.id))
         request.user = self.user
         request.data = data
 
         view = HoldingDetail()
         view.setup(request)
-        resp = view.put(request, 1)
+        resp = view.put(request, hold.id)
 
         self.assertEquals(resp.status_code, 200, resp.data)

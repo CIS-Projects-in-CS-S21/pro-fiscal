@@ -26,9 +26,238 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from django.test import TestCase
+<pre><code class="python">import datetime
 
-# Create your tests here.</code></pre>
+from django.test import TestCase
+from rest_framework.test import APIRequestFactory
+
+from budget_tool.views import *
+from budget_tool.serializers import *
+from budget_tool.models import *
+
+class ListViewTest(TestCase):
+
+    def setUp(self):
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 100.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+    def test_get_expenseList_no_entries(self):
+        request = self.factory.get(&#34;expense/&#34;)
+        request.user = self.user
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(not resp.data, &#34;Response data should be empty&#34;)
+
+    def test_get_expenseList_with_entries(self):
+        # exp = ExpenseSerializer(data=self.success_data)
+        # exp.is_valid()
+        # exp.save()
+        Expense.objects.create(id=1, user_id=1,amount= 100.50, transaction_date = &#34;2021-03-29&#34;, description = &#34;Fi$cal merch&#34;, category = &#34;Essential&#34;  )
+
+        request = self.factory.get(&#34;expense/&#34;)
+        request.user = self.user
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200, msg=resp.data)
+        self.assertTrue(resp.data, &#34;Response data should not be empty&#34;)
+
+    def test_post_expenseList_success(self):
+        request = self.factory.post(&#34;expense/&#34;, data=self.success_data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = self.success_data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201)
+
+    def test_post_expenseList_fail(self):
+        data = {
+            &#34;user&#34;: None,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;amount&#34;: 0.00
+        }
+        request = self.factory.post(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400)
+
+    def test_get_success(self):
+        # Add the data to the test DB
+
+        new_exp = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: self.user,
+            &#34;amount&#34;: 500.00,
+            &#34;transaction_date&#34;: &#34;2021-03-30&#34;,
+            &#34;description&#34;: &#34;Nike merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+        &#34;&#34;&#34;exp = Expense.objects.create(**new_exp)&#34;&#34;&#34;
+
+        data = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;amount&#34;: 0.00
+        }
+        request = self.factory.get(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.get(request)
+
+        print(resp.data)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_post_success(self):
+
+        data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 100.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;&#34;
+        }
+        request = self.factory.post(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertNotEquals(resp.data[&#34;category&#34;], &#34;&#34;, &#34;Category should be added&#34;)
+        self.assertEquals(resp.status_code, 201)
+
+
+class DetailViewTest(TestCase):
+
+    def setUp(self):
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 100.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+        self.exp_1 = Expense(user_id=1, amount=250.00, transaction_date= &#34;2021-03-29&#34;, description=&#34;Fi$cal merch&#34;, category=&#34;Essential&#34;)
+        self.exp_1.save()
+
+        self.expected_data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 250.00,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+    def test_get_success(self):
+        request = self.factory.get(&#34;expense/1&#34;)
+        request.user = self.user
+
+        view = ExpenseDetail()
+        view.setup(request)
+
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_get_portfolioDetail_expected_format(self):
+        &#34;&#34;&#34;
+        Verify that a get call to the view returns data with the correct keys and expected formats
+        &#34;&#34;&#34;
+
+        # Add the data to the test DB
+        new_exp = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 600.50,
+            &#34;transaction_date&#34;: &#34;2021-03-30&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+        &#34;&#34;&#34;exp = Expense.objects.create(**new_exp)&#34;&#34;&#34;
+
+        # Get response and test against expected values
+        request = self.factory.get(&#34;expense/1&#34;)
+        request.user = self.user
+
+        view = ExpenseDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
+        for field in self.expected_data.keys():
+            self.assertEquals(resp.data[field], self.expected_data[field], f&#34;Unexpected value in portfolio for {field}&#34;)
+
+    def test_put_portFolioDetail(self):
+        data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 600.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+        request = self.factory.put(&#34;expense/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 201, msg=resp.data)
+
+    def test_delete_portFolioDetail(self):
+        request = self.factory.delete(&#34;expense/1&#34;)
+        request.user = self.user
+
+        view = ExpenseDetail()
+        view.setup(request)
+        resp = view.delete(request, 1)
+
+        self.assertEquals(resp.status_code, 204)
+        self.assertRaises(Expense.DoesNotExist)</code></pre>
 </details>
 </section>
 <section>
@@ -38,6 +267,634 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="budget_tool.tests.DetailViewTest"><code class="flex name class">
+<span>class <span class="ident">DetailViewTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DetailViewTest(TestCase):
+
+    def setUp(self):
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 100.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+        self.exp_1 = Expense(user_id=1, amount=250.00, transaction_date= &#34;2021-03-29&#34;, description=&#34;Fi$cal merch&#34;, category=&#34;Essential&#34;)
+        self.exp_1.save()
+
+        self.expected_data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 250.00,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+    def test_get_success(self):
+        request = self.factory.get(&#34;expense/1&#34;)
+        request.user = self.user
+
+        view = ExpenseDetail()
+        view.setup(request)
+
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_get_portfolioDetail_expected_format(self):
+        &#34;&#34;&#34;
+        Verify that a get call to the view returns data with the correct keys and expected formats
+        &#34;&#34;&#34;
+
+        # Add the data to the test DB
+        new_exp = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 600.50,
+            &#34;transaction_date&#34;: &#34;2021-03-30&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+        &#34;&#34;&#34;exp = Expense.objects.create(**new_exp)&#34;&#34;&#34;
+
+        # Get response and test against expected values
+        request = self.factory.get(&#34;expense/1&#34;)
+        request.user = self.user
+
+        view = ExpenseDetail()
+        view.setup(request)
+        resp = view.get(request, 1)
+
+        self.assertEquals(resp.status_code, 200)
+        for field in self.expected_data.keys():
+            self.assertEquals(resp.data[field], self.expected_data[field], f&#34;Unexpected value in portfolio for {field}&#34;)
+
+    def test_put_portFolioDetail(self):
+        data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 600.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+        request = self.factory.put(&#34;expense/1&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseDetail()
+        view.setup(request)
+        resp = view.put(request, 1)
+
+        self.assertEquals(resp.status_code, 201, msg=resp.data)
+
+    def test_delete_portFolioDetail(self):
+        request = self.factory.delete(&#34;expense/1&#34;)
+        request.user = self.user
+
+        view = ExpenseDetail()
+        view.setup(request)
+        resp = view.delete(request, 1)
+
+        self.assertEquals(resp.status_code, 204)
+        self.assertRaises(Expense.DoesNotExist)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="budget_tool.tests.DetailViewTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+
+    self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+    self.user.save()
+
+    self.factory = APIRequestFactory()
+
+    self.success_data = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: 1,
+        &#34;amount&#34;: 100.50,
+        &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+        &#34;description&#34;: &#34;Fi$cal merch&#34;,
+        &#34;category&#34;: &#34;Essential&#34;
+    }
+
+    self.exp_1 = Expense(user_id=1, amount=250.00, transaction_date= &#34;2021-03-29&#34;, description=&#34;Fi$cal merch&#34;, category=&#34;Essential&#34;)
+    self.exp_1.save()
+
+    self.expected_data = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: 1,
+        &#34;amount&#34;: 250.00,
+        &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+        &#34;description&#34;: &#34;Fi$cal merch&#34;,
+        &#34;category&#34;: &#34;Essential&#34;
+    }</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.DetailViewTest.test_delete_portFolioDetail"><code class="name flex">
+<span>def <span class="ident">test_delete_portFolioDetail</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_delete_portFolioDetail(self):
+    request = self.factory.delete(&#34;expense/1&#34;)
+    request.user = self.user
+
+    view = ExpenseDetail()
+    view.setup(request)
+    resp = view.delete(request, 1)
+
+    self.assertEquals(resp.status_code, 204)
+    self.assertRaises(Expense.DoesNotExist)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.DetailViewTest.test_get_portfolioDetail_expected_format"><code class="name flex">
+<span>def <span class="ident">test_get_portfolioDetail_expected_format</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Verify that a get call to the view returns data with the correct keys and expected formats</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_portfolioDetail_expected_format(self):
+    &#34;&#34;&#34;
+    Verify that a get call to the view returns data with the correct keys and expected formats
+    &#34;&#34;&#34;
+
+    # Add the data to the test DB
+    new_exp = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: 1,
+        &#34;amount&#34;: 600.50,
+        &#34;transaction_date&#34;: &#34;2021-03-30&#34;,
+        &#34;description&#34;: &#34;Fi$cal merch&#34;,
+        &#34;category&#34;: &#34;Essential&#34;
+    }
+
+    &#34;&#34;&#34;exp = Expense.objects.create(**new_exp)&#34;&#34;&#34;
+
+    # Get response and test against expected values
+    request = self.factory.get(&#34;expense/1&#34;)
+    request.user = self.user
+
+    view = ExpenseDetail()
+    view.setup(request)
+    resp = view.get(request, 1)
+
+    self.assertEquals(resp.status_code, 200)
+    for field in self.expected_data.keys():
+        self.assertEquals(resp.data[field], self.expected_data[field], f&#34;Unexpected value in portfolio for {field}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.DetailViewTest.test_get_success"><code class="name flex">
+<span>def <span class="ident">test_get_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_success(self):
+    request = self.factory.get(&#34;expense/1&#34;)
+    request.user = self.user
+
+    view = ExpenseDetail()
+    view.setup(request)
+
+    resp = view.get(request, 1)
+
+    self.assertEquals(resp.status_code, 200)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.DetailViewTest.test_put_portFolioDetail"><code class="name flex">
+<span>def <span class="ident">test_put_portFolioDetail</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_put_portFolioDetail(self):
+    data = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: 1,
+        &#34;amount&#34;: 600.50,
+        &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+        &#34;description&#34;: &#34;Fi$cal merch&#34;,
+        &#34;category&#34;: &#34;Essential&#34;
+    }
+
+    request = self.factory.put(&#34;expense/1&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = ExpenseDetail()
+    view.setup(request)
+    resp = view.put(request, 1)
+
+    self.assertEquals(resp.status_code, 201, msg=resp.data)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="budget_tool.tests.ListViewTest"><code class="flex name class">
+<span>class <span class="ident">ListViewTest</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Similar to TransactionTestCase, but use <code>transaction.atomic()</code> to achieve
+test isolation.</p>
+<p>In most situations, TestCase should be preferred to TransactionTestCase as
+it allows faster execution. However, there are some situations where using
+TransactionTestCase might be necessary (e.g. testing some transactional
+behavior).</p>
+<p>On database backends with no transaction support, TestCase behaves as
+TransactionTestCase.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ListViewTest(TestCase):
+
+    def setUp(self):
+
+        self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+        self.user.save()
+
+        self.factory = APIRequestFactory()
+
+        self.success_data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 100.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+
+    def test_get_expenseList_no_entries(self):
+        request = self.factory.get(&#34;expense/&#34;)
+        request.user = self.user
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTrue(not resp.data, &#34;Response data should be empty&#34;)
+
+    def test_get_expenseList_with_entries(self):
+        # exp = ExpenseSerializer(data=self.success_data)
+        # exp.is_valid()
+        # exp.save()
+        Expense.objects.create(id=1, user_id=1,amount= 100.50, transaction_date = &#34;2021-03-29&#34;, description = &#34;Fi$cal merch&#34;, category = &#34;Essential&#34;  )
+
+        request = self.factory.get(&#34;expense/&#34;)
+        request.user = self.user
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.get(request)
+
+        self.assertEquals(resp.status_code, 200, msg=resp.data)
+        self.assertTrue(resp.data, &#34;Response data should not be empty&#34;)
+
+    def test_post_expenseList_success(self):
+        request = self.factory.post(&#34;expense/&#34;, data=self.success_data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = self.success_data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 201)
+
+    def test_post_expenseList_fail(self):
+        data = {
+            &#34;user&#34;: None,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;amount&#34;: 0.00
+        }
+        request = self.factory.post(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertEquals(resp.status_code, 400)
+
+    def test_get_success(self):
+        # Add the data to the test DB
+
+        new_exp = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: self.user,
+            &#34;amount&#34;: 500.00,
+            &#34;transaction_date&#34;: &#34;2021-03-30&#34;,
+            &#34;description&#34;: &#34;Nike merch&#34;,
+            &#34;category&#34;: &#34;Essential&#34;
+        }
+        &#34;&#34;&#34;exp = Expense.objects.create(**new_exp)&#34;&#34;&#34;
+
+        data = {
+            &#34;user&#34;: self.user,
+            &#34;name&#34;: &#34;This Will Not Work&#34;,
+            &#34;amount&#34;: 0.00
+        }
+        request = self.factory.get(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.get(request)
+
+        print(resp.data)
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_post_success(self):
+
+        data = {
+            &#34;id&#34;: 1,
+            &#34;user&#34;: 1,
+            &#34;amount&#34;: 100.50,
+            &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+            &#34;description&#34;: &#34;Fi$cal merch&#34;,
+            &#34;category&#34;: &#34;&#34;
+        }
+        request = self.factory.post(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+        request.user = self.user
+        request.data = data
+
+        view = ExpenseList()
+        view.setup(request)
+        resp = view.post(request)
+
+        self.assertNotEquals(resp.data[&#34;category&#34;], &#34;&#34;, &#34;Category should be added&#34;)
+        self.assertEquals(resp.status_code, 201)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.test.testcases.TestCase</li>
+<li>django.test.testcases.TransactionTestCase</li>
+<li>django.test.testcases.SimpleTestCase</li>
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="budget_tool.tests.ListViewTest.setUp"><code class="name flex">
+<span>def <span class="ident">setUp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hook method for setting up the test fixture before exercising it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setUp(self):
+
+    self.user = User(username=&#34;Test&#34;, password=&#34;fiscaltest&#34;)
+    self.user.save()
+
+    self.factory = APIRequestFactory()
+
+    self.success_data = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: 1,
+        &#34;amount&#34;: 100.50,
+        &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+        &#34;description&#34;: &#34;Fi$cal merch&#34;,
+        &#34;category&#34;: &#34;Essential&#34;
+    }</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.ListViewTest.test_get_expenseList_no_entries"><code class="name flex">
+<span>def <span class="ident">test_get_expenseList_no_entries</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_expenseList_no_entries(self):
+    request = self.factory.get(&#34;expense/&#34;)
+    request.user = self.user
+
+    view = ExpenseList()
+    view.setup(request)
+    resp = view.get(request)
+
+    self.assertEquals(resp.status_code, 200)
+    self.assertTrue(not resp.data, &#34;Response data should be empty&#34;)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.ListViewTest.test_get_expenseList_with_entries"><code class="name flex">
+<span>def <span class="ident">test_get_expenseList_with_entries</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_expenseList_with_entries(self):
+    # exp = ExpenseSerializer(data=self.success_data)
+    # exp.is_valid()
+    # exp.save()
+    Expense.objects.create(id=1, user_id=1,amount= 100.50, transaction_date = &#34;2021-03-29&#34;, description = &#34;Fi$cal merch&#34;, category = &#34;Essential&#34;  )
+
+    request = self.factory.get(&#34;expense/&#34;)
+    request.user = self.user
+
+    view = ExpenseList()
+    view.setup(request)
+    resp = view.get(request)
+
+    self.assertEquals(resp.status_code, 200, msg=resp.data)
+    self.assertTrue(resp.data, &#34;Response data should not be empty&#34;)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.ListViewTest.test_get_success"><code class="name flex">
+<span>def <span class="ident">test_get_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_success(self):
+    # Add the data to the test DB
+
+    new_exp = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: self.user,
+        &#34;amount&#34;: 500.00,
+        &#34;transaction_date&#34;: &#34;2021-03-30&#34;,
+        &#34;description&#34;: &#34;Nike merch&#34;,
+        &#34;category&#34;: &#34;Essential&#34;
+    }
+    &#34;&#34;&#34;exp = Expense.objects.create(**new_exp)&#34;&#34;&#34;
+
+    data = {
+        &#34;user&#34;: self.user,
+        &#34;name&#34;: &#34;This Will Not Work&#34;,
+        &#34;amount&#34;: 0.00
+    }
+    request = self.factory.get(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = ExpenseList()
+    view.setup(request)
+    resp = view.get(request)
+
+    print(resp.data)
+
+    self.assertEquals(resp.status_code, 200)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.ListViewTest.test_post_expenseList_fail"><code class="name flex">
+<span>def <span class="ident">test_post_expenseList_fail</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_expenseList_fail(self):
+    data = {
+        &#34;user&#34;: None,
+        &#34;name&#34;: &#34;This Will Not Work&#34;,
+        &#34;amount&#34;: 0.00
+    }
+    request = self.factory.post(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = ExpenseList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 400)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.ListViewTest.test_post_expenseList_success"><code class="name flex">
+<span>def <span class="ident">test_post_expenseList_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_expenseList_success(self):
+    request = self.factory.post(&#34;expense/&#34;, data=self.success_data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = self.success_data
+
+    view = ExpenseList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertEquals(resp.status_code, 201)</code></pre>
+</details>
+</dd>
+<dt id="budget_tool.tests.ListViewTest.test_post_success"><code class="name flex">
+<span>def <span class="ident">test_post_success</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_post_success(self):
+
+    data = {
+        &#34;id&#34;: 1,
+        &#34;user&#34;: 1,
+        &#34;amount&#34;: 100.50,
+        &#34;transaction_date&#34;: &#34;2021-03-29&#34;,
+        &#34;description&#34;: &#34;Fi$cal merch&#34;,
+        &#34;category&#34;: &#34;&#34;
+    }
+    request = self.factory.post(&#34;expense/&#34;, data=data, format=&#34;json&#34;)
+    request.user = self.user
+    request.data = data
+
+    view = ExpenseList()
+    view.setup(request)
+    resp = view.post(request)
+
+    self.assertNotEquals(resp.data[&#34;category&#34;], &#34;&#34;, &#34;Category should be added&#34;)
+    self.assertEquals(resp.status_code, 201)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -49,6 +906,32 @@
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="budget_tool" href="index.html">budget_tool</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="budget_tool.tests.DetailViewTest" href="#budget_tool.tests.DetailViewTest">DetailViewTest</a></code></h4>
+<ul class="">
+<li><code><a title="budget_tool.tests.DetailViewTest.setUp" href="#budget_tool.tests.DetailViewTest.setUp">setUp</a></code></li>
+<li><code><a title="budget_tool.tests.DetailViewTest.test_delete_portFolioDetail" href="#budget_tool.tests.DetailViewTest.test_delete_portFolioDetail">test_delete_portFolioDetail</a></code></li>
+<li><code><a title="budget_tool.tests.DetailViewTest.test_get_portfolioDetail_expected_format" href="#budget_tool.tests.DetailViewTest.test_get_portfolioDetail_expected_format">test_get_portfolioDetail_expected_format</a></code></li>
+<li><code><a title="budget_tool.tests.DetailViewTest.test_get_success" href="#budget_tool.tests.DetailViewTest.test_get_success">test_get_success</a></code></li>
+<li><code><a title="budget_tool.tests.DetailViewTest.test_put_portFolioDetail" href="#budget_tool.tests.DetailViewTest.test_put_portFolioDetail">test_put_portFolioDetail</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="budget_tool.tests.ListViewTest" href="#budget_tool.tests.ListViewTest">ListViewTest</a></code></h4>
+<ul class="">
+<li><code><a title="budget_tool.tests.ListViewTest.setUp" href="#budget_tool.tests.ListViewTest.setUp">setUp</a></code></li>
+<li><code><a title="budget_tool.tests.ListViewTest.test_get_expenseList_no_entries" href="#budget_tool.tests.ListViewTest.test_get_expenseList_no_entries">test_get_expenseList_no_entries</a></code></li>
+<li><code><a title="budget_tool.tests.ListViewTest.test_get_expenseList_with_entries" href="#budget_tool.tests.ListViewTest.test_get_expenseList_with_entries">test_get_expenseList_with_entries</a></code></li>
+<li><code><a title="budget_tool.tests.ListViewTest.test_get_success" href="#budget_tool.tests.ListViewTest.test_get_success">test_get_success</a></code></li>
+<li><code><a title="budget_tool.tests.ListViewTest.test_post_expenseList_fail" href="#budget_tool.tests.ListViewTest.test_post_expenseList_fail">test_post_expenseList_fail</a></code></li>
+<li><code><a title="budget_tool.tests.ListViewTest.test_post_expenseList_success" href="#budget_tool.tests.ListViewTest.test_post_expenseList_success">test_post_expenseList_success</a></code></li>
+<li><code><a title="budget_tool.tests.ListViewTest.test_post_success" href="#budget_tool.tests.ListViewTest.test_post_success">test_post_success</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

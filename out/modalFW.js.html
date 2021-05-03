@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: modalFW.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: modalFW.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Function that creates a modal display component to render messages in
+ * @typedef {{className: string, hideClass: string, showClass: string}} Params
+ * @param {Params} params The parameter object containing optional class names to be applied
+ * @returns {HTMLDivElement}
+ */
+function modalFW(params) {
+    var className = params.className || "modal";
+    var hideClass = params.hideClass || "modal-hide";
+    var showClass = params.showClass || "modal-show";
+
+    /* Function that hides the modal element */
+    function hide(elem) {
+        elem.classList.add(hideClass);
+        elem.style.display = "none";
+    }
+
+    /* Function that shows the modal element */
+    function show(elem) {
+        elem.classList.remove(hideClass);
+        elem.style.display = "block";
+    }
+
+    var modal = document.createElement("div");
+    modal.classList.add(className);
+    hide(modal);
+
+    /**
+     * Function to display a message in the modal component
+     * @param {string} message - The string to be displayed, HTML string is accepted
+     */
+    modal.alert = function (message) {
+        function hideModal() {
+            hide(modal);
+        }
+
+        modal.innerHTML = "";
+
+        var messageArea = document.createElement("div");
+
+        var messageText = document.createElement("p");
+        messageText.classList.add("text-center");
+        messageArea.appendChild(messageText);
+        messageText.innerText = message;
+
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("text-center");
+
+        let exitButton = createButton({
+            type: "btn-info",
+            text: "Close",
+            onclickhandler: hideModal
+        });
+
+        buttonDiv.appendChild(exitButton);
+
+        messageArea.appendChild(buttonDiv);
+        modal.appendChild(messageArea);
+
+        show(modal);
+    };
+
+    /**
+     * Function to display a confirmation modal
+     * @param {string} message - The string to be displayed, HTML string is accepted
+     * @param {Function} callBack - A function to be invoked if the "Yes" button is clicked
+     */
+    modal.confirm = function (message, callBack) {
+        modal.innerHTML = "";
+
+        var messageArea = document.createElement("div");
+        messageArea.classList.add("text-center");
+        modal.appendChild(messageArea);
+
+        var messageText = document.createElement("p");
+        messageArea.appendChild(messageText);
+        messageText.innerHTML = message;
+
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex");
+
+        let buttonGroupConfirm = document.createElement("div");
+        buttonGroupConfirm.classList.add("btn-group", "mr-auto");
+
+        let buttonGroupCancel = document.createElement("div");
+        buttonGroupCancel.classList.add("btn-group", "ml-auto");
+
+        let clickOK = function () {
+            hide(modal);
+            callBack();
+        }
+
+        let clickCancel = function () {
+            hide(modal);
+        }
+
+        let okButton = createButton({
+            type: "btn-success",
+            text: "Yes",
+            onclickhandler: clickOK
+        });
+
+        okButton.classList.add("mr-2");
+
+        let cancelButton = createButton({
+            type: "btn-danger",
+            text: "Cancel",
+            onclickhandler: clickCancel
+        });
+
+        cancelButton.classList.add("mr-2");
+
+        buttonGroupConfirm.appendChild(okButton);
+        buttonGroupCancel.appendChild(cancelButton);
+
+        buttonDiv.appendChild(buttonGroupConfirm);
+        buttonDiv.appendChild(buttonGroupCancel);
+
+        messageArea.appendChild(buttonDiv);
+
+        show(modal);
+    };
+
+    /**
+     * Function that displays the error messages that the user might encounter while using the website 
+     * @param {Array} elements The list of error messages to be displayed on the modal
+     */
+    modal.renderErrorMessages = function (elements) {
+        modal.innerHTML = "";
+
+        var messageArea = document.createElement("div");
+        messageArea.classList.add("text-center");
+        modal.appendChild(messageArea);
+
+        let errorHeader = document.createElement('h4');
+        errorHeader.innerText = "You encountered some Errors";
+        messageArea.appendChild(errorHeader);
+
+        for (let i = 0; i &lt; elements.length; i++) {
+            let elem = document.createElement("p");
+            elem.innerText = elements[i];
+            messageArea.appendChild(elem);
+        }
+
+        var closeBtn = document.createElement("INPUT");
+        closeBtn.setAttribute("type", "button");
+        closeBtn.setAttribute("value", "Close");
+        closeBtn.classList.add("btn", "btn-info", "centered-btn");
+        closeBtn.onclick = function () {
+            hide(modal);
+        };
+
+        messageArea.appendChild(closeBtn);
+
+        show(modal);
+    }
+
+    /**
+     * Function that utilizes the modal to render a form that the user can input data in
+     * @param {HTMLDivElement} element The form to be displayed on the modal
+     */
+    modal.renderForm = function (element) {
+        modal.innerHTML = "";
+
+        var messageArea = document.createElement("div");
+        messageArea.classList.add('modalMsgArea');
+        messageArea.appendChild(element);
+
+        modal.appendChild(messageArea);
+
+        show(modal);
+    }
+
+    /* Wrapper Function to call the private hide function */
+    modal.hideModal = function () {
+        hide(modal);
+    }
+
+    /**
+     * A function to display a modal containing a DOM element
+     * @param {Node} element - The DOM element to be displayed in the modal
+     */
+    modal.displayElement = function (element) {
+        modal.innerHTML = "";
+
+        var messageArea = document.createElement("div");
+        messageArea.classList.add('modalMsgArea');
+        messageArea.appendChild(element);
+
+        var exitButton = document.createElement("button");
+        exitButton.innerHTML = "OK";
+        exitButton.onclick = function () {
+            hide(modal);
+        };
+
+
+        messageArea.appendChild(exitButton);
+        modal.appendChild(messageArea);
+
+        show(modal);
+
+    };
+
+    return modal;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#createButton">createButton</a></li><li><a href="global.html#currencyValidation">currencyValidation</a></li><li><a href="global.html#days_after_update">days_after_update</a></li><li><a href="global.html#formMaxDate">formMaxDate</a></li><li><a href="global.html#makePickList">makePickList</a></li><li><a href="global.html#usernameValidation">usernameValidation</a></li><li><a href="global.html#verify_matching_passwords">verify_matching_passwords</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Apr 22 2021 10:58:39 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

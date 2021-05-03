@@ -26,108 +26,17 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from django.shortcuts import render
-from rest_framework.views import APIView
+<pre><code class="python">from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from modules.monte_carlo.portfolio_sim import PortfolioSim
+from planning_tool.serializers import *
+from utils.serializers import *
+from django.db import transaction
+from django.utils.timezone import now
+import threading
+import datetime
 
-
-class User_Profile(APIView):
-    &#34;&#34;&#34;
-    Get, update, create, or delete a user
-    &#34;&#34;&#34;
-
-    def get(self, request, key):
-        &#34;&#34;&#34;
-        Get the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data
-        &#34;&#34;&#34;
-        pass
-
-    def put(self, request, key):
-        &#34;&#34;&#34;
-        Update the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        &#34;&#34;&#34;
-        pass
-
-    def post(self, request):
-        &#34;&#34;&#34;
-        Add a new user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        &#34;&#34;&#34;
-        pass
-
-    def delete(self, request, key):
-        &#34;&#34;&#34;
-        Delete the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        &#34;&#34;&#34;
-        pass
-
-
-class Classifier_API(APIView):
-    &#34;&#34;&#34;
-    Facilitates data transfer from the Classifier class
-
-    Attributes:
-        classifier (Classifier): The classifier algorithm object
-        request_data (dictionary {string: string}): A dictionary of the expense form (key),
-            and it&#39;s budget category (value)
-
-    &#34;&#34;&#34;
-
-    def __init__(self):
-        &#34;&#34;&#34;
-        Initializes the Classifier_API object
-        &#34;&#34;&#34;
-        pass
-
-    def get(self, request, key):
-        &#34;&#34;&#34;
-        Gets the results of the classifier algorthm
-
-        Arguments:
-            request (HttpRequest): The request object from an HTTP request
-            key (string): The text entered into the expense form of the budgeting tool
-
-        Returns:
-            Response: results of the classifier in JSON format
-        &#34;&#34;&#34;
-        pass
-
-    def __update_category(self, key):
-        &#34;&#34;&#34;
-        Updates the category of the classifier entry
-
-        Arguments:
-            key (string): The text entered into the expense form of the budgeting tool
-
-        Returns:
-            boolean: confirmation if the update to the category was successful
-        &#34;&#34;&#34;
-        pass
 
 class Cluster_API(APIView):
     &#34;&#34;&#34;
@@ -190,6 +99,7 @@ class Cluster_API(APIView):
         &#34;&#34;&#34;
         pass
 
+
 class Monte_carlo_API(APIView):
     &#34;&#34;&#34;
     Facilitates data transfer from the Monte_carlo class
@@ -200,28 +110,104 @@ class Monte_carlo_API(APIView):
             of the users&#39; names (key) and the results of their monte_carlo
             simulation (value)
     &#34;&#34;&#34;
+    permission_classes = [permissions.IsAuthenticated]        
 
-    def __init__(self):
+    def get(self, request):
         &#34;&#34;&#34;
-        Initializes the Monte_carlo_API object
-        &#34;&#34;&#34;
-        pass
-
-    def get(self, request, key):
-        &#34;&#34;&#34;
-         Gets the results of the monte_carlo simulation
+        Gets the results of the monte_carlo simulation
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (string): The name of the user who&#39;s monte_carlo sim results
-                are to be fetched
 
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         &#34;&#34;&#34;
-        pass
+        
+        try:
+            results = MonteResults.objects.get(user_id=request.user.pk)
+            if results.running:
+                return Response(data={&#34;detail&#34;: &#34;Simulation in progress&#34;}, status=status.HTTP_202_ACCEPTED)
+            else:
+                monte_serializer = MonteResultsSerializer(results)
+                return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
+        except MonteResults.DoesNotExist:
+            return Response(data={&#34;detail&#34;: &#34;No Monte Carlo results for this account found&#34;},
+                            status=status.HTTP_204_NO_CONTENT)
 
-    def __aggregate_data(self, request_data, key):
+    def post(self, request):
+        &#34;&#34;&#34;
+        Gets the results of the monte_carlo simulation
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: results of the monte_carlo simulation in JSON format
+        &#34;&#34;&#34;
+
+        user_data = self.__aggregate_data(request.user)
+        if not user_data:
+            return Response(data={&#34;Error&#34;: &#34;You must create Portfolio accounts and add holdings before running a simulation&#34;},
+                            status=status.HTTP_400_BAD_REQUEST)
+        valid, data = self.__is_valid(request.data)
+        # print(data)
+        if valid:
+            data.update(user_data)
+            data.update({&#34;user&#34;: request.user})
+            query, created = MonteResults.objects.get_or_create(user=request.user, defaults={&#34;running&#34;: True})
+            if created:
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+            elif not query.running:
+                entry = MonteResults.objects.select_for_update(nowait=True).filter(user=request.user)
+                with transaction.atomic():
+                    entry.update(running=True, date=now())
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+            elif query.running:
+                # Current simulation running status is invalid
+                if (now() - query.date) &gt; datetime.timedelta(minutes=15):
+                    sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                    sim_thread.start()
+                    return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(data={&#34;detail&#34;: &#34;Simulation in progress&#34;}, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(data={&#34;Error&#34;: &#34;Something went wrong&#34;}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+    def __is_valid(self, request_data):
+        valid_data = {&#34;retire_year&#34;: None,
+                      &#34;end_year&#34;: None,
+                      &#34;contribution&#34;: None,
+                      &#34;monthly_withdrawal&#34;: None,
+                      &#34;inflation&#34;: None,
+                      &#34;retirement_allocation&#34;: None
+                      }
+        resp = {&#34;Errors&#34;: {}}
+        valid = True
+        # Check for required keys
+        for key in valid_data:
+            try:
+                resp[key] = request_data[key]
+            except KeyError:
+                resp[&#34;Errors&#34;].update({key: str(key) + &#34; is a required field&#34;})
+                valid = False
+
+        # Check the dates
+        current_year = now().year
+        if request_data[&#34;retire_year&#34;] &lt; current_year:
+            valid = False
+            resp[&#34;Errors&#34;].update({&#34;retire_year&#34;: &#34;Retirement year may not be in the past&#34;})
+        if request_data[&#34;end_year&#34;] &lt;= current_year:
+            valid = False
+            resp[&#34;Errors&#34;].update({&#34;end_year&#34;: &#34;Simulation end year may not be in the past&#34;})
+        return valid, resp
+
+    def __aggregate_data(self, user):
         &#34;&#34;&#34;
         Combines the request data and stores it in the corresponding key
 
@@ -233,7 +219,84 @@ class Monte_carlo_API(APIView):
         Returns:
             dict: A dictionary container the key value pair of the aggregated data
         &#34;&#34;&#34;
-        pass</code></pre>
+        portfolios = Portfolio.objects.filter(user=user)
+        if len(portfolios) == 0:
+            return None
+        port_serializer = PortfolioSerializer(portfolios, many=True)
+        values = {&#34;Stocks&#34;: 0, &#34;Bonds&#34;: 0}
+        total = 0
+        for portfolio in port_serializer.data:
+            holdings = Holding.objects.filter(pk__in=portfolio[&#34;holdings&#34;])
+            hold_serializer = HoldingSerializer(holdings, many=True)
+            for holding in hold_serializer.data:
+                # print(holding)
+                if holding[&#34;security_type&#34;] == &#34;Equity&#34;:
+                    value = eval(holding[&#34;price&#34;]) * eval(holding[&#34;shares&#34;])
+                    values[&#34;Stocks&#34;] += value
+                    total += value
+                elif holding[&#34;security_type&#34;] == &#34;Fixed Income Securities&#34;:
+                    value = eval(holding[&#34;price&#34;]) * eval(holding[&#34;shares&#34;])
+                    values[&#34;Bonds&#34;] += value
+                    total += value
+        if total &gt; 0:
+            allocations = {&#34;Stocks&#34;: values[&#34;Stocks&#34;] / total, &#34;Bonds&#34;: values[&#34;Bonds&#34;] / total}
+        else:
+            allocations = {&#34;Stocks&#34;: 0, &#34;Bonds&#34;: 0}
+        return {&#34;values&#34;: values, &#34;allocations&#34;: allocations}
+
+
+def initiate_sim(valid_data):
+    &#34;&#34;&#34;
+    Initiate a monte carlo simulation and store the results in the database
+
+    Arguments:
+        valid_data (dict): A dictionary of validated input parameters for PortfolioSim
+    &#34;&#34;&#34;
+    retire_year = valid_data[&#34;retire_year&#34;]
+    end_year = valid_data[&#34;end_year&#34;]
+    inflation = valid_data[&#34;inflation&#34;]
+    contribution = valid_data[&#34;contribution&#34;]
+    withdrawal = valid_data[&#34;monthly_withdrawal&#34;]
+    port_values = valid_data[&#34;values&#34;]
+    port_allocations = valid_data[&#34;allocations&#34;]
+    if valid_data[&#34;retirement_allocation&#34;]:
+        retirement_allocation = valid_data[&#34;retirement_allocation&#34;]
+    else:
+        retirement_allocation = None
+
+    sim = PortfolioSim(retire_year, end_year, port_values, contribution, withdrawal, inflation,
+                       port_allocations, retirement_allocation, iterations=1000)
+    sim.run_sim()
+    results = sim.get_results()
+    # print(results)
+    # Store in DB
+    entry = MonteResults.objects.get(user=valid_data[&#34;user&#34;])
+    entry.results = {&#34;future_values&#34;: results}
+    entry.running = False
+    entry.save(update_fields=[&#39;results&#39;, &#39;running&#39;])
+
+
+class UserInfo(APIView):
+    &#34;&#34;&#34;
+    A custom view to return the information of the user in the session
+    &#34;&#34;&#34;
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        &#34;&#34;&#34;
+        Retrieve the user&#39;s info
+
+        Arguments:
+            request (Request): The http request object
+
+        Returns:
+            Response: An http response with JSON data and a status code
+        &#34;&#34;&#34;
+        current_user_ser = CurrentUserSerializer(request.user)
+        data = current_user_ser.data
+        data[&#34;date_joined&#34;] = request.user.date_joined.strftime(&#39;%Y-%m-%d&#39;)
+        return Response(data)</code></pre>
 </details>
 </section>
 <section>
@@ -241,109 +304,55 @@ class Monte_carlo_API(APIView):
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="utils.views.initiate_sim"><code class="name flex">
+<span>def <span class="ident">initiate_sim</span></span>(<span>valid_data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initiate a monte carlo simulation and store the results in the database</p>
+<h2 id="arguments">Arguments</h2>
+<p>valid_data (dict): A dictionary of validated input parameters for PortfolioSim</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def initiate_sim(valid_data):
+    &#34;&#34;&#34;
+    Initiate a monte carlo simulation and store the results in the database
+
+    Arguments:
+        valid_data (dict): A dictionary of validated input parameters for PortfolioSim
+    &#34;&#34;&#34;
+    retire_year = valid_data[&#34;retire_year&#34;]
+    end_year = valid_data[&#34;end_year&#34;]
+    inflation = valid_data[&#34;inflation&#34;]
+    contribution = valid_data[&#34;contribution&#34;]
+    withdrawal = valid_data[&#34;monthly_withdrawal&#34;]
+    port_values = valid_data[&#34;values&#34;]
+    port_allocations = valid_data[&#34;allocations&#34;]
+    if valid_data[&#34;retirement_allocation&#34;]:
+        retirement_allocation = valid_data[&#34;retirement_allocation&#34;]
+    else:
+        retirement_allocation = None
+
+    sim = PortfolioSim(retire_year, end_year, port_values, contribution, withdrawal, inflation,
+                       port_allocations, retirement_allocation, iterations=1000)
+    sim.run_sim()
+    results = sim.get_results()
+    # print(results)
+    # Store in DB
+    entry = MonteResults.objects.get(user=valid_data[&#34;user&#34;])
+    entry.results = {&#34;future_values&#34;: results}
+    entry.running = False
+    entry.save(update_fields=[&#39;results&#39;, &#39;running&#39;])</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="utils.views.Classifier_API"><code class="flex name class">
-<span>class <span class="ident">Classifier_API</span></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Facilitates data transfer from the Classifier class</p>
-<h2 id="attributes">Attributes</h2>
-<dl>
-<dt><strong><code>classifier</code></strong> :&ensp;<code>Classifier</code></dt>
-<dd>The classifier algorithm object</dd>
-</dl>
-<p>request_data (dictionary {string: string}): A dictionary of the expense form (key),
-and it's budget category (value)
-Initializes the Classifier_API object</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Classifier_API(APIView):
-    &#34;&#34;&#34;
-    Facilitates data transfer from the Classifier class
-
-    Attributes:
-        classifier (Classifier): The classifier algorithm object
-        request_data (dictionary {string: string}): A dictionary of the expense form (key),
-            and it&#39;s budget category (value)
-
-    &#34;&#34;&#34;
-
-    def __init__(self):
-        &#34;&#34;&#34;
-        Initializes the Classifier_API object
-        &#34;&#34;&#34;
-        pass
-
-    def get(self, request, key):
-        &#34;&#34;&#34;
-        Gets the results of the classifier algorthm
-
-        Arguments:
-            request (HttpRequest): The request object from an HTTP request
-            key (string): The text entered into the expense form of the budgeting tool
-
-        Returns:
-            Response: results of the classifier in JSON format
-        &#34;&#34;&#34;
-        pass
-
-    def __update_category(self, key):
-        &#34;&#34;&#34;
-        Updates the category of the classifier entry
-
-        Arguments:
-            key (string): The text entered into the expense form of the budgeting tool
-
-        Returns:
-            boolean: confirmation if the update to the category was successful
-        &#34;&#34;&#34;
-        pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.views.APIView</li>
-<li>django.views.generic.base.View</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="utils.views.Classifier_API.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, request, key)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Gets the results of the classifier algorthm</p>
-<h2 id="arguments">Arguments</h2>
-<p>request (HttpRequest): The request object from an HTTP request
-key (string): The text entered into the expense form of the budgeting tool</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Response</code></dt>
-<dd>results of the classifier in JSON format</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get(self, request, key):
-    &#34;&#34;&#34;
-    Gets the results of the classifier algorthm
-
-    Arguments:
-        request (HttpRequest): The request object from an HTTP request
-        key (string): The text entered into the expense form of the budgeting tool
-
-    Returns:
-        Response: results of the classifier in JSON format
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 <dt id="utils.views.Cluster_API"><code class="flex name class">
 <span>class <span class="ident">Cluster_API</span></span>
 </code></dt>
@@ -464,6 +473,7 @@ key (string): The user's name</p>
 </dd>
 <dt id="utils.views.Monte_carlo_API"><code class="flex name class">
 <span>class <span class="ident">Monte_carlo_API</span></span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Facilitates data transfer from the Monte_carlo class</p>
@@ -475,7 +485,8 @@ key (string): The user's name</p>
 <p>request_data (dictionary {string: numPy.array}): A dictionary consisting
 of the users' names (key) and the results of their monte_carlo
 simulation (value)
-Initializes the Monte_carlo_API object</p></div>
+Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -490,28 +501,104 @@ Initializes the Monte_carlo_API object</p></div>
             of the users&#39; names (key) and the results of their monte_carlo
             simulation (value)
     &#34;&#34;&#34;
+    permission_classes = [permissions.IsAuthenticated]        
 
-    def __init__(self):
+    def get(self, request):
         &#34;&#34;&#34;
-        Initializes the Monte_carlo_API object
-        &#34;&#34;&#34;
-        pass
-
-    def get(self, request, key):
-        &#34;&#34;&#34;
-         Gets the results of the monte_carlo simulation
+        Gets the results of the monte_carlo simulation
 
         Arguments:
             request (HttpRequest): The request object from an HTTP request
-            key (string): The name of the user who&#39;s monte_carlo sim results
-                are to be fetched
 
         Returns:
             Response: results of the monte_carlo simulation in JSON format
         &#34;&#34;&#34;
-        pass
+        
+        try:
+            results = MonteResults.objects.get(user_id=request.user.pk)
+            if results.running:
+                return Response(data={&#34;detail&#34;: &#34;Simulation in progress&#34;}, status=status.HTTP_202_ACCEPTED)
+            else:
+                monte_serializer = MonteResultsSerializer(results)
+                return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
+        except MonteResults.DoesNotExist:
+            return Response(data={&#34;detail&#34;: &#34;No Monte Carlo results for this account found&#34;},
+                            status=status.HTTP_204_NO_CONTENT)
 
-    def __aggregate_data(self, request_data, key):
+    def post(self, request):
+        &#34;&#34;&#34;
+        Gets the results of the monte_carlo simulation
+
+        Arguments:
+            request (HttpRequest): The request object from an HTTP request
+
+        Returns:
+            Response: results of the monte_carlo simulation in JSON format
+        &#34;&#34;&#34;
+
+        user_data = self.__aggregate_data(request.user)
+        if not user_data:
+            return Response(data={&#34;Error&#34;: &#34;You must create Portfolio accounts and add holdings before running a simulation&#34;},
+                            status=status.HTTP_400_BAD_REQUEST)
+        valid, data = self.__is_valid(request.data)
+        # print(data)
+        if valid:
+            data.update(user_data)
+            data.update({&#34;user&#34;: request.user})
+            query, created = MonteResults.objects.get_or_create(user=request.user, defaults={&#34;running&#34;: True})
+            if created:
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+            elif not query.running:
+                entry = MonteResults.objects.select_for_update(nowait=True).filter(user=request.user)
+                with transaction.atomic():
+                    entry.update(running=True, date=now())
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+            elif query.running:
+                # Current simulation running status is invalid
+                if (now() - query.date) &gt; datetime.timedelta(minutes=15):
+                    sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                    sim_thread.start()
+                    return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(data={&#34;detail&#34;: &#34;Simulation in progress&#34;}, status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(data={&#34;Error&#34;: &#34;Something went wrong&#34;}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+    def __is_valid(self, request_data):
+        valid_data = {&#34;retire_year&#34;: None,
+                      &#34;end_year&#34;: None,
+                      &#34;contribution&#34;: None,
+                      &#34;monthly_withdrawal&#34;: None,
+                      &#34;inflation&#34;: None,
+                      &#34;retirement_allocation&#34;: None
+                      }
+        resp = {&#34;Errors&#34;: {}}
+        valid = True
+        # Check for required keys
+        for key in valid_data:
+            try:
+                resp[key] = request_data[key]
+            except KeyError:
+                resp[&#34;Errors&#34;].update({key: str(key) + &#34; is a required field&#34;})
+                valid = False
+
+        # Check the dates
+        current_year = now().year
+        if request_data[&#34;retire_year&#34;] &lt; current_year:
+            valid = False
+            resp[&#34;Errors&#34;].update({&#34;retire_year&#34;: &#34;Retirement year may not be in the past&#34;})
+        if request_data[&#34;end_year&#34;] &lt;= current_year:
+            valid = False
+            resp[&#34;Errors&#34;].update({&#34;end_year&#34;: &#34;Simulation end year may not be in the past&#34;})
+        return valid, resp
+
+    def __aggregate_data(self, user):
         &#34;&#34;&#34;
         Combines the request data and stores it in the corresponding key
 
@@ -523,24 +610,52 @@ Initializes the Monte_carlo_API object</p></div>
         Returns:
             dict: A dictionary container the key value pair of the aggregated data
         &#34;&#34;&#34;
-        pass</code></pre>
+        portfolios = Portfolio.objects.filter(user=user)
+        if len(portfolios) == 0:
+            return None
+        port_serializer = PortfolioSerializer(portfolios, many=True)
+        values = {&#34;Stocks&#34;: 0, &#34;Bonds&#34;: 0}
+        total = 0
+        for portfolio in port_serializer.data:
+            holdings = Holding.objects.filter(pk__in=portfolio[&#34;holdings&#34;])
+            hold_serializer = HoldingSerializer(holdings, many=True)
+            for holding in hold_serializer.data:
+                # print(holding)
+                if holding[&#34;security_type&#34;] == &#34;Equity&#34;:
+                    value = eval(holding[&#34;price&#34;]) * eval(holding[&#34;shares&#34;])
+                    values[&#34;Stocks&#34;] += value
+                    total += value
+                elif holding[&#34;security_type&#34;] == &#34;Fixed Income Securities&#34;:
+                    value = eval(holding[&#34;price&#34;]) * eval(holding[&#34;shares&#34;])
+                    values[&#34;Bonds&#34;] += value
+                    total += value
+        if total &gt; 0:
+            allocations = {&#34;Stocks&#34;: values[&#34;Stocks&#34;] / total, &#34;Bonds&#34;: values[&#34;Bonds&#34;] / total}
+        else:
+            allocations = {&#34;Stocks&#34;: 0, &#34;Bonds&#34;: 0}
+        return {&#34;values&#34;: values, &#34;allocations&#34;: allocations}</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>rest_framework.views.APIView</li>
 <li>django.views.generic.base.View</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="utils.views.Monte_carlo_API.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="utils.views.Monte_carlo_API.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, request, key)</span>
+<span>def <span class="ident">get</span></span>(<span>self, request)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets the results of the monte_carlo simulation</p>
 <h2 id="arguments">Arguments</h2>
-<p>request (HttpRequest): The request object from an HTTP request
-key (string): The name of the user who's monte_carlo sim results
-are to be fetched</p>
+<p>request (HttpRequest): The request object from an HTTP request</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
@@ -550,182 +665,40 @@ are to be fetched</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, request, key):
+<pre><code class="python">def get(self, request):
     &#34;&#34;&#34;
-     Gets the results of the monte_carlo simulation
+    Gets the results of the monte_carlo simulation
 
     Arguments:
         request (HttpRequest): The request object from an HTTP request
-        key (string): The name of the user who&#39;s monte_carlo sim results
-            are to be fetched
 
     Returns:
         Response: results of the monte_carlo simulation in JSON format
     &#34;&#34;&#34;
-    pass</code></pre>
+    
+    try:
+        results = MonteResults.objects.get(user_id=request.user.pk)
+        if results.running:
+            return Response(data={&#34;detail&#34;: &#34;Simulation in progress&#34;}, status=status.HTTP_202_ACCEPTED)
+        else:
+            monte_serializer = MonteResultsSerializer(results)
+            return Response(data=monte_serializer.data, status=status.HTTP_200_OK)
+    except MonteResults.DoesNotExist:
+        return Response(data={&#34;detail&#34;: &#34;No Monte Carlo results for this account found&#34;},
+                        status=status.HTTP_204_NO_CONTENT)</code></pre>
 </details>
 </dd>
-</dl>
-</dd>
-<dt id="utils.views.User_Profile"><code class="flex name class">
-<span>class <span class="ident">User_Profile</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Get, update, create, or delete a user</p>
-<p>Constructor. Called in the URLconf; can contain helpful extra
-keyword arguments, and other things.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class User_Profile(APIView):
-    &#34;&#34;&#34;
-    Get, update, create, or delete a user
-    &#34;&#34;&#34;
-
-    def get(self, request, key):
-        &#34;&#34;&#34;
-        Get the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data
-        &#34;&#34;&#34;
-        pass
-
-    def put(self, request, key):
-        &#34;&#34;&#34;
-        Update the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        &#34;&#34;&#34;
-        pass
-
-    def post(self, request):
-        &#34;&#34;&#34;
-        Add a new user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        &#34;&#34;&#34;
-        pass
-
-    def delete(self, request, key):
-        &#34;&#34;&#34;
-        Delete the specified user
-
-        Args:
-            request (HttpRequest): The request object from an HTTP request
-            key (int): The primary key of the user
-
-        Returns:
-            Response: JSON formatted data and HTTP status
-        &#34;&#34;&#34;
-        pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.views.APIView</li>
-<li>django.views.generic.base.View</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="utils.views.User_Profile.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self, request, key)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Delete the specified user</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
-<dd>The primary key of the user</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Response</code></dt>
-<dd>JSON formatted data and HTTP status</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def delete(self, request, key):
-    &#34;&#34;&#34;
-    Delete the specified user
-
-    Args:
-        request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the user
-
-    Returns:
-        Response: JSON formatted data and HTTP status
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="utils.views.User_Profile.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, request, key)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Get the specified user</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
-<dd>The primary key of the user</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>Response</code></dt>
-<dd>JSON formatted data</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get(self, request, key):
-    &#34;&#34;&#34;
-    Get the specified user
-
-    Args:
-        request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the user
-
-    Returns:
-        Response: JSON formatted data
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-<dt id="utils.views.User_Profile.post"><code class="name flex">
+<dt id="utils.views.Monte_carlo_API.post"><code class="name flex">
 <span>def <span class="ident">post</span></span>(<span>self, request)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add a new user</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-</dl>
+<div class="desc"><p>Gets the results of the monte_carlo simulation</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (HttpRequest): The request object from an HTTP request</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
-<dd>JSON formatted data and HTTP status</dd>
+<dd>results of the monte_carlo simulation in JSON format</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -733,50 +706,130 @@ keyword arguments, and other things.</p></div>
 </summary>
 <pre><code class="python">def post(self, request):
     &#34;&#34;&#34;
-    Add a new user
+    Gets the results of the monte_carlo simulation
 
-    Args:
+    Arguments:
         request (HttpRequest): The request object from an HTTP request
 
     Returns:
-        Response: JSON formatted data and HTTP status
+        Response: results of the monte_carlo simulation in JSON format
     &#34;&#34;&#34;
-    pass</code></pre>
+
+    user_data = self.__aggregate_data(request.user)
+    if not user_data:
+        return Response(data={&#34;Error&#34;: &#34;You must create Portfolio accounts and add holdings before running a simulation&#34;},
+                        status=status.HTTP_400_BAD_REQUEST)
+    valid, data = self.__is_valid(request.data)
+    # print(data)
+    if valid:
+        data.update(user_data)
+        data.update({&#34;user&#34;: request.user})
+        query, created = MonteResults.objects.get_or_create(user=request.user, defaults={&#34;running&#34;: True})
+        if created:
+            sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+            sim_thread.start()
+            return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+        elif not query.running:
+            entry = MonteResults.objects.select_for_update(nowait=True).filter(user=request.user)
+            with transaction.atomic():
+                entry.update(running=True, date=now())
+            sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+            sim_thread.start()
+            return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+        elif query.running:
+            # Current simulation running status is invalid
+            if (now() - query.date) &gt; datetime.timedelta(minutes=15):
+                sim_thread = threading.Thread(target=initiate_sim, args=(data,))
+                sim_thread.start()
+                return Response(data={&#34;detail&#34;: &#34;Simulation Initiated&#34;}, status=status.HTTP_201_CREATED)
+            else:
+                return Response(data={&#34;detail&#34;: &#34;Simulation in progress&#34;}, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(data={&#34;Error&#34;: &#34;Something went wrong&#34;}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(data=data, status=status.HTTP_400_BAD_REQUEST)</code></pre>
 </details>
 </dd>
-<dt id="utils.views.User_Profile.put"><code class="name flex">
-<span>def <span class="ident">put</span></span>(<span>self, request, key)</span>
+</dl>
+</dd>
+<dt id="utils.views.UserInfo"><code class="flex name class">
+<span>class <span class="ident">UserInfo</span></span>
+<span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Update the specified user</p>
-<h2 id="args">Args</h2>
+<div class="desc"><p>A custom view to return the information of the user in the session</p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UserInfo(APIView):
+    &#34;&#34;&#34;
+    A custom view to return the information of the user in the session
+    &#34;&#34;&#34;
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        &#34;&#34;&#34;
+        Retrieve the user&#39;s info
+
+        Arguments:
+            request (Request): The http request object
+
+        Returns:
+            Response: An http response with JSON data and a status code
+        &#34;&#34;&#34;
+        current_user_ser = CurrentUserSerializer(request.user)
+        data = current_user_ser.data
+        data[&#34;date_joined&#34;] = request.user.date_joined.strftime(&#39;%Y-%m-%d&#39;)
+        return Response(data)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>rest_framework.views.APIView</li>
+<li>django.views.generic.base.View</li>
+</ul>
+<h3>Class variables</h3>
 <dl>
-<dt><strong><code>request</code></strong> :&ensp;<code>HttpRequest</code></dt>
-<dd>The request object from an HTTP request</dd>
-<dt><strong><code>key</code></strong> :&ensp;<code>int</code></dt>
-<dd>The primary key of the user</dd>
+<dt id="utils.views.UserInfo.permission_classes"><code class="name">var <span class="ident">permission_classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 </dl>
+<h3>Methods</h3>
+<dl>
+<dt id="utils.views.UserInfo.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, request)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retrieve the user's info</p>
+<h2 id="arguments">Arguments</h2>
+<p>request (Request): The http request object</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Response</code></dt>
-<dd>JSON formatted data and HTTP status</dd>
+<dd>An http response with JSON data and a status code</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def put(self, request, key):
+<pre><code class="python">def get(self, request):
     &#34;&#34;&#34;
-    Update the specified user
+    Retrieve the user&#39;s info
 
-    Args:
-        request (HttpRequest): The request object from an HTTP request
-        key (int): The primary key of the user
+    Arguments:
+        request (Request): The http request object
 
     Returns:
-        Response: JSON formatted data and HTTP status
+        Response: An http response with JSON data and a status code
     &#34;&#34;&#34;
-    pass</code></pre>
+    current_user_ser = CurrentUserSerializer(request.user)
+    data = current_user_ser.data
+    data[&#34;date_joined&#34;] = request.user.date_joined.strftime(&#39;%Y-%m-%d&#39;)
+    return Response(data)</code></pre>
 </details>
 </dd>
 </dl>
@@ -795,14 +848,13 @@ keyword arguments, and other things.</p></div>
 <li><code><a title="utils" href="index.html">utils</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="utils.views.Classifier_API" href="#utils.views.Classifier_API">Classifier_API</a></code></h4>
+<li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="utils.views.Classifier_API.get" href="#utils.views.Classifier_API.get">get</a></code></li>
+<li><code><a title="utils.views.initiate_sim" href="#utils.views.initiate_sim">initiate_sim</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
 <li>
 <h4><code><a title="utils.views.Cluster_API" href="#utils.views.Cluster_API">Cluster_API</a></code></h4>
 <ul class="">
@@ -813,15 +865,15 @@ keyword arguments, and other things.</p></div>
 <h4><code><a title="utils.views.Monte_carlo_API" href="#utils.views.Monte_carlo_API">Monte_carlo_API</a></code></h4>
 <ul class="">
 <li><code><a title="utils.views.Monte_carlo_API.get" href="#utils.views.Monte_carlo_API.get">get</a></code></li>
+<li><code><a title="utils.views.Monte_carlo_API.permission_classes" href="#utils.views.Monte_carlo_API.permission_classes">permission_classes</a></code></li>
+<li><code><a title="utils.views.Monte_carlo_API.post" href="#utils.views.Monte_carlo_API.post">post</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="utils.views.User_Profile" href="#utils.views.User_Profile">User_Profile</a></code></h4>
+<h4><code><a title="utils.views.UserInfo" href="#utils.views.UserInfo">UserInfo</a></code></h4>
 <ul class="">
-<li><code><a title="utils.views.User_Profile.delete" href="#utils.views.User_Profile.delete">delete</a></code></li>
-<li><code><a title="utils.views.User_Profile.get" href="#utils.views.User_Profile.get">get</a></code></li>
-<li><code><a title="utils.views.User_Profile.post" href="#utils.views.User_Profile.post">post</a></code></li>
-<li><code><a title="utils.views.User_Profile.put" href="#utils.views.User_Profile.put">put</a></code></li>
+<li><code><a title="utils.views.UserInfo.get" href="#utils.views.UserInfo.get">get</a></code></li>
+<li><code><a title="utils.views.UserInfo.permission_classes" href="#utils.views.UserInfo.permission_classes">permission_classes</a></code></li>
 </ul>
 </li>
 </ul>

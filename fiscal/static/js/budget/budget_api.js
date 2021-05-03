@@ -1,7 +1,12 @@
+/**
+ * @namespace
+ */
 let budget_api = {};
 
 /**
  * Function that fetches expense items from the database based on the currently logged in user.
+ * @function
+ * @memberof budget_api
  * @param {int} user_id ID of the user.
  * @throws {InvalidArgumentException} If user_id is NaN, null, etc.
  * @returns {Array} Collection of budget items associated with the user.
@@ -36,10 +41,14 @@ budget_api.getAllExpenseItems = function (successHandler, errorDOM) {
 }
 
 /**
- * 
- * @param {*} data 
- * @param {*} successHandler 
- * @param {*} errorDOM 
+ * Function that creates an expense item
+ * @function
+ * @memberof budget_api
+ * @param {*} data
+ * @param {*} successHandler
+ * @param {*} errorDOM
+ * @throws {InvalidArgumentException} If any params is NaN, null, etc.
+ * @returns {boolean} Returns a status for the API create function.
  */
 budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
     let status = false;
@@ -74,6 +83,17 @@ budget_api.createExpenseItem = function (data, successHandler, errorDOM) {
     return status;
 }
 
+
+/**
+ * Function that updates an expense item
+ * @function
+ * @memberof budget_api
+ * @param {*} data
+ * @param {*} successHandler
+ * @param {*} errorDOM
+ * @throws {InvalidArgumentException} If any params is NaN, null, etc.
+ * @returns {boolean} Returns a status for the API update function.
+ */
 budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
     let status = false;
     let init = {
@@ -108,6 +128,16 @@ budget_api.updateExpenseItem = function (data, successHandler, errorDOM) {
     return status;
 }
 
+/**
+ * Funciton that deletes an expense item
+ * @function
+ * @memberof budget_api
+ * @param {*} data
+ * @param {*} successHandler
+ * @param {*} errorDOM
+ * @throws {InvalidArgumentException} If any params is NaN, null, etc.
+ * @returns {boolean} Returns a status for the API delete function.
+ */
 budget_api.deleteExpenseItem = function (expense_id, successHandler, errorDOM) {
     let status = false;
     let init = {

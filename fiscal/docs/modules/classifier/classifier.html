@@ -26,35 +26,90 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Classifier:
+<pre><code class="python">import pickle
+import os
+
+from fiscal.settings import BASE_DIR
+
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+from collections import defaultdict
+from nltk.corpus import wordnet as wn
+
+class Classifier:
     &#34;&#34;&#34;
     Holds the pickled classifier model and classifies expendenture entries
     
     Attributes:
-        pickled_model_name (string): The name of the pickled classifier model
         model (classifier_model): The pickled classifier model saved from the external
             jupyter-notebook
+        vectorizer: A TfidfVectorizer object from sklearn
+        model_path (str): The path to the pickled classifier model
+        vectorizer_path (str): The path to the pickled vectorizer object
     &#34;&#34;&#34;
     
     def __init__(self):
         &#34;&#34;&#34;
         Initializes the Classifier object
         &#34;&#34;&#34;
-        pass
+        self.model_path = os.path.join(BASE_DIR.parent, &#34;machine_learning&#34;, &#34;pickled_objs&#34;, &#34;linear_clf.pkl&#34;)
+        self.vectorizer_path = os.path.join(BASE_DIR.parent, &#34;machine_learning&#34;, &#34;pickled_objs&#34;, &#34;Tfidf_vect.pkl&#34;)
+
+        self.__categories = [&#39;Housing&#39;, &#39;Transportation&#39;, &#39;Debt&#39;, &#39;Insurance&#39;,
+            &#39;Utilities&#39;, &#39;Medical/Healthcare&#39;, &#39;Savings&#39;, &#39;Retirement&#39;,
+            &#39;Education&#39;, &#39;Groceries/Household&#39;, &#39;Entertainment&#39;, &#39;Essentials&#39;,
+            &#39;Non-Essentials&#39;, &#39;Other&#39;]
+
+        with open(self.model_path, &#39;rb&#39;) as pickle_file:
+            self.model = pickle.load(pickle_file)
+
+        with open(self.vectorizer_path, &#39;rb&#39;) as vect_file:
+            self.vectorizer = pickle.load(vect_file)
+
+        self.tag_map = defaultdict(lambda: wn.NOUN)
+        self.tag_map[&#39;J&#39;] = wn.ADJ
+        self.tag_map[&#39;V&#39;] = wn.VERB
+        self.tag_map[&#39;R&#39;] = wn.ADV
+
     
     def classify(self, dict):
         &#34;&#34;&#34;
         Determines a category for the passed expenditure string
 
         Arguments:
-            dict (dictionary): A dictionary consisting of the entered expenditure strings
-                (key) and their classification (value), if the expenditure already has a 
-                classification
+            dict (dictionary): A dictionary consisting of the attributes of the example to be classified
         
         Returns:
             string: The name of the class that the expenditure was placed into
-        &#34;&#34;&#34;
-        pass</code></pre>
+        &#34;&#34;&#34;        
+
+        description = dict[&#34;description&#34;].lower()
+
+        words = word_tokenize(description)
+
+        # list of tokenized and processed words
+        Final_words = []
+        word_Lemmatized = WordNetLemmatizer()
+        # pos_tag function below will provide the &#39;tag&#39; i.e if the word is Noun(N) or Verb(V) or something else.
+        for word, tag in pos_tag(words):
+            # Below condition is to check for Stop words and consider only alphabets
+            if word not in stopwords.words(&#39;english&#39;) and word.isalpha():
+                word_Final = word_Lemmatized.lemmatize(word, self.tag_map[tag[0]])
+                Final_words.append(word_Final)
+
+        # transform words to vector from pickeled model
+        word_trans = self.vectorizer.transform([str(Final_words)])
+
+        prediction = self.model.predict(word_trans)
+
+        return self.__categories[prediction[0]]
+
+if __name__ == &#39;__main__&#39;:
+    model = Classifier()
+    print(model.classify({&#34;description&#34;: &#34;Independence Blue Cross payment&#34;}))</code></pre>
 </details>
 </section>
 <section>
@@ -73,11 +128,15 @@
 <div class="desc"><p>Holds the pickled classifier model and classifies expendenture entries</p>
 <h2 id="attributes">Attributes</h2>
 <dl>
-<dt><strong><code>pickled_model_name</code></strong> :&ensp;<code>string</code></dt>
-<dd>The name of the pickled classifier model</dd>
 <dt><strong><code>model</code></strong> :&ensp;<code>classifier_model</code></dt>
 <dd>The pickled classifier model saved from the external
 jupyter-notebook</dd>
+<dt><strong><code>vectorizer</code></strong></dt>
+<dd>A TfidfVectorizer object from sklearn</dd>
+<dt><strong><code>model_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>The path to the pickled classifier model</dd>
+<dt><strong><code>vectorizer_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>The path to the pickled vectorizer object</dd>
 </dl>
 <p>Initializes the Classifier object</p></div>
 <details class="source">
@@ -89,30 +148,68 @@ jupyter-notebook</dd>
     Holds the pickled classifier model and classifies expendenture entries
     
     Attributes:
-        pickled_model_name (string): The name of the pickled classifier model
         model (classifier_model): The pickled classifier model saved from the external
             jupyter-notebook
+        vectorizer: A TfidfVectorizer object from sklearn
+        model_path (str): The path to the pickled classifier model
+        vectorizer_path (str): The path to the pickled vectorizer object
     &#34;&#34;&#34;
     
     def __init__(self):
         &#34;&#34;&#34;
         Initializes the Classifier object
         &#34;&#34;&#34;
-        pass
+        self.model_path = os.path.join(BASE_DIR.parent, &#34;machine_learning&#34;, &#34;pickled_objs&#34;, &#34;linear_clf.pkl&#34;)
+        self.vectorizer_path = os.path.join(BASE_DIR.parent, &#34;machine_learning&#34;, &#34;pickled_objs&#34;, &#34;Tfidf_vect.pkl&#34;)
+
+        self.__categories = [&#39;Housing&#39;, &#39;Transportation&#39;, &#39;Debt&#39;, &#39;Insurance&#39;,
+            &#39;Utilities&#39;, &#39;Medical/Healthcare&#39;, &#39;Savings&#39;, &#39;Retirement&#39;,
+            &#39;Education&#39;, &#39;Groceries/Household&#39;, &#39;Entertainment&#39;, &#39;Essentials&#39;,
+            &#39;Non-Essentials&#39;, &#39;Other&#39;]
+
+        with open(self.model_path, &#39;rb&#39;) as pickle_file:
+            self.model = pickle.load(pickle_file)
+
+        with open(self.vectorizer_path, &#39;rb&#39;) as vect_file:
+            self.vectorizer = pickle.load(vect_file)
+
+        self.tag_map = defaultdict(lambda: wn.NOUN)
+        self.tag_map[&#39;J&#39;] = wn.ADJ
+        self.tag_map[&#39;V&#39;] = wn.VERB
+        self.tag_map[&#39;R&#39;] = wn.ADV
+
     
     def classify(self, dict):
         &#34;&#34;&#34;
         Determines a category for the passed expenditure string
 
         Arguments:
-            dict (dictionary): A dictionary consisting of the entered expenditure strings
-                (key) and their classification (value), if the expenditure already has a 
-                classification
+            dict (dictionary): A dictionary consisting of the attributes of the example to be classified
         
         Returns:
             string: The name of the class that the expenditure was placed into
-        &#34;&#34;&#34;
-        pass</code></pre>
+        &#34;&#34;&#34;        
+
+        description = dict[&#34;description&#34;].lower()
+
+        words = word_tokenize(description)
+
+        # list of tokenized and processed words
+        Final_words = []
+        word_Lemmatized = WordNetLemmatizer()
+        # pos_tag function below will provide the &#39;tag&#39; i.e if the word is Noun(N) or Verb(V) or something else.
+        for word, tag in pos_tag(words):
+            # Below condition is to check for Stop words and consider only alphabets
+            if word not in stopwords.words(&#39;english&#39;) and word.isalpha():
+                word_Final = word_Lemmatized.lemmatize(word, self.tag_map[tag[0]])
+                Final_words.append(word_Final)
+
+        # transform words to vector from pickeled model
+        word_trans = self.vectorizer.transform([str(Final_words)])
+
+        prediction = self.model.predict(word_trans)
+
+        return self.__categories[prediction[0]]</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -122,9 +219,7 @@ jupyter-notebook</dd>
 <dd>
 <div class="desc"><p>Determines a category for the passed expenditure string</p>
 <h2 id="arguments">Arguments</h2>
-<p>dict (dictionary): A dictionary consisting of the entered expenditure strings
-(key) and their classification (value), if the expenditure already has a
-classification</p>
+<p>dict (dictionary): A dictionary consisting of the attributes of the example to be classified</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>string</code></dt>
@@ -139,14 +234,32 @@ classification</p>
     Determines a category for the passed expenditure string
 
     Arguments:
-        dict (dictionary): A dictionary consisting of the entered expenditure strings
-            (key) and their classification (value), if the expenditure already has a 
-            classification
+        dict (dictionary): A dictionary consisting of the attributes of the example to be classified
     
     Returns:
         string: The name of the class that the expenditure was placed into
-    &#34;&#34;&#34;
-    pass</code></pre>
+    &#34;&#34;&#34;        
+
+    description = dict[&#34;description&#34;].lower()
+
+    words = word_tokenize(description)
+
+    # list of tokenized and processed words
+    Final_words = []
+    word_Lemmatized = WordNetLemmatizer()
+    # pos_tag function below will provide the &#39;tag&#39; i.e if the word is Noun(N) or Verb(V) or something else.
+    for word, tag in pos_tag(words):
+        # Below condition is to check for Stop words and consider only alphabets
+        if word not in stopwords.words(&#39;english&#39;) and word.isalpha():
+            word_Final = word_Lemmatized.lemmatize(word, self.tag_map[tag[0]])
+            Final_words.append(word_Final)
+
+    # transform words to vector from pickeled model
+    word_trans = self.vectorizer.transform([str(Final_words)])
+
+    prediction = self.model.predict(word_trans)
+
+    return self.__categories[prediction[0]]</code></pre>
 </details>
 </dd>
 </dl>

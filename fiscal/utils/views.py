@@ -9,48 +9,6 @@ from django.utils.timezone import now
 import threading
 import datetime
 
-class Classifier_API(APIView):
-    """
-    Facilitates data transfer from the Classifier class
-
-    Attributes:
-        classifier (Classifier): The classifier algorithm object
-        request_data (dictionary {string: string}): A dictionary of the expense form (key),
-            and it's budget category (value)
-
-    """
-
-    def __init__(self):
-        """
-        Initializes the Classifier_API object
-        """
-        pass
-
-    def get(self, request, key):
-        """
-        Gets the results of the classifier algorthm
-
-        Arguments:
-            request (HttpRequest): The request object from an HTTP request
-            key (string): The text entered into the expense form of the budgeting tool
-
-        Returns:
-            Response: results of the classifier in JSON format
-        """
-        pass
-
-    def __update_category(self, key):
-        """
-        Updates the category of the classifier entry
-
-        Arguments:
-            key (string): The text entered into the expense form of the budgeting tool
-
-        Returns:
-            boolean: confirmation if the update to the category was successful
-        """
-        pass
-
 
 class Cluster_API(APIView):
     """
@@ -161,7 +119,7 @@ class Monte_carlo_API(APIView):
 
         user_data = self.__aggregate_data(request.user)
         if not user_data:
-            return Response(data={"Error": "You must create Portfolio accounts and add holdings before running a simulation"},
+            return Response(data={"Errors": {"user_data": "You must create Portfolio accounts and add holdings before running a simulation"}},
                             status=status.HTTP_400_BAD_REQUEST)
         valid, data = self.__is_valid(request.data)
         # print(data)
@@ -189,7 +147,7 @@ class Monte_carlo_API(APIView):
                 else:
                     return Response(data={"detail": "Simulation in progress"}, status=status.HTTP_202_ACCEPTED)
             else:
-                return Response(data={"Error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(data={"Errors": {"server_error": "Something went wrong"}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
@@ -210,6 +168,8 @@ class Monte_carlo_API(APIView):
             except KeyError:
                 resp["Errors"].update({key: str(key) + " is a required field"})
                 valid = False
+        if not valid:
+            return valid, resp
 
         # Check the dates
         current_year = now().year
@@ -260,6 +220,12 @@ class Monte_carlo_API(APIView):
 
 
 def initiate_sim(valid_data):
+    """
+    Initiate a monte carlo simulation and store the results in the database
+
+    Arguments:
+        valid_data (dict): A dictionary of validated input parameters for PortfolioSim
+    """
     retire_year = valid_data["retire_year"]
     end_year = valid_data["end_year"]
     inflation = valid_data["inflation"]

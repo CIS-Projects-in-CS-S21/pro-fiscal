@@ -1,6 +1,12 @@
+/**
+ * @namespace
+ */
 let portfolio_api = {};
 
 /**
+ * Function that retrives a list of all the user's portfolios
+ * @function
+ * @memberof portfolio_api
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
  * @returns {boolean} confirmation status
@@ -36,6 +42,8 @@ portfolio_api.get_all_portfolios = function (successHandler, error_elem) {
 
 /**
  * Function that return a single portfolio to the user.
+ * @function
+ * @memberof portfolio_api
  * @param {int} portfolio_id the user identification number
  * @throws {InvalidArgumentException} when the user enter no value id.
  * @returns {Array} arrays of portfolios
@@ -52,7 +60,7 @@ portfolio_api.get_portfolio = function (portfolio_id) {
 
     fetch("/planning/portfolio/" + portfolio_id, init)
         .then(response => {
-            console.log(response);
+            // console.log(response);
             return response.json();
         }).catch((error) => {
             console.error(error);
@@ -63,6 +71,8 @@ portfolio_api.get_portfolio = function (portfolio_id) {
 
 /**
  * Function that creates user portfolio account.
+ * @function
+ * @memberof portfolio_api
  * @param {Object} data the data sent to the creation API
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
@@ -103,6 +113,8 @@ portfolio_api.create_portfolio = function (data, successHandler, error_elem) {
 
 /**
  * Function that updates the user portfolio.
+ * @function
+ * @memberof portfolio_api
  * @param {Object} data the data sent to the creation API
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
@@ -128,7 +140,7 @@ portfolio_api.update_portfolio = function (data, successHandler, error_elem) {
             status = true
             return response.json();
         }).then((data) => {
-            console.log(data);
+            // console.log(data);
             successHandler(data);
         }
         ).catch(error => {
@@ -141,6 +153,8 @@ portfolio_api.update_portfolio = function (data, successHandler, error_elem) {
 
 /**
  * Function that deletes the user portfolio.
+ * @function
+ * @memberof portfolio_api
  * @param {int} portfolio_id the portfolio identification number.
  * @param {Node} error_elem the element to add a useful errror message to.
  * @returns {boolean} Returns confirmation status.
@@ -176,6 +190,8 @@ portfolio_api.delete_portfolio = function (portfolio_id, successHandler, error_e
 
 /**
  * Function that adds the value to the user portfolio account.
+ * @function
+ * @memberof portfolio_api
  * @param {Object} data the data sent to the creation API
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
@@ -205,7 +221,7 @@ portfolio_api.add_holding = function (data, successHandler, error_elem) {
             status = true;
             return response.json();
         }).then((data) => {
-            console.log(data);
+            // console.log(data);
             successHandler(data);
         }
         ).catch(error => {
@@ -218,6 +234,8 @@ portfolio_api.add_holding = function (data, successHandler, error_elem) {
 
 /**
  * Function that updates the holding data
+ * @function
+ * @memberof portfolio_api
  * @param {Object} data the data sent to the update API
  * @param {function} successHandler callback function to handle the data
  * @param {Node} error_elem the element to add a useful error message to
@@ -291,6 +309,13 @@ portfolio_api.delete_holding = function (holding_id, successHandler, error_elem)
     return status;
 };
 
+/**
+ * Function that retrieves user account types.
+ * @param {function} successHandler callback function to handle the data
+ * @param {Node} error_elem the element to add a useful error message to
+ * @returns {boolean} confirmation status
+ * @throws {InvalidArgumentException} if the user enters invalid id or account name.
+ */
 portfolio_api.get_account_types = function (successHandler, error_elem) {
     let status = false;
     let init = {
@@ -318,6 +343,13 @@ portfolio_api.get_account_types = function (successHandler, error_elem) {
     return status;
 }
 
+/**
+ * Function that retrieves user's account's security types.
+ * @param {function} successHandler callback function to handle the data
+ * @param {Node} error_elem the element to add a useful error message to
+ * @returns {boolean} confirmation status
+ * @throws {InvalidArgumentException} if the user enters invalid id or account name.
+ */
 portfolio_api.get_security_types = function (successHandler, error_elem) {
     let status = false;
     let init = {

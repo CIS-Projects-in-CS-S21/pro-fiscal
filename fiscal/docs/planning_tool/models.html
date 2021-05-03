@@ -27,37 +27,97 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from django.db import models
+from django.contrib.auth.models import User
+import datetime
 
-# class Portfolio(models.Model):
-#     &#34;&#34;&#34;
-#     A class used to represent the database fields for a portfolio of accounts
-#
-#     Attributes:
-#         portfolio_id (int): Primary Key
-#         user_id (int): Foreign Key to the &#39;User&#39; table
-#         account_type (int): Foreign Key to the &#39;Account_Type&#39; table
-#         name (String): The name of the portfolio account
-#         description (String): A description of the portfolio account
-#     &#34;&#34;&#34;
-#
-#     pass
-#
-# class Holding(models.Model):
-#     &#34;&#34;&#34;
-#     A class used to represent the database fields for an account holding
-#
-#     Attributes:
-#         holding_id (int): Primary Key
-#         portfolio_id (int): Foreign key to the related &#39;Portfolio&#39; table
-#         security_type (int): Foreign key to the &#39;Security_Type&#39; table
-#         ticker (String): Ticker symbol for the holding
-#         price (decimal): Price of the holding
-#         shares (decimal): Number of shares in the holding
-#         purchase_date (Date): Purchase date of the holding
-#         cost_basis (decimal): Cost Basis value for the holding
-#     &#34;&#34;&#34;
-#
-#     pass</code></pre>
+class Account_Type(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for the Account_Type table
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        type (String): The type of account (Brokerage, IRA, 401K, etc)
+    &#34;&#34;&#34;
+    type = models.CharField(max_length=50)
+
+
+class Security_Type(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for the Security_Type table
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        type (String): The type of security (Stock, Bond, etc)
+    &#34;&#34;&#34;
+    type = models.CharField(max_length=50)
+
+class Portfolio(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for a portfolio of accounts
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        user (int): Foreign Key to the &#39;User&#39; table
+        account_type (int): Foreign Key to the &#39;Account_Type&#39; table
+        name (String): The name of the portfolio account
+        description (String): A description of the portfolio account
+        balance (decimal): The current balance of the portfolio account
+        date (Date): The date when the portfolio was last modified
+    &#34;&#34;&#34;
+    user = models.ForeignKey(User, related_name=&#39;portfolio_accounts&#39;, on_delete=models.CASCADE)
+    account_type = models.ForeignKey(Account_Type, related_name=&#39;account_type&#39;, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    balance = models.DecimalField(decimal_places=2, max_digits=15)
+    date = models.DateField(auto_now=True)
+
+    def __repr__(self):
+        return f&#34;id:{self.id}\nuser:{self.user}\ntype:{self.account_type}\nname:{self.name}\nbalance:{self.balance}\ndescription:{self.description}&#34;
+
+    def __str__(self):
+        return f&#34;id: {self.id}, user: {self.user}, type: {self.account_type}, name: {self.name}, balance: {self.balance}, description: {self.description}&#34;
+
+class Holding(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for an account holding
+
+    Attributes:
+        id (int): Primary Key, , automatically generated
+        portfolio (int): Foreign key to the related &#39;Portfolio&#39; table
+        security_type (int): Foreign key to the &#39;Security_Type&#39; table
+        ticker (String): Ticker symbol for the holding
+        price (decimal): Price of the holding
+        shares (decimal): Number of shares in the holding
+        purchase_date (Date): Purchase date of the holding
+        cost_basis (decimal): Cost Basis value for the holding
+    &#34;&#34;&#34;
+    portfolio = models.ForeignKey(Portfolio, related_name=&#39;holdings&#39;, on_delete=models.CASCADE)
+    security_type = models.ForeignKey(Security_Type, related_name=&#39;security_type&#39;, on_delete=models.SET_NULL, null=True, blank=True)
+    ticker = models.CharField(max_length=5, null=True, blank=True)
+    price = models.DecimalField(decimal_places=2, max_digits=15)
+    shares = models.DecimalField(decimal_places=2, max_digits=15)
+    purchase_date = models.DateField()
+    cost_basis = models.DecimalField(decimal_places=2, max_digits=15, null=True, blank=True)
+
+    def __str__(self):
+        return f&#34;id: {self.id}, portfolio_id: {self.portfolio_id}, type: {self.security_type}, ticker: {self.ticker}, &#34; \
+               f&#34;price: {self.price}, shares: {self.shares}, purchase_date: {self.purchase_date}, cost_basis: {self.cost_basis}&#34;
+
+
+class Balance_History(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for balance history of portfolios
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        portfolio (int): Foreign Key to the &#39;Portfolio&#39; table
+        balance (decimal): A previous balance of the portfolio
+        date (Date): The data of the previous balance
+    &#34;&#34;&#34;
+
+    portfolio = models.ForeignKey(Portfolio, related_name=&#34;balance_history&#34;, on_delete=models.CASCADE)
+    balance = models.DecimalField(decimal_places=2, max_digits=15)
+    date = models.DateField(default=datetime.date.today)</code></pre>
 </details>
 </section>
 <section>
@@ -67,6 +127,1488 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="planning_tool.models.Account_Type"><code class="flex name class">
+<span>class <span class="ident">Account_Type</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class used to represent the database fields for the Account_Type table</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Primary Key, automatically generated</dd>
+<dt><strong><code>type</code></strong> :&ensp;<code>String</code></dt>
+<dd>The type of account (Brokerage, IRA, 401K, etc)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Account_Type(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for the Account_Type table
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        type (String): The type of account (Brokerage, IRA, 401K, etc)
+    &#34;&#34;&#34;
+    type = models.CharField(max_length=50)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.db.models.base.Model</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.models.Account_Type.DoesNotExist"><code class="name">var <span class="ident">DoesNotExist</span></code></dt>
+<dd>
+<div class="desc"><p>The requested object does not exist</p></div>
+</dd>
+<dt id="planning_tool.models.Account_Type.MultipleObjectsReturned"><code class="name">var <span class="ident">MultipleObjectsReturned</span></code></dt>
+<dd>
+<div class="desc"><p>The query returned multiple objects when only one was expected.</p></div>
+</dd>
+<dt id="planning_tool.models.Account_Type.objects"><code class="name">var <span class="ident">objects</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="planning_tool.models.Account_Type.account_type"><code class="name">var <span class="ident">account_type</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_forward_many_to_many_manager()</code> defined below.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related objects through the reverse relation.
+
+    With the example above, when getting ``parent.children``:
+
+    - ``self`` is the descriptor managing the ``children`` attribute
+    - ``instance`` is the ``parent`` instance
+    - ``cls`` is the ``Parent`` class (unused)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    return self.related_manager_cls(instance)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Account_Type.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Account_Type.type"><code class="name">var <span class="ident">type</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.models.Balance_History"><code class="flex name class">
+<span>class <span class="ident">Balance_History</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class used to represent the database fields for balance history of portfolios</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Primary Key, automatically generated</dd>
+<dt><strong><code>portfolio</code></strong> :&ensp;<code>int</code></dt>
+<dd>Foreign Key to the 'Portfolio' table</dd>
+<dt><strong><code>balance</code></strong> :&ensp;<code>decimal</code></dt>
+<dd>A previous balance of the portfolio</dd>
+<dt><strong><code>date</code></strong> :&ensp;<code>Date</code></dt>
+<dd>The data of the previous balance</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Balance_History(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for balance history of portfolios
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        portfolio (int): Foreign Key to the &#39;Portfolio&#39; table
+        balance (decimal): A previous balance of the portfolio
+        date (Date): The data of the previous balance
+    &#34;&#34;&#34;
+
+    portfolio = models.ForeignKey(Portfolio, related_name=&#34;balance_history&#34;, on_delete=models.CASCADE)
+    balance = models.DecimalField(decimal_places=2, max_digits=15)
+    date = models.DateField(default=datetime.date.today)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.db.models.base.Model</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.models.Balance_History.DoesNotExist"><code class="name">var <span class="ident">DoesNotExist</span></code></dt>
+<dd>
+<div class="desc"><p>The requested object does not exist</p></div>
+</dd>
+<dt id="planning_tool.models.Balance_History.MultipleObjectsReturned"><code class="name">var <span class="ident">MultipleObjectsReturned</span></code></dt>
+<dd>
+<div class="desc"><p>The query returned multiple objects when only one was expected.</p></div>
+</dd>
+<dt id="planning_tool.models.Balance_History.objects"><code class="name">var <span class="ident">objects</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="planning_tool.models.Balance_History.balance"><code class="name">var <span class="ident">balance</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Balance_History.date"><code class="name">var <span class="ident">date</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Balance_History.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Balance_History.portfolio"><code class="name">var <span class="ident">portfolio</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related instance through the forward relation.
+
+    With the example above, when getting ``child.parent``:
+
+    - ``self`` is the descriptor managing the ``parent`` attribute
+    - ``instance`` is the ``child`` instance
+    - ``cls`` is the ``Child`` class (we don&#39;t need it)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    # The related instance is loaded from the database and then cached
+    # by the field on the model instance state. It can also be pre-cached
+    # by the reverse accessor (ReverseOneToOneDescriptor).
+    try:
+        rel_obj = self.field.get_cached_value(instance)
+    except KeyError:
+        has_value = None not in self.field.get_local_related_value(instance)
+        ancestor_link = instance._meta.get_ancestor_link(self.field.model) if has_value else None
+        if ancestor_link and ancestor_link.is_cached(instance):
+            # An ancestor link will exist if this field is defined on a
+            # multi-table inheritance parent of the instance&#39;s class.
+            ancestor = ancestor_link.get_cached_value(instance)
+            # The value might be cached on an ancestor if the instance
+            # originated from walking down the inheritance chain.
+            rel_obj = self.field.get_cached_value(ancestor, default=None)
+        else:
+            rel_obj = None
+        if rel_obj is None and has_value:
+            rel_obj = self.get_object(instance)
+            remote_field = self.field.remote_field
+            # If this is a one-to-one relation, set the reverse accessor
+            # cache on the related object to the current instance to avoid
+            # an extra SQL query if it&#39;s accessed later on.
+            if not remote_field.multiple:
+                remote_field.set_cached_value(rel_obj, instance)
+        self.field.set_cached_value(instance, rel_obj)
+
+    if rel_obj is None and not self.field.null:
+        raise self.RelatedObjectDoesNotExist(
+            &#34;%s has no %s.&#34; % (self.field.model.__name__, self.field.name)
+        )
+    else:
+        return rel_obj</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Balance_History.portfolio_id"><code class="name">var <span class="ident">portfolio_id</span></code></dt>
+<dd>
+<div class="desc"><p>Retrieve and caches the value from the datastore on the first lookup.
+Return the cached value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.models.Balance_History.get_next_by_date"><code class="name flex">
+<span>def <span class="ident">get_next_by_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateField: date&gt;, is_next=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Balance_History.get_previous_by_date"><code class="name flex">
+<span>def <span class="ident">get_previous_by_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateField: date&gt;, is_next=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.models.Holding"><code class="flex name class">
+<span>class <span class="ident">Holding</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class used to represent the database fields for an account holding</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Primary Key, , automatically generated</dd>
+<dt><strong><code>portfolio</code></strong> :&ensp;<code>int</code></dt>
+<dd>Foreign key to the related 'Portfolio' table</dd>
+<dt><strong><code>security_type</code></strong> :&ensp;<code>int</code></dt>
+<dd>Foreign key to the 'Security_Type' table</dd>
+<dt><strong><code>ticker</code></strong> :&ensp;<code>String</code></dt>
+<dd>Ticker symbol for the holding</dd>
+<dt><strong><code>price</code></strong> :&ensp;<code>decimal</code></dt>
+<dd>Price of the holding</dd>
+<dt><strong><code>shares</code></strong> :&ensp;<code>decimal</code></dt>
+<dd>Number of shares in the holding</dd>
+<dt><strong><code>purchase_date</code></strong> :&ensp;<code>Date</code></dt>
+<dd>Purchase date of the holding</dd>
+<dt><strong><code>cost_basis</code></strong> :&ensp;<code>decimal</code></dt>
+<dd>Cost Basis value for the holding</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Holding(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for an account holding
+
+    Attributes:
+        id (int): Primary Key, , automatically generated
+        portfolio (int): Foreign key to the related &#39;Portfolio&#39; table
+        security_type (int): Foreign key to the &#39;Security_Type&#39; table
+        ticker (String): Ticker symbol for the holding
+        price (decimal): Price of the holding
+        shares (decimal): Number of shares in the holding
+        purchase_date (Date): Purchase date of the holding
+        cost_basis (decimal): Cost Basis value for the holding
+    &#34;&#34;&#34;
+    portfolio = models.ForeignKey(Portfolio, related_name=&#39;holdings&#39;, on_delete=models.CASCADE)
+    security_type = models.ForeignKey(Security_Type, related_name=&#39;security_type&#39;, on_delete=models.SET_NULL, null=True, blank=True)
+    ticker = models.CharField(max_length=5, null=True, blank=True)
+    price = models.DecimalField(decimal_places=2, max_digits=15)
+    shares = models.DecimalField(decimal_places=2, max_digits=15)
+    purchase_date = models.DateField()
+    cost_basis = models.DecimalField(decimal_places=2, max_digits=15, null=True, blank=True)
+
+    def __str__(self):
+        return f&#34;id: {self.id}, portfolio_id: {self.portfolio_id}, type: {self.security_type}, ticker: {self.ticker}, &#34; \
+               f&#34;price: {self.price}, shares: {self.shares}, purchase_date: {self.purchase_date}, cost_basis: {self.cost_basis}&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.db.models.base.Model</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.models.Holding.DoesNotExist"><code class="name">var <span class="ident">DoesNotExist</span></code></dt>
+<dd>
+<div class="desc"><p>The requested object does not exist</p></div>
+</dd>
+<dt id="planning_tool.models.Holding.MultipleObjectsReturned"><code class="name">var <span class="ident">MultipleObjectsReturned</span></code></dt>
+<dd>
+<div class="desc"><p>The query returned multiple objects when only one was expected.</p></div>
+</dd>
+<dt id="planning_tool.models.Holding.objects"><code class="name">var <span class="ident">objects</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="planning_tool.models.Holding.cost_basis"><code class="name">var <span class="ident">cost_basis</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.portfolio"><code class="name">var <span class="ident">portfolio</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related instance through the forward relation.
+
+    With the example above, when getting ``child.parent``:
+
+    - ``self`` is the descriptor managing the ``parent`` attribute
+    - ``instance`` is the ``child`` instance
+    - ``cls`` is the ``Child`` class (we don&#39;t need it)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    # The related instance is loaded from the database and then cached
+    # by the field on the model instance state. It can also be pre-cached
+    # by the reverse accessor (ReverseOneToOneDescriptor).
+    try:
+        rel_obj = self.field.get_cached_value(instance)
+    except KeyError:
+        has_value = None not in self.field.get_local_related_value(instance)
+        ancestor_link = instance._meta.get_ancestor_link(self.field.model) if has_value else None
+        if ancestor_link and ancestor_link.is_cached(instance):
+            # An ancestor link will exist if this field is defined on a
+            # multi-table inheritance parent of the instance&#39;s class.
+            ancestor = ancestor_link.get_cached_value(instance)
+            # The value might be cached on an ancestor if the instance
+            # originated from walking down the inheritance chain.
+            rel_obj = self.field.get_cached_value(ancestor, default=None)
+        else:
+            rel_obj = None
+        if rel_obj is None and has_value:
+            rel_obj = self.get_object(instance)
+            remote_field = self.field.remote_field
+            # If this is a one-to-one relation, set the reverse accessor
+            # cache on the related object to the current instance to avoid
+            # an extra SQL query if it&#39;s accessed later on.
+            if not remote_field.multiple:
+                remote_field.set_cached_value(rel_obj, instance)
+        self.field.set_cached_value(instance, rel_obj)
+
+    if rel_obj is None and not self.field.null:
+        raise self.RelatedObjectDoesNotExist(
+            &#34;%s has no %s.&#34; % (self.field.model.__name__, self.field.name)
+        )
+    else:
+        return rel_obj</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.portfolio_id"><code class="name">var <span class="ident">portfolio_id</span></code></dt>
+<dd>
+<div class="desc"><p>Retrieve and caches the value from the datastore on the first lookup.
+Return the cached value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.price"><code class="name">var <span class="ident">price</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.purchase_date"><code class="name">var <span class="ident">purchase_date</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.security_type"><code class="name">var <span class="ident">security_type</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related instance through the forward relation.
+
+    With the example above, when getting ``child.parent``:
+
+    - ``self`` is the descriptor managing the ``parent`` attribute
+    - ``instance`` is the ``child`` instance
+    - ``cls`` is the ``Child`` class (we don&#39;t need it)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    # The related instance is loaded from the database and then cached
+    # by the field on the model instance state. It can also be pre-cached
+    # by the reverse accessor (ReverseOneToOneDescriptor).
+    try:
+        rel_obj = self.field.get_cached_value(instance)
+    except KeyError:
+        has_value = None not in self.field.get_local_related_value(instance)
+        ancestor_link = instance._meta.get_ancestor_link(self.field.model) if has_value else None
+        if ancestor_link and ancestor_link.is_cached(instance):
+            # An ancestor link will exist if this field is defined on a
+            # multi-table inheritance parent of the instance&#39;s class.
+            ancestor = ancestor_link.get_cached_value(instance)
+            # The value might be cached on an ancestor if the instance
+            # originated from walking down the inheritance chain.
+            rel_obj = self.field.get_cached_value(ancestor, default=None)
+        else:
+            rel_obj = None
+        if rel_obj is None and has_value:
+            rel_obj = self.get_object(instance)
+            remote_field = self.field.remote_field
+            # If this is a one-to-one relation, set the reverse accessor
+            # cache on the related object to the current instance to avoid
+            # an extra SQL query if it&#39;s accessed later on.
+            if not remote_field.multiple:
+                remote_field.set_cached_value(rel_obj, instance)
+        self.field.set_cached_value(instance, rel_obj)
+
+    if rel_obj is None and not self.field.null:
+        raise self.RelatedObjectDoesNotExist(
+            &#34;%s has no %s.&#34; % (self.field.model.__name__, self.field.name)
+        )
+    else:
+        return rel_obj</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.security_type_id"><code class="name">var <span class="ident">security_type_id</span></code></dt>
+<dd>
+<div class="desc"><p>Retrieve and caches the value from the datastore on the first lookup.
+Return the cached value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.shares"><code class="name">var <span class="ident">shares</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.ticker"><code class="name">var <span class="ident">ticker</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.models.Holding.get_next_by_purchase_date"><code class="name flex">
+<span>def <span class="ident">get_next_by_purchase_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateField: purchase_date&gt;, is_next=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Holding.get_previous_by_purchase_date"><code class="name flex">
+<span>def <span class="ident">get_previous_by_purchase_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateField: purchase_date&gt;, is_next=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.models.Portfolio"><code class="flex name class">
+<span>class <span class="ident">Portfolio</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class used to represent the database fields for a portfolio of accounts</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Primary Key, automatically generated</dd>
+<dt><strong><code>user</code></strong> :&ensp;<code>int</code></dt>
+<dd>Foreign Key to the 'User' table</dd>
+<dt><strong><code>account_type</code></strong> :&ensp;<code>int</code></dt>
+<dd>Foreign Key to the 'Account_Type' table</dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>String</code></dt>
+<dd>The name of the portfolio account</dd>
+<dt><strong><code>description</code></strong> :&ensp;<code>String</code></dt>
+<dd>A description of the portfolio account</dd>
+<dt><strong><code>balance</code></strong> :&ensp;<code>decimal</code></dt>
+<dd>The current balance of the portfolio account</dd>
+<dt><strong><code>date</code></strong> :&ensp;<code>Date</code></dt>
+<dd>The date when the portfolio was last modified</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Portfolio(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for a portfolio of accounts
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        user (int): Foreign Key to the &#39;User&#39; table
+        account_type (int): Foreign Key to the &#39;Account_Type&#39; table
+        name (String): The name of the portfolio account
+        description (String): A description of the portfolio account
+        balance (decimal): The current balance of the portfolio account
+        date (Date): The date when the portfolio was last modified
+    &#34;&#34;&#34;
+    user = models.ForeignKey(User, related_name=&#39;portfolio_accounts&#39;, on_delete=models.CASCADE)
+    account_type = models.ForeignKey(Account_Type, related_name=&#39;account_type&#39;, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    balance = models.DecimalField(decimal_places=2, max_digits=15)
+    date = models.DateField(auto_now=True)
+
+    def __repr__(self):
+        return f&#34;id:{self.id}\nuser:{self.user}\ntype:{self.account_type}\nname:{self.name}\nbalance:{self.balance}\ndescription:{self.description}&#34;
+
+    def __str__(self):
+        return f&#34;id: {self.id}, user: {self.user}, type: {self.account_type}, name: {self.name}, balance: {self.balance}, description: {self.description}&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.db.models.base.Model</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.models.Portfolio.DoesNotExist"><code class="name">var <span class="ident">DoesNotExist</span></code></dt>
+<dd>
+<div class="desc"><p>The requested object does not exist</p></div>
+</dd>
+<dt id="planning_tool.models.Portfolio.MultipleObjectsReturned"><code class="name">var <span class="ident">MultipleObjectsReturned</span></code></dt>
+<dd>
+<div class="desc"><p>The query returned multiple objects when only one was expected.</p></div>
+</dd>
+<dt id="planning_tool.models.Portfolio.objects"><code class="name">var <span class="ident">objects</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="planning_tool.models.Portfolio.account_type"><code class="name">var <span class="ident">account_type</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related instance through the forward relation.
+
+    With the example above, when getting ``child.parent``:
+
+    - ``self`` is the descriptor managing the ``parent`` attribute
+    - ``instance`` is the ``child`` instance
+    - ``cls`` is the ``Child`` class (we don&#39;t need it)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    # The related instance is loaded from the database and then cached
+    # by the field on the model instance state. It can also be pre-cached
+    # by the reverse accessor (ReverseOneToOneDescriptor).
+    try:
+        rel_obj = self.field.get_cached_value(instance)
+    except KeyError:
+        has_value = None not in self.field.get_local_related_value(instance)
+        ancestor_link = instance._meta.get_ancestor_link(self.field.model) if has_value else None
+        if ancestor_link and ancestor_link.is_cached(instance):
+            # An ancestor link will exist if this field is defined on a
+            # multi-table inheritance parent of the instance&#39;s class.
+            ancestor = ancestor_link.get_cached_value(instance)
+            # The value might be cached on an ancestor if the instance
+            # originated from walking down the inheritance chain.
+            rel_obj = self.field.get_cached_value(ancestor, default=None)
+        else:
+            rel_obj = None
+        if rel_obj is None and has_value:
+            rel_obj = self.get_object(instance)
+            remote_field = self.field.remote_field
+            # If this is a one-to-one relation, set the reverse accessor
+            # cache on the related object to the current instance to avoid
+            # an extra SQL query if it&#39;s accessed later on.
+            if not remote_field.multiple:
+                remote_field.set_cached_value(rel_obj, instance)
+        self.field.set_cached_value(instance, rel_obj)
+
+    if rel_obj is None and not self.field.null:
+        raise self.RelatedObjectDoesNotExist(
+            &#34;%s has no %s.&#34; % (self.field.model.__name__, self.field.name)
+        )
+    else:
+        return rel_obj</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.account_type_id"><code class="name">var <span class="ident">account_type_id</span></code></dt>
+<dd>
+<div class="desc"><p>Retrieve and caches the value from the datastore on the first lookup.
+Return the cached value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.balance"><code class="name">var <span class="ident">balance</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.balance_history"><code class="name">var <span class="ident">balance_history</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_forward_many_to_many_manager()</code> defined below.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related objects through the reverse relation.
+
+    With the example above, when getting ``parent.children``:
+
+    - ``self`` is the descriptor managing the ``children`` attribute
+    - ``instance`` is the ``parent`` instance
+    - ``cls`` is the ``Parent`` class (unused)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    return self.related_manager_cls(instance)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.date"><code class="name">var <span class="ident">date</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.description"><code class="name">var <span class="ident">description</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.holdings"><code class="name">var <span class="ident">holdings</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_forward_many_to_many_manager()</code> defined below.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related objects through the reverse relation.
+
+    With the example above, when getting ``parent.children``:
+
+    - ``self`` is the descriptor managing the ``children`` attribute
+    - ``instance`` is the ``parent`` instance
+    - ``cls`` is the ``Parent`` class (unused)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    return self.related_manager_cls(instance)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.user"><code class="name">var <span class="ident">user</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Child.parent</code> is a <code>ForwardManyToOneDescriptor</code> instance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related instance through the forward relation.
+
+    With the example above, when getting ``child.parent``:
+
+    - ``self`` is the descriptor managing the ``parent`` attribute
+    - ``instance`` is the ``child`` instance
+    - ``cls`` is the ``Child`` class (we don&#39;t need it)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    # The related instance is loaded from the database and then cached
+    # by the field on the model instance state. It can also be pre-cached
+    # by the reverse accessor (ReverseOneToOneDescriptor).
+    try:
+        rel_obj = self.field.get_cached_value(instance)
+    except KeyError:
+        has_value = None not in self.field.get_local_related_value(instance)
+        ancestor_link = instance._meta.get_ancestor_link(self.field.model) if has_value else None
+        if ancestor_link and ancestor_link.is_cached(instance):
+            # An ancestor link will exist if this field is defined on a
+            # multi-table inheritance parent of the instance&#39;s class.
+            ancestor = ancestor_link.get_cached_value(instance)
+            # The value might be cached on an ancestor if the instance
+            # originated from walking down the inheritance chain.
+            rel_obj = self.field.get_cached_value(ancestor, default=None)
+        else:
+            rel_obj = None
+        if rel_obj is None and has_value:
+            rel_obj = self.get_object(instance)
+            remote_field = self.field.remote_field
+            # If this is a one-to-one relation, set the reverse accessor
+            # cache on the related object to the current instance to avoid
+            # an extra SQL query if it&#39;s accessed later on.
+            if not remote_field.multiple:
+                remote_field.set_cached_value(rel_obj, instance)
+        self.field.set_cached_value(instance, rel_obj)
+
+    if rel_obj is None and not self.field.null:
+        raise self.RelatedObjectDoesNotExist(
+            &#34;%s has no %s.&#34; % (self.field.model.__name__, self.field.name)
+        )
+    else:
+        return rel_obj</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.user_id"><code class="name">var <span class="ident">user_id</span></code></dt>
+<dd>
+<div class="desc"><p>Retrieve and caches the value from the datastore on the first lookup.
+Return the cached value.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="planning_tool.models.Portfolio.get_next_by_date"><code class="name flex">
+<span>def <span class="ident">get_next_by_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateField: date&gt;, is_next=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Portfolio.get_previous_by_date"><code class="name flex">
+<span>def <span class="ident">get_previous_by_date</span></span>(<span>self, *, field=&lt;django.db.models.fields.DateField: date&gt;, is_next=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _method(cls_or_self, /, *args, **keywords):
+    keywords = {**self.keywords, **keywords}
+    return self.func(cls_or_self, *self.args, *args, **keywords)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="planning_tool.models.Security_Type"><code class="flex name class">
+<span>class <span class="ident">Security_Type</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class used to represent the database fields for the Security_Type table</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>id</code></strong> :&ensp;<code>int</code></dt>
+<dd>Primary Key, automatically generated</dd>
+<dt><strong><code>type</code></strong> :&ensp;<code>String</code></dt>
+<dd>The type of security (Stock, Bond, etc)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Security_Type(models.Model):
+    &#34;&#34;&#34;
+    A class used to represent the database fields for the Security_Type table
+
+    Attributes:
+        id (int): Primary Key, automatically generated
+        type (String): The type of security (Stock, Bond, etc)
+    &#34;&#34;&#34;
+    type = models.CharField(max_length=50)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>django.db.models.base.Model</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="planning_tool.models.Security_Type.DoesNotExist"><code class="name">var <span class="ident">DoesNotExist</span></code></dt>
+<dd>
+<div class="desc"><p>The requested object does not exist</p></div>
+</dd>
+<dt id="planning_tool.models.Security_Type.MultipleObjectsReturned"><code class="name">var <span class="ident">MultipleObjectsReturned</span></code></dt>
+<dd>
+<div class="desc"><p>The query returned multiple objects when only one was expected.</p></div>
+</dd>
+<dt id="planning_tool.models.Security_Type.objects"><code class="name">var <span class="ident">objects</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="planning_tool.models.Security_Type.id"><code class="name">var <span class="ident">id</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Security_Type.security_type"><code class="name">var <span class="ident">security_type</span></code></dt>
+<dd>
+<div class="desc"><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example::</p>
+<pre><code>class Child(Model):
+    parent = ForeignKey(Parent, related_name='children')
+</code></pre>
+<p><code>Parent.children</code> is a <code>ReverseManyToOneDescriptor</code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code>create_forward_many_to_many_manager()</code> defined below.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Get the related objects through the reverse relation.
+
+    With the example above, when getting ``parent.children``:
+
+    - ``self`` is the descriptor managing the ``children`` attribute
+    - ``instance`` is the ``parent`` instance
+    - ``cls`` is the ``Parent`` class (unused)
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+
+    return self.related_manager_cls(instance)</code></pre>
+</details>
+</dd>
+<dt id="planning_tool.models.Security_Type.type"><code class="name">var <span class="ident">type</span></code></dt>
+<dd>
+<div class="desc"><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def __get__(self, instance, cls=None):
+    &#34;&#34;&#34;
+    Retrieve and caches the value from the datastore on the first lookup.
+    Return the cached value.
+    &#34;&#34;&#34;
+    if instance is None:
+        return self
+    data = instance.__dict__
+    field_name = self.field.attname
+    if field_name not in data:
+        # Let&#39;s see if the field is part of the parent chain. If so we
+        # might be able to reuse the already loaded value. Refs #18343.
+        val = self._check_parent_chain(instance)
+        if val is None:
+            instance.refresh_from_db(fields=[field_name])
+            val = getattr(instance, field_name)
+        data[field_name] = val
+    return data[field_name]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -78,6 +1620,88 @@
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="planning_tool" href="index.html">planning_tool</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="planning_tool.models.Account_Type" href="#planning_tool.models.Account_Type">Account_Type</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.models.Account_Type.DoesNotExist" href="#planning_tool.models.Account_Type.DoesNotExist">DoesNotExist</a></code></li>
+<li><code><a title="planning_tool.models.Account_Type.MultipleObjectsReturned" href="#planning_tool.models.Account_Type.MultipleObjectsReturned">MultipleObjectsReturned</a></code></li>
+<li><code><a title="planning_tool.models.Account_Type.account_type" href="#planning_tool.models.Account_Type.account_type">account_type</a></code></li>
+<li><code><a title="planning_tool.models.Account_Type.id" href="#planning_tool.models.Account_Type.id">id</a></code></li>
+<li><code><a title="planning_tool.models.Account_Type.objects" href="#planning_tool.models.Account_Type.objects">objects</a></code></li>
+<li><code><a title="planning_tool.models.Account_Type.type" href="#planning_tool.models.Account_Type.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.models.Balance_History" href="#planning_tool.models.Balance_History">Balance_History</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.models.Balance_History.DoesNotExist" href="#planning_tool.models.Balance_History.DoesNotExist">DoesNotExist</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.MultipleObjectsReturned" href="#planning_tool.models.Balance_History.MultipleObjectsReturned">MultipleObjectsReturned</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.balance" href="#planning_tool.models.Balance_History.balance">balance</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.date" href="#planning_tool.models.Balance_History.date">date</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.get_next_by_date" href="#planning_tool.models.Balance_History.get_next_by_date">get_next_by_date</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.get_previous_by_date" href="#planning_tool.models.Balance_History.get_previous_by_date">get_previous_by_date</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.id" href="#planning_tool.models.Balance_History.id">id</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.objects" href="#planning_tool.models.Balance_History.objects">objects</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.portfolio" href="#planning_tool.models.Balance_History.portfolio">portfolio</a></code></li>
+<li><code><a title="planning_tool.models.Balance_History.portfolio_id" href="#planning_tool.models.Balance_History.portfolio_id">portfolio_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.models.Holding" href="#planning_tool.models.Holding">Holding</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.models.Holding.DoesNotExist" href="#planning_tool.models.Holding.DoesNotExist">DoesNotExist</a></code></li>
+<li><code><a title="planning_tool.models.Holding.MultipleObjectsReturned" href="#planning_tool.models.Holding.MultipleObjectsReturned">MultipleObjectsReturned</a></code></li>
+<li><code><a title="planning_tool.models.Holding.cost_basis" href="#planning_tool.models.Holding.cost_basis">cost_basis</a></code></li>
+<li><code><a title="planning_tool.models.Holding.get_next_by_purchase_date" href="#planning_tool.models.Holding.get_next_by_purchase_date">get_next_by_purchase_date</a></code></li>
+<li><code><a title="planning_tool.models.Holding.get_previous_by_purchase_date" href="#planning_tool.models.Holding.get_previous_by_purchase_date">get_previous_by_purchase_date</a></code></li>
+<li><code><a title="planning_tool.models.Holding.id" href="#planning_tool.models.Holding.id">id</a></code></li>
+<li><code><a title="planning_tool.models.Holding.objects" href="#planning_tool.models.Holding.objects">objects</a></code></li>
+<li><code><a title="planning_tool.models.Holding.portfolio" href="#planning_tool.models.Holding.portfolio">portfolio</a></code></li>
+<li><code><a title="planning_tool.models.Holding.portfolio_id" href="#planning_tool.models.Holding.portfolio_id">portfolio_id</a></code></li>
+<li><code><a title="planning_tool.models.Holding.price" href="#planning_tool.models.Holding.price">price</a></code></li>
+<li><code><a title="planning_tool.models.Holding.purchase_date" href="#planning_tool.models.Holding.purchase_date">purchase_date</a></code></li>
+<li><code><a title="planning_tool.models.Holding.security_type" href="#planning_tool.models.Holding.security_type">security_type</a></code></li>
+<li><code><a title="planning_tool.models.Holding.security_type_id" href="#planning_tool.models.Holding.security_type_id">security_type_id</a></code></li>
+<li><code><a title="planning_tool.models.Holding.shares" href="#planning_tool.models.Holding.shares">shares</a></code></li>
+<li><code><a title="planning_tool.models.Holding.ticker" href="#planning_tool.models.Holding.ticker">ticker</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.models.Portfolio" href="#planning_tool.models.Portfolio">Portfolio</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.models.Portfolio.DoesNotExist" href="#planning_tool.models.Portfolio.DoesNotExist">DoesNotExist</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.MultipleObjectsReturned" href="#planning_tool.models.Portfolio.MultipleObjectsReturned">MultipleObjectsReturned</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.account_type" href="#planning_tool.models.Portfolio.account_type">account_type</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.account_type_id" href="#planning_tool.models.Portfolio.account_type_id">account_type_id</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.balance" href="#planning_tool.models.Portfolio.balance">balance</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.balance_history" href="#planning_tool.models.Portfolio.balance_history">balance_history</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.date" href="#planning_tool.models.Portfolio.date">date</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.description" href="#planning_tool.models.Portfolio.description">description</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.get_next_by_date" href="#planning_tool.models.Portfolio.get_next_by_date">get_next_by_date</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.get_previous_by_date" href="#planning_tool.models.Portfolio.get_previous_by_date">get_previous_by_date</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.holdings" href="#planning_tool.models.Portfolio.holdings">holdings</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.id" href="#planning_tool.models.Portfolio.id">id</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.name" href="#planning_tool.models.Portfolio.name">name</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.objects" href="#planning_tool.models.Portfolio.objects">objects</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.user" href="#planning_tool.models.Portfolio.user">user</a></code></li>
+<li><code><a title="planning_tool.models.Portfolio.user_id" href="#planning_tool.models.Portfolio.user_id">user_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="planning_tool.models.Security_Type" href="#planning_tool.models.Security_Type">Security_Type</a></code></h4>
+<ul class="">
+<li><code><a title="planning_tool.models.Security_Type.DoesNotExist" href="#planning_tool.models.Security_Type.DoesNotExist">DoesNotExist</a></code></li>
+<li><code><a title="planning_tool.models.Security_Type.MultipleObjectsReturned" href="#planning_tool.models.Security_Type.MultipleObjectsReturned">MultipleObjectsReturned</a></code></li>
+<li><code><a title="planning_tool.models.Security_Type.id" href="#planning_tool.models.Security_Type.id">id</a></code></li>
+<li><code><a title="planning_tool.models.Security_Type.objects" href="#planning_tool.models.Security_Type.objects">objects</a></code></li>
+<li><code><a title="planning_tool.models.Security_Type.security_type" href="#planning_tool.models.Security_Type.security_type">security_type</a></code></li>
+<li><code><a title="planning_tool.models.Security_Type.type" href="#planning_tool.models.Security_Type.type">type</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
